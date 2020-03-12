@@ -5,7 +5,7 @@
     "sourceMap": true,
     "jsx": "react",
     "strict": true,
-    "outDir": "./build",
+    "outDir": "./lib",
     "allowSyntheticDefaultImports": true,
     "lib": [
       "ESNext",

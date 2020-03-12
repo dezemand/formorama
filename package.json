@@ -1,11 +1,12 @@
 {
   "name": "react-ovm-forms",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Library for creating React forms",
-  "main": "build/index.js",
-  "types": "build",
+  "main": "lib/index.js",
+  "types": "lib",
   "scripts": {
-    "build": "tsc -p ."
+    "build": "tsc -p .",
+    "prepare": "npm run build"
   },
   "keywords": [],
   "author": "Maarten van Ittersum",
