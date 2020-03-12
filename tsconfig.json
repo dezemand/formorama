@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "sourceMap": true,
+    "jsx": "react",
+    "strict": true,
+    "outDir": "./build",
+    "allowSyntheticDefaultImports": true,
+    "lib": [
+      "ESNext",
+      "dom"
+    ],
+    "downlevelIteration": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
