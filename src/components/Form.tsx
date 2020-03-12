@@ -14,8 +14,8 @@ const getValuesObject = (values: Map<string, any>): ValuesObject => {
 
 export interface FormProps {
   onSubmit?: (values: ValuesObject) => Promise<void>;
-  onError: (errors: ValuesObject, values: ValuesObject) => Promise<void>;
-  validate: (values: ValuesObject, fields: string[] | null) => Promise<ValuesObject>;
+  onError?: (errors: ValuesObject, values: ValuesObject) => Promise<void>;
+  validate?: (values: ValuesObject, fields: string[] | null) => Promise<ValuesObject>;
 }
 
 export const Form: FC<FormProps> = ({children, onSubmit, onError, validate}) => {

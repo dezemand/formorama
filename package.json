@@ -1,11 +1,10 @@
 {
   "name": "react-ovm-forms",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Library for creating React forms",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",
-  "types": "lib",
   "scripts": {
     "build": "rollup -c",
     "start": "rollup -c -w",
@@ -33,5 +32,8 @@
     "rollup-plugin-peer-deps-external": "^2.2.2",
     "rollup-plugin-typescript2": "^0.26.0",
     "typescript": "^3.8.3"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
