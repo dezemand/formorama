@@ -1,25 +1,37 @@
 {
   "name": "react-ovm-forms",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Library for creating React forms",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "jsnext:main": "dist/index.es.js",
   "types": "lib",
   "scripts": {
-    "build": "tsc -p .",
+    "build": "rollup -c",
+    "start": "rollup -c -w",
     "prepare": "npm run build"
   },
   "keywords": [],
   "author": "Maarten van Ittersum",
   "license": "MIT",
   "repository": {
+    "type": "git",
     "url": "https://github.com/netraameht/react-ovm-forms"
   },
   "peerDependencies": {
     "react": ">=16.3.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.8.7",
+    "@babel/runtime": "^7.8.7",
     "@types/react": "^16.9.23",
     "react": "^16.13.0",
+    "rollup": "^2.0.5",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-peer-deps-external": "^2.2.2",
+    "rollup-plugin-typescript2": "^0.26.0",
     "typescript": "^3.8.3"
   }
 }
