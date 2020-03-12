@@ -1,4 +1,4 @@
-import {useCallback, useContext, useState} from "react";
+import {ChangeEvent, FocusEvent, useCallback, useContext, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {CHANGE_EVENT, ERROR_EVENT} from "../events";
 import {useEventListener} from "./useEventListener";
@@ -8,11 +8,11 @@ export interface UseInputResult {
   error: any;
   submitting: boolean;
 
-  handleChange(event: Event): void;
+  handleChange(event: ChangeEvent<HTMLElement> | any): void;
 
-  handleFocus(event: Event): void;
+  handleFocus(event: FocusEvent): void;
 
-  handleBlur(event: Event): void;
+  handleBlur(event: FocusEvent): void;
 }
 
 export function useInput(name: string, defaultValue: any): UseInputResult {
