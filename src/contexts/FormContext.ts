@@ -1,25 +1,38 @@
-import { createContext, Context } from 'react';
+import {Context, createContext} from "react";
 
 export interface FormContextValue {
-    change(name: string, value: any): void;
-    focus(name: string): void;
-    blur(name: string): void;
-    listener: EventTarget;
-    getValue(name: string): any;
-    getError(name: string): any;
-    submitting: boolean;
-    revalidate(fields: string[]): Promise<void>;
+  listener: EventTarget;
+  submitting: boolean;
+
+  change(name: string, value: any): void;
+
+  focus(name: string): void;
+
+  blur(name: string): void;
+
+  getValue(name: string): any;
+
+  getError(name: string): any;
+
+  revalidate(fields: string[]): Promise<void>;
 }
 
 const defaultValue: FormContextValue = {
-    change() {},
-    focus() {},
-    blur() {},
-    listener: new EventTarget(),
-    getValue() {},
-    getError() {},
-    submitting: false,
-    async revalidate() {}
+  listener: new EventTarget(),
+  submitting: false,
+
+  change() {
+  },
+  focus() {
+  },
+  blur() {
+  },
+  getValue() {
+  },
+  getError() {
+  },
+  async revalidate() {
+  }
 };
 
 export const FormContext: Context<FormContextValue> = createContext(defaultValue);

@@ -1,9 +1,11 @@
-import { Form } from './components/Form';
-import { useInput } from './hooks/useInput';
-import * as events from './events';
+import {Form} from "./components/Form";
+import * as events from "./events";
+import {useFormContext} from "./hooks/useFormContext";
+import {useInput} from "./hooks/useInput";
 
 export {
-    Form,
-    useInput,
-    events
+  Form,
+  useInput,
+  useFormContext,
+  events
 };
