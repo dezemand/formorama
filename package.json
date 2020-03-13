@@ -1,6 +1,6 @@
 {
   "name": "react-ovm-forms",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Library for creating React forms",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -10,12 +10,27 @@
     "start": "rollup -c -w",
     "prepare": "npm run build"
   },
-  "keywords": [],
-  "author": "Maarten van Ittersum",
+  "keywords": [
+    "react",
+    "forms",
+    "form",
+    "events",
+    "dom",
+    "html",
+    "context",
+    "input"
+  ],
+  "author": {
+    "name": "Maarten van Ittersum",
+    "email": "maarten@v-ittersum.nl"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/netraameht/react-ovm-forms"
+  },
+  "bugs": {
+    "url": "https://github.com/netraameht/react-ovm-forms/issues"
   },
   "peerDependencies": {
     "react": ">=16.3.0"
