@@ -7,14 +7,14 @@ export function useInputValue(fields: string[]): any[] {
     const {getValue, listener} = useContext(FormContext);
     const [values, setValues] = useState<any[]>(() => fields.map(field => getValue(field)));
 
-    const handleChange = useCallback((event: CustomEvent<any>) => {
+    const handleChange = useCallback((event: CustomEvent) => {
         const valueIndex = fields.indexOf(event.detail.name);
         if (valueIndex !== -1) {
             const newValues = [...values];
-            values[valueIndex] = event.detail.value;
+            newValues[valueIndex] = event.detail.value;
             setValues(newValues);
         }
-    }, [fields]);
+    }, [fields, values]);
 
     useEventListener(listener, CHANGE_EVENT, handleChange as EventListener);
 
