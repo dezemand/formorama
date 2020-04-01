@@ -1,5 +1,5 @@
 import {useCallback, useMemo, useRef, useState} from "react";
-import {BLUR_EVENT, CHANGE_EVENT, ERROR_EVENT, FOCUS_EVENT} from "../events";
+import {BLUR_EVENT, CHANGE_EVENT, DO_SUBMIT_EVENT, ERROR_EVENT, FOCUS_EVENT} from "../events";
 
 export type FormError = string | Error;
 export type ErrorObject<T> = [keyof T, FormError | null][];
@@ -23,6 +23,8 @@ export interface UseFormResult<T> {
   getValidationResult(values?: T): Promise<[boolean, ErrorObject<T>]>;
 
   setSubmitting(submitting: boolean): void;
+
+  submit(): void;
 }
 
 export interface UseFormParameters<T> {
@@ -96,6 +98,10 @@ export function useForm<T>({validate}: UseFormParameters<T>): UseFormResult<T> {
     return [errored, formErrors];
   }, []);
 
+  const submit = useCallback<UseFormResult<T>["submit"]>(() => {
+    target.current.dispatchEvent(new CustomEvent(DO_SUBMIT_EVENT));
+  }, []);
+
   return {
     change,
     focus,
@@ -106,6 +112,7 @@ export function useForm<T>({validate}: UseFormParameters<T>): UseFormResult<T> {
     getValues,
     submitting,
     setSubmitting,
-    getValidationResult
+    getValidationResult,
+    submit
   };
 }
