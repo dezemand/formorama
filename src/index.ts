@@ -1,13 +1,6 @@
-import {Form} from "./components/Form";
-import * as events from "./events";
-import {useFormContext} from "./hooks/useFormContext";
-import {useInput} from "./hooks/useInput";
-import {useInputValue} from "./hooks/useInputValue";
-
-export {
-  Form,
-  useInput,
-  useFormContext,
-  useInputValue,
-  events
-};
+export {Form} from "./components/Form";
+export * as events from "./events";
+export {useFormContext} from "./hooks/useFormContext";
+export {useInput, UseInputResult} from "./hooks/useInput";
+export {useInputValue} from "./hooks/useInputValue";
+export {useForm, UseFormResult, UseFormParameters} from "./hooks/useForm";

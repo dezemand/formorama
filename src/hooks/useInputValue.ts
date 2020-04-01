@@ -3,7 +3,7 @@ import {FormContext} from "../contexts/FormContext";
 import {useEventListener} from "./useEventListener";
 import {CHANGE_EVENT} from "../events";
 
-export function useInputValue(fields: string[]): any[] {
+export function useInputValue<T>(fields: (keyof T)[]): any[] {
     const {getValue, listener} = useContext(FormContext);
     const [values, setValues] = useState<any[]>(() => fields.map(field => getValue(field)));
 
