@@ -16,7 +16,7 @@ export interface UseInputResult {
 }
 
 export function useInput(name: string, defaultValue: any): UseInputResult {
-  const {getValue, getError, change, focus, blur, listener, submitting} = useContext(FormContext);
+  const {form: {getValue, getError, change, focus, blur, listener, submitting}, name: formName} = useContext(FormContext);
   const [value, setValue] = useState(() => {
     let value = getValue(name);
     if (value === null) {
@@ -28,15 +28,15 @@ export function useInput(name: string, defaultValue: any): UseInputResult {
   const [error, setError] = useState(() => getError(name));
 
   const changeEventHandler = useCallback(event => {
-    if (event.detail.name === name) {
+    if (event.detail.name === name && event.detail.form === formName) {
       setValue(event.detail.value);
     }
-  }, [name]);
+  }, [name, formName]);
   const errorEventHandler = useCallback(event => {
-    if (event.detail.name === name) {
+    if (event.detail.name === name && event.detail.form === formName) {
       setError(event.detail.error);
     }
-  }, [name]);
+  }, [name, formName]);
 
   useEventListener(listener, CHANGE_EVENT, changeEventHandler);
   useEventListener(listener, ERROR_EVENT, errorEventHandler);

@@ -1,14 +1,18 @@
 import {useCallback, useMemo, useRef, useState} from "react";
 import {BLUR_EVENT, CHANGE_EVENT, DO_SUBMIT_EVENT, ERROR_EVENT, FOCUS_EVENT} from "../events";
-
-export type FormError = string | Error;
-export type ErrorObject<T> = [keyof T, FormError | null][];
+import {ErrorObject, FormError, FormValue, FormValueType, ValuesMap} from "../types";
+import {getRawValue, getRawValues} from "../utils/getRawValues";
 
 export interface UseFormResult<T> {
   listener: EventTarget;
   submitting: boolean;
 
-  change<K extends keyof T>(name: K, value: T[K]): void;
+  internal: {
+    getValidationResult(values?: T): Promise<[boolean, ErrorObject<T>]>;
+    setSubmitting(submitting: boolean): void;
+    name: string | null;
+    setSubformValues(name: keyof T, values: ValuesMap<T[keyof T]>): void;
+  };
 
   focus(name: keyof T): void;
 
@@ -20,48 +24,40 @@ export interface UseFormResult<T> {
 
   getValues(): T;
 
-  getValidationResult(values?: T): Promise<[boolean, ErrorObject<T>]>;
-
-  setSubmitting(submitting: boolean): void;
+  change<K extends keyof T>(name: K, value: T[K], type?: FormValueType): void;
 
   submit(): void;
 }
 
 export interface UseFormParameters<T> {
-  validate(values: T): ErrorObject<T>;
-}
-
-function getValueObject<T>(map: Map<keyof T, T[keyof T]>): T {
-  const object: T = {} as T;
-  for (const [key, value] of map.entries()) object[key] = value as T[typeof key];
-  return object;
+  validate?(values: T): ErrorObject<T>;
 }
 
 export function useForm<T>({validate}: UseFormParameters<T>): UseFormResult<T> {
   const listener: EventTarget = useMemo(() => new EventTarget(), []);
-  const values = useRef<Map<keyof T, T[keyof T]>>(new Map());
+  const values = useRef<Map<keyof T, FormValue<T[keyof T]>>>(new Map());
   const errors = useRef<Map<keyof T, FormError | null>>(new Map());
   const focusing = useRef<keyof T | null>(null);
   const target = useRef<EventTarget>(listener);
   const [submitting, setSubmitting] = useState(false);
 
   const change = useCallback<UseFormResult<T>["change"]>((name, value) => {
-    values.current.set(name, value);
-    target.current.dispatchEvent(new CustomEvent(CHANGE_EVENT, {detail: {name, value}}));
+    values.current.set(name, {value, type: FormValueType.RAW});
+    target.current.dispatchEvent(new CustomEvent(CHANGE_EVENT, {detail: {name, value, form: null}}));
   }, []);
 
   const focus = useCallback<UseFormResult<T>["focus"]>((name) => {
     focusing.current = name;
-    target.current.dispatchEvent(new CustomEvent(FOCUS_EVENT, {detail: {name}}));
+    target.current.dispatchEvent(new CustomEvent(FOCUS_EVENT, {detail: {name, form: null}}));
   }, []);
 
   const blur = useCallback<UseFormResult<T>["blur"]>((name) => {
     if (focusing.current === name) focusing.current = null;
-    target.current.dispatchEvent(new CustomEvent(BLUR_EVENT, {detail: {name}}));
+    target.current.dispatchEvent(new CustomEvent(BLUR_EVENT, {detail: {name, form: null}}));
   }, []);
 
   const getValue = useCallback<UseFormResult<T>["getValue"]>((name) => {
-    return values.current.has(name) ? values.current.get(name) as T[typeof name] : null;
+    return values.current.has(name) ? getRawValue(values.current.get(name) as FormValue<T[typeof name]>) : null;
   }, []);
 
   const getError = useCallback<UseFormResult<T>["getError"]>((name) => {
@@ -69,10 +65,13 @@ export function useForm<T>({validate}: UseFormParameters<T>): UseFormResult<T> {
   }, []);
 
   const getValues = useCallback<UseFormResult<T>["getValues"]>(() => {
-    return getValueObject(values.current);
+    console.log(values.current);
+    return getRawValues<T>(values.current);
   }, []);
 
-  const getValidationResult = useCallback<UseFormResult<T>["getValidationResult"]>(async (valuesObject) => {
+  const getValidationResult = useCallback<UseFormResult<T>["internal"]["getValidationResult"]>(async (valuesObject) => {
+    if (!validate) return [false, []];
+
     let errored = false;
     const formErrors = await validate(valuesObject || getValues());
     const formErrorsMap = new Map(formErrors);
@@ -96,10 +95,14 @@ export function useForm<T>({validate}: UseFormParameters<T>): UseFormResult<T> {
     }
 
     return [errored, formErrors];
-  }, []);
+  }, [getValues, validate]);
 
   const submit = useCallback<UseFormResult<T>["submit"]>(() => {
     target.current.dispatchEvent(new CustomEvent(DO_SUBMIT_EVENT));
+  }, []);
+
+  const setSubformValues = useCallback<UseFormResult<T>["internal"]["setSubformValues"]>((name, value) => {
+    values.current.set(name, {value, type: FormValueType.SUB_FORM});
   }, []);
 
   return {
@@ -111,8 +114,12 @@ export function useForm<T>({validate}: UseFormParameters<T>): UseFormResult<T> {
     getError,
     getValues,
     submitting,
-    setSubmitting,
-    getValidationResult,
-    submit
+    submit,
+    internal: {
+      setSubmitting,
+      getValidationResult,
+      name: null,
+      setSubformValues
+    }
   };
 }

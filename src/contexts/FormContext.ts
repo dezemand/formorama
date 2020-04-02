@@ -1,4 +1,9 @@
 import {Context, createContext} from "react";
 import {UseFormResult} from "../hooks/useForm";
 
-export const FormContext: Context<UseFormResult<any>> = createContext({} as UseFormResult<any>);
+interface FormContextValue<T> {
+  form: UseFormResult<T>;
+  name: string | null;
+}
+
+export const FormContext: Context<FormContextValue<any>> = createContext({} as FormContextValue<any>);

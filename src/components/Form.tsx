@@ -1,8 +1,9 @@
 import React, {ReactNode, useCallback} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {DO_SUBMIT_EVENT} from "../events";
-import {ErrorObject, UseFormResult} from "../hooks/useForm";
+import {UseFormResult} from "../hooks/useForm";
 import {useEventListener} from "../hooks/useEventListener";
+import {ErrorObject} from "../types";
 
 export interface FormProps<T> {
   form: UseFormResult<T>;
@@ -13,7 +14,7 @@ export interface FormProps<T> {
 }
 
 export function Form<T extends any>({children, form, onSubmit, onError, noFormTag}: FormProps<T>) {
-  const {submitting, getValidationResult, setSubmitting, getValues} = form;
+  const {submitting, internal: {getValidationResult, setSubmitting}, getValues} = form;
 
   const submit = useCallback(async () => {
     if (submitting) return;
@@ -26,7 +27,7 @@ export function Form<T extends any>({children, form, onSubmit, onError, noFormTa
     if (!errored && onSubmit) await onSubmit(values);
 
     setSubmitting(false);
-  }, []);
+  }, [getValidationResult, getValues, onError, onSubmit, setSubmitting, submitting]);
 
   const formSubmit = useCallback(async event => {
     event.preventDefault();
@@ -36,7 +37,7 @@ export function Form<T extends any>({children, form, onSubmit, onError, noFormTa
   useEventListener(form.listener, DO_SUBMIT_EVENT, submit);
 
   return (
-    <FormContext.Provider value={form}>
+    <FormContext.Provider value={{form, name: null}}>
       {noFormTag ? (
         children
       ) : (

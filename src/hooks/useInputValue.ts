@@ -4,7 +4,7 @@ import {useEventListener} from "./useEventListener";
 import {CHANGE_EVENT} from "../events";
 
 export function useInputValue<T>(fields: (keyof T)[]): any[] {
-    const {getValue, listener} = useContext(FormContext);
+    const {form: {getValue, listener}} = useContext(FormContext);
     const [values, setValues] = useState<any[]>(() => fields.map(field => getValue(field)));
 
     const handleChange = useCallback((event: CustomEvent) => {
