@@ -16,11 +16,11 @@ export function useArrayForm<T, S extends S[]>(parentForm: ObjectFormHook<T>, na
     return getRawValue(values.current.get(index) as FormValue<S[0]>);
   }, []);
 
-  const focus = useCallback<ArrayFormHookInternal<S>["focus"]>((name) => {
+  const focus = useCallback<ArrayFormHookInternal["focus"]>((name) => {
     parentForm.focus(`${fullName}.${name}`);
   }, [fullName, parentForm]);
 
-  const blur = useCallback<ArrayFormHookInternal<S>["blur"]>((name) => {
+  const blur = useCallback<ArrayFormHookInternal["blur"]>((name) => {
     parentForm.blur(`${fullName}.${name}`);
   }, [fullName, parentForm]);
 
@@ -28,7 +28,7 @@ export function useArrayForm<T, S extends S[]>(parentForm: ObjectFormHook<T>, na
     return getRawArrayValues(values.current);
   }, []);
 
-  const setItemValues = useCallback<ArrayFormHookInternal<S>["setItemValues"]>((formIndex, formValue) => {
+  const setItemValues = useCallback<ArrayFormHookInternal["setItemValues"]>((formIndex, formValue) => {
     values.current.set(formIndex, formValue);
     updateParent();
   }, [name, parentForm.internal]);

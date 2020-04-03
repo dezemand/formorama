@@ -35,7 +35,7 @@ export type ArrayValuesMap<T extends S[], S> = Map<number, FormValue<T[0]>>;
 export type FormError = string | Error;
 export type ErrorObject<T> = [keyof T, FormError | null][];
 
-interface FormHookInternal<T> {
+interface FormHookInternal {
   name: string | null;
 
   setSubmitting(submitting: boolean): void;
@@ -44,14 +44,14 @@ interface FormHookInternal<T> {
 interface FormHook<T> {
   listener: EventTarget;
   submitting: boolean;
-  internal: FormHookInternal<T>;
+  internal: FormHookInternal;
 
   getValues(): T;
 
   submit(): void;
 }
 
-export interface ObjectFormHookInternal<T> extends FormHookInternal<T> {
+export interface ObjectFormHookInternal<T> extends FormHookInternal {
   setSubValues(name: keyof T, value: FormValue<any>): void;
 }
 
@@ -69,7 +69,7 @@ export interface ObjectFormHook<T> extends FormHook<T> {
   getError<K extends keyof T>(name: K): FormError | null;
 }
 
-export interface ArrayFormHookInternal<T> extends FormHookInternal<T> {
+export interface ArrayFormHookInternal extends FormHookInternal {
   focus(name: string): void;
 
   blur(name: string): void;
@@ -78,7 +78,7 @@ export interface ArrayFormHookInternal<T> extends FormHookInternal<T> {
 }
 
 export interface ArrayFormHook<T extends T[]> extends FormHook<T> {
-  internal: ArrayFormHookInternal<T>;
+  internal: ArrayFormHookInternal;
 
   getValue(index: number): T[0] | null;
 }
@@ -111,7 +111,7 @@ export interface SubFormContextValue<T> extends IFormContextValue<ObjectFormHook
   name: string;
 }
 
-export interface ArrayFormContextValue<T> extends IFormContextValue<ArrayFormHook<any>> {
+export interface ArrayFormContextValue<T extends T[]> extends IFormContextValue<ArrayFormHook<T>> {
   type: FormType.ARRAY;
   name: string;
 }
@@ -120,4 +120,4 @@ export type FormContextValue<T> =
   InvalidFormContextValue
   | RootFormContextValue<T>
   | SubFormContextValue<T>
-  | ArrayFormContextValue<T>;
+  | ArrayFormContextValue<any>;
