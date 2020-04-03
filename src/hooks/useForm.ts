@@ -1,75 +1,48 @@
 import {useCallback, useMemo, useRef, useState} from "react";
 import {BLUR_EVENT, CHANGE_EVENT, DO_SUBMIT_EVENT, ERROR_EVENT, FOCUS_EVENT} from "../events";
-import {ErrorObject, FormError, FormValue, FormValueType, ValuesMap} from "../types";
+import {ErrorObject, FormError, FormValue, FormValueType, RootFormHook, RootFormHookInternal} from "../types";
 import {getRawValue, getRawValues} from "../utils/getRawValues";
-
-export interface UseFormResult<T> {
-  listener: EventTarget;
-  submitting: boolean;
-
-  internal: {
-    getValidationResult(values?: T): Promise<[boolean, ErrorObject<T>]>;
-    setSubmitting(submitting: boolean): void;
-    name: string | null;
-    setSubformValues(name: keyof T, values: ValuesMap<T[keyof T]>): void;
-  };
-
-  focus(name: keyof T): void;
-
-  blur(name: keyof T): void;
-
-  getValue<K extends keyof T>(name: K): T[K] | null;
-
-  getError<K extends keyof T>(name: K): FormError | null;
-
-  getValues(): T;
-
-  change<K extends keyof T>(name: K, value: T[K], type?: FormValueType): void;
-
-  submit(): void;
-}
 
 export interface UseFormParameters<T> {
   validate?(values: T): ErrorObject<T>;
 }
 
-export function useForm<T>({validate}: UseFormParameters<T>): UseFormResult<T> {
+export function useForm<T>({validate}: UseFormParameters<T>): RootFormHook<T> {
   const listener: EventTarget = useMemo(() => new EventTarget(), []);
   const values = useRef<Map<keyof T, FormValue<T[keyof T]>>>(new Map());
   const errors = useRef<Map<keyof T, FormError | null>>(new Map());
-  const focusing = useRef<keyof T | null>(null);
+  const focusing = useRef<string | null>(null);
   const target = useRef<EventTarget>(listener);
   const [submitting, setSubmitting] = useState(false);
 
-  const change = useCallback<UseFormResult<T>["change"]>((name, value) => {
+  const change = useCallback<RootFormHook<T>["change"]>((name, value) => {
     values.current.set(name, {value, type: FormValueType.RAW});
     target.current.dispatchEvent(new CustomEvent(CHANGE_EVENT, {detail: {name, value, form: null}}));
   }, []);
 
-  const focus = useCallback<UseFormResult<T>["focus"]>((name) => {
+  const focus = useCallback<RootFormHook<T>["focus"]>((name) => {
     focusing.current = name;
     target.current.dispatchEvent(new CustomEvent(FOCUS_EVENT, {detail: {name, form: null}}));
   }, []);
 
-  const blur = useCallback<UseFormResult<T>["blur"]>((name) => {
+  const blur = useCallback<RootFormHook<T>["blur"]>((name) => {
     if (focusing.current === name) focusing.current = null;
     target.current.dispatchEvent(new CustomEvent(BLUR_EVENT, {detail: {name, form: null}}));
   }, []);
 
-  const getValue = useCallback<UseFormResult<T>["getValue"]>((name) => {
+  const getValue = useCallback<RootFormHook<T>["getValue"]>((name) => {
     return values.current.has(name) ? getRawValue(values.current.get(name) as FormValue<T[typeof name]>) : null;
   }, []);
 
-  const getError = useCallback<UseFormResult<T>["getError"]>((name) => {
+  const getError = useCallback<RootFormHook<T>["getError"]>((name) => {
     return errors.current.has(name) ? errors.current.get(name) as FormError : null;
   }, []);
 
-  const getValues = useCallback<UseFormResult<T>["getValues"]>(() => {
-    console.log(values.current);
+  const getValues = useCallback<RootFormHook<T>["getValues"]>(() => {
     return getRawValues<T>(values.current);
   }, []);
 
-  const getValidationResult = useCallback<UseFormResult<T>["internal"]["getValidationResult"]>(async (valuesObject) => {
+  const getValidationResult = useCallback<RootFormHookInternal<T>["getValidationResult"]>(async (valuesObject) => {
     if (!validate) return [false, []];
 
     let errored = false;
@@ -97,12 +70,12 @@ export function useForm<T>({validate}: UseFormParameters<T>): UseFormResult<T> {
     return [errored, formErrors];
   }, [getValues, validate]);
 
-  const submit = useCallback<UseFormResult<T>["submit"]>(() => {
+  const submit = useCallback<RootFormHook<T>["submit"]>(() => {
     target.current.dispatchEvent(new CustomEvent(DO_SUBMIT_EVENT));
   }, []);
 
-  const setSubformValues = useCallback<UseFormResult<T>["internal"]["setSubformValues"]>((name, value) => {
-    values.current.set(name, {value, type: FormValueType.SUB_FORM});
+  const setSubformValues = useCallback<RootFormHookInternal<T>["setSubValues"]>((name, value) => {
+    values.current.set(name, value);
   }, []);
 
   return {
@@ -119,7 +92,7 @@ export function useForm<T>({validate}: UseFormParameters<T>): UseFormResult<T> {
       setSubmitting,
       getValidationResult,
       name: null,
-      setSubformValues
+      setSubValues: setSubformValues
     }
   };
 }

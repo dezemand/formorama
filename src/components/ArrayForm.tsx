@@ -1,18 +1,29 @@
-import React, {FC, ReactNode} from "react";
-import {UseFormResult} from "..";
+import React, {FC, ReactNode, useContext} from "react";
+import {FormContext} from "../contexts/FormContext";
+import {useArrayForm} from "../hooks/useArrayForm";
+import {ArrayFormContextValue, FormType} from "../types";
 
-interface ArrayFormProps<T> {
+interface ArrayFormProps {
   children?: ReactNode;
   name: string;
-  form: UseFormResult<T>;
 }
 
-export function ArrayForm<T extends any>({children, name, form}: ArrayFormProps<T>): ReturnType<FC<ArrayFormProps<T>>> {
+export function ArrayForm<T extends any>({children, name}: ArrayFormProps): ReturnType<FC<ArrayFormProps>> {
+  const formContext = useContext(FormContext);
 
-  return <>Not implemented</>;
-  // return (
-  //   <FormContext.Provider value={{form: subForm, name: subForm.internal.name}}>
-  //     {children}
-  //   </FormContext.Provider>
-  // )
+  if (formContext.type !== FormType.ROOT && formContext.type !== FormType.OBJECT) throw new Error("<ArrayForm> must be in <Form> or <SubForm> or <ArrayFormItem>");
+
+  const arrayForm = useArrayForm(formContext.form, name);
+
+  const contextValue: ArrayFormContextValue<T> = {
+    type: FormType.ARRAY as FormType.ARRAY,
+    name: arrayForm.internal.name as string,
+    form: arrayForm
+  };
+
+  return (
+    <FormContext.Provider value={contextValue}>
+      {children}
+    </FormContext.Provider>
+  );
 }

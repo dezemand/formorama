@@ -1,14 +1,22 @@
 import {useCallback, useRef} from "react";
-import {FormError, FormValue, FormValueType, ObjectFormHook, ObjectFormHookInternal, ValuesMap} from "../types";
+import {
+  ArrayFormHook,
+  FormError,
+  FormValue,
+  FormValueType,
+  ObjectFormHook,
+  ObjectFormHookInternal,
+  ValuesMap
+} from "../types";
 import {getRawValue, getRawValues} from "../utils/getRawValues";
 import {CHANGE_EVENT} from "../events";
 
-export function useSubForm<T, S>(parentForm: ObjectFormHook<T>, name: string): ObjectFormHook<S> {
+export function useArrayFormItem<T extends T[], S>(parentForm: ArrayFormHook<T>, index: number): ObjectFormHook<S> {
   const values = useRef<ValuesMap<S>>(new Map());
   const errors = useRef<Map<keyof S, FormError | null>>(new Map());
-  const fullName = parentForm.internal.name ? `${parentForm.internal.name}.${name}` : name;
+  const fullName = parentForm.internal.name ? `${parentForm.internal.name}[${index}]` : `[${index}]`;
 
-  const updateParent = () => parentForm.internal.setSubValues(name as any, {
+  const updateParent = () => parentForm.internal.setItemValues(index, {
     type: FormValueType.OBJECT,
     value: values.current as any
   });
@@ -23,7 +31,7 @@ export function useSubForm<T, S>(parentForm: ObjectFormHook<T>, name: string): O
         form: fullName
       }
     }));
-  }, [parentForm.internal, parentForm.listener, fullName, name]);
+  }, [parentForm.internal, parentForm.listener, fullName, index]);
 
   const getValue = useCallback<ObjectFormHook<S>["getValue"]>((name) => {
     if (!values.current.has(name)) return null;
@@ -35,21 +43,21 @@ export function useSubForm<T, S>(parentForm: ObjectFormHook<T>, name: string): O
   }, []);
 
   const focus = useCallback<ObjectFormHook<S>["focus"]>((name) => {
-    parentForm.focus(`${fullName}.${name}`);
+    parentForm.internal.focus(`${fullName}.${name}` as any);
   }, [fullName, parentForm]);
 
   const blur = useCallback<ObjectFormHook<S>["blur"]>((name) => {
-    parentForm.blur(`${fullName}.${name}`);
+    parentForm.internal.blur(`${fullName}.${name}` as any);
   }, [fullName, parentForm]);
 
   const getValues = useCallback<ObjectFormHook<S>["getValues"]>(() => {
     return getRawValues(values.current);
   }, []);
 
-  const setSubformValues = useCallback<ObjectFormHookInternal<S>["setSubValues"]>((formName, formValue) => {
+  const setSubValues = useCallback<ObjectFormHookInternal<S>["setSubValues"]>((formName, formValue) => {
     values.current.set(formName, formValue);
     updateParent();
-  }, [parentForm.internal]);
+  }, [parentForm.internal, index]);
 
   return {
     listener: parentForm.listener,
@@ -64,7 +72,7 @@ export function useSubForm<T, S>(parentForm: ObjectFormHook<T>, name: string): O
     internal: {
       name: fullName,
       setSubmitting: parentForm.internal.setSubmitting,
-      setSubValues: setSubformValues
+      setSubValues
     }
   };
 }

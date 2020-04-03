@@ -1,12 +1,11 @@
 import React, {ReactNode, useCallback} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {DO_SUBMIT_EVENT} from "../events";
-import {UseFormResult} from "../hooks/useForm";
 import {useEventListener} from "../hooks/useEventListener";
-import {ErrorObject} from "../types";
+import {ErrorObject, FormType, RootFormHook} from "../types";
 
 export interface FormProps<T> {
-  form: UseFormResult<T>;
+  form: RootFormHook<T>;
   onSubmit?: (values: T) => Promise<void> | void;
   onError?: (errors: ErrorObject<T>, values: T) => Promise<void> | void;
   noFormTag?: boolean;
@@ -37,7 +36,7 @@ export function Form<T extends any>({children, form, onSubmit, onError, noFormTa
   useEventListener(form.listener, DO_SUBMIT_EVENT, submit);
 
   return (
-    <FormContext.Provider value={{form, name: null}}>
+    <FormContext.Provider value={{type: FormType.ROOT, name: null, form}}>
       {noFormTag ? (
         children
       ) : (

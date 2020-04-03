@@ -1,9 +1,4 @@
 import {Context, createContext} from "react";
-import {UseFormResult} from "../hooks/useForm";
+import {FormContextValue, FormType} from "../types";
 
-interface FormContextValue<T> {
-  form: UseFormResult<T>;
-  name: string | null;
-}
-
-export const FormContext: Context<FormContextValue<any>> = createContext({} as FormContextValue<any>);
+export const FormContext: Context<FormContextValue<any>> = createContext({type: FormType.INVALID} as FormContextValue<any>);

@@ -2,6 +2,7 @@ import {ChangeEvent, FocusEvent, useCallback, useContext, useState} from "react"
 import {FormContext} from "../contexts/FormContext";
 import {CHANGE_EVENT, ERROR_EVENT} from "../events";
 import {useEventListener} from "./useEventListener";
+import {FormType} from "../types";
 
 export interface UseInputResult {
   value: any;
@@ -16,7 +17,13 @@ export interface UseInputResult {
 }
 
 export function useInput(name: string, defaultValue: any): UseInputResult {
-  const {form: {getValue, getError, change, focus, blur, listener, submitting}, name: formName} = useContext(FormContext);
+  const formContext = useContext(FormContext);
+
+  if (formContext.type === FormType.INVALID) throw new Error("useInput must be used in a <Form>");
+  if (formContext.type === FormType.ARRAY) throw new Error("useInput in an <ArrayForm> must be inside an <ArrayItemForm>");
+
+  const {name: formName, form: {getValue, change, focus, blur, getError, listener, submitting}} = formContext;
+
   const [value, setValue] = useState(() => {
     let value = getValue(name);
     if (value === null) {
