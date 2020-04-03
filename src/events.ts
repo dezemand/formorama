@@ -1,11 +1,11 @@
 import {FormError, UpdateMap} from "./types";
 
-export const CHANGE_EVENT = "change";
-export const CHANGE_MANY_EVENT = "changemany";
-export const FOCUS_EVENT = "focus";
-export const BLUR_EVENT = "blur";
-export const ERROR_EVENT = "error";
-export const DO_SUBMIT_EVENT = "dosubmit";
+export const CHANGE_EVENT = "CHANGE";
+export const CHANGE_MANY_EVENT = "CHANGE_MANY";
+export const FOCUS_EVENT = "FOCUS";
+export const BLUR_EVENT = "BLUR";
+export const ERROR_EVENT = "ERROR";
+export const DO_SUBMIT_EVENT = "DO_SUBMIT";
 
 
 export interface ChangeEventDetail {
