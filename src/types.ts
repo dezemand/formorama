@@ -34,6 +34,7 @@ export type ValuesMap<T> = Map<keyof T, FormValue<T[keyof T]>>;
 export type ArrayValuesMap<T extends S[], S> = Map<number, FormValue<T[0]>>;
 export type FormError = string | Error;
 export type ErrorObject<T> = [keyof T, FormError | null][];
+export type UpdateMap = Map<string | null, Map<string, any>>;
 
 interface FormHookInternal {
   name: string | null;
@@ -89,6 +90,8 @@ export interface RootFormHookInternal<T> extends ObjectFormHookInternal<T> {
 
 export interface RootFormHook<T> extends ObjectFormHook<T> {
   internal: RootFormHookInternal<T>;
+
+  setValues(values: T): void;
 }
 
 interface IFormContextValue<T> {

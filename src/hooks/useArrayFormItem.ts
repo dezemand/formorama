@@ -1,37 +1,38 @@
 import {useCallback, useRef} from "react";
-import {
-  ArrayFormHook,
-  FormError,
-  FormValue,
-  FormValueType,
-  ObjectFormHook,
-  ObjectFormHookInternal,
-  ValuesMap
-} from "../types";
+import {CHANGE_EVENT, ChangeEventDetail} from "../events";
+import {ArrayFormHook, FormError, FormValue, FormValueType, ObjectFormHook, ObjectFormHookInternal, ValuesMap} from "../types";
+import {createValuesMap} from "../utils/createValuesMap";
 import {getRawValue, getRawValues} from "../utils/getRawValues";
-import {CHANGE_EVENT} from "../events";
+
+function getInitialValues<T extends T[], S>(parentForm: ArrayFormHook<T>, index: number): ValuesMap<S> {
+  const values = parentForm.getValue(index);
+  return values ? createValuesMap(values) : new Map();
+}
 
 export function useArrayFormItem<T extends T[], S>(parentForm: ArrayFormHook<T>, index: number): ObjectFormHook<S> {
-  const values = useRef<ValuesMap<S>>(new Map());
+  const values = useRef<ValuesMap<S>>(getInitialValues(parentForm, index));
   const errors = useRef<Map<keyof S, FormError | null>>(new Map());
   const fullName = parentForm.internal.name ? `${parentForm.internal.name}[${index}]` : `[${index}]`;
 
-  const updateParent = () => parentForm.internal.setItemValues(index, {
+  const pSetItemValues = parentForm.internal.setItemValues;
+  const listener = parentForm.listener;
+
+  const updateParent = useCallback(() => pSetItemValues(index, {
     type: FormValueType.OBJECT,
     value: values.current as any
-  });
+  }), [pSetItemValues, index]);
 
   const change = useCallback<ObjectFormHook<S>["change"]>((fieldName, value) => {
     values.current.set(fieldName, {value, type: FormValueType.RAW});
     updateParent();
-    parentForm.listener.dispatchEvent(new CustomEvent(CHANGE_EVENT, {
+    listener.dispatchEvent(new CustomEvent<ChangeEventDetail>(CHANGE_EVENT, {
       detail: {
-        name: fieldName,
+        name: fieldName as string,
         value,
         form: fullName
       }
     }));
-  }, [parentForm.internal, parentForm.listener, fullName, index]);
+  }, [updateParent, listener, fullName]);
 
   const getValue = useCallback<ObjectFormHook<S>["getValue"]>((name) => {
     if (!values.current.has(name)) return null;
@@ -57,7 +58,7 @@ export function useArrayFormItem<T extends T[], S>(parentForm: ArrayFormHook<T>,
   const setSubValues = useCallback<ObjectFormHookInternal<S>["setSubValues"]>((formName, formValue) => {
     values.current.set(formName, formValue);
     updateParent();
-  }, [parentForm.internal, index]);
+  }, [updateParent]);
 
   return {
     listener: parentForm.listener,

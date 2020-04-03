@@ -1,8 +1,8 @@
 import {useCallback, useContext, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
-import {useEventListener} from "./useEventListener";
 import {CHANGE_EVENT} from "../events";
 import {FormType} from "../types";
+import {useEventListener} from "./useEventListener";
 
 export function useInputValue<T>(fields: (keyof T)[]): any[] {
   const formContext = useContext(FormContext);
@@ -21,7 +21,7 @@ export function useInputValue<T>(fields: (keyof T)[]): any[] {
       newValues[valueIndex] = event.detail.value;
       setValues(newValues);
     }
-  }, [fields, values]);
+  }, [fields, values, formContext.name]);
 
   useEventListener(listener, CHANGE_EVENT, handleChange as EventListener);
 

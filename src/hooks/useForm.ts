@@ -1,6 +1,8 @@
 import {useCallback, useMemo, useRef, useState} from "react";
-import {BLUR_EVENT, CHANGE_EVENT, DO_SUBMIT_EVENT, ERROR_EVENT, FOCUS_EVENT} from "../events";
+import {BLUR_EVENT, CHANGE_EVENT, CHANGE_MANY_EVENT, ChangeEventDetail, ChangeManyEventDetails, DO_SUBMIT_EVENT, ERROR_EVENT, FOCUS_EVENT, FocusBlurEventDetail} from "../events";
 import {ErrorObject, FormError, FormValue, FormValueType, RootFormHook, RootFormHookInternal} from "../types";
+import {createUpdateMap} from "../utils/createUpdateMap";
+import {createValuesMap} from "../utils/createValuesMap";
 import {getRawValue, getRawValues} from "../utils/getRawValues";
 
 export interface UseFormParameters<T> {
@@ -17,17 +19,17 @@ export function useForm<T>({validate}: UseFormParameters<T>): RootFormHook<T> {
 
   const change = useCallback<RootFormHook<T>["change"]>((name, value) => {
     values.current.set(name, {value, type: FormValueType.RAW});
-    target.current.dispatchEvent(new CustomEvent(CHANGE_EVENT, {detail: {name, value, form: null}}));
+    target.current.dispatchEvent(new CustomEvent<ChangeEventDetail>(CHANGE_EVENT, {detail: {name: name as string, value, form: null}}));
   }, []);
 
   const focus = useCallback<RootFormHook<T>["focus"]>((name) => {
     focusing.current = name;
-    target.current.dispatchEvent(new CustomEvent(FOCUS_EVENT, {detail: {name, form: null}}));
+    target.current.dispatchEvent(new CustomEvent<FocusBlurEventDetail>(FOCUS_EVENT, {detail: {name, form: null}}));
   }, []);
 
   const blur = useCallback<RootFormHook<T>["blur"]>((name) => {
     if (focusing.current === name) focusing.current = null;
-    target.current.dispatchEvent(new CustomEvent(BLUR_EVENT, {detail: {name, form: null}}));
+    target.current.dispatchEvent(new CustomEvent<FocusBlurEventDetail>(BLUR_EVENT, {detail: {name, form: null}}));
   }, []);
 
   const getValue = useCallback<RootFormHook<T>["getValue"]>((name) => {
@@ -70,11 +72,16 @@ export function useForm<T>({validate}: UseFormParameters<T>): RootFormHook<T> {
     return [errored, formErrors];
   }, [getValues, validate]);
 
+  const setValues = useCallback<RootFormHook<T>["setValues"]>((newValues) => {
+    values.current = createValuesMap(newValues);
+    target.current.dispatchEvent(new CustomEvent<ChangeManyEventDetails>(CHANGE_MANY_EVENT, {detail: {updates: createUpdateMap(values.current)}}));
+  }, []);
+
   const submit = useCallback<RootFormHook<T>["submit"]>(() => {
     target.current.dispatchEvent(new CustomEvent(DO_SUBMIT_EVENT));
   }, []);
 
-  const setSubformValues = useCallback<RootFormHookInternal<T>["setSubValues"]>((name, value) => {
+  const setSubValues = useCallback<RootFormHookInternal<T>["setSubValues"]>((name, value) => {
     values.current.set(name, value);
   }, []);
 
@@ -88,11 +95,12 @@ export function useForm<T>({validate}: UseFormParameters<T>): RootFormHook<T> {
     getValues,
     submitting,
     submit,
+    setValues,
     internal: {
       setSubmitting,
       getValidationResult,
       name: null,
-      setSubValues: setSubformValues
+      setSubValues
     }
   };
 }

@@ -1,12 +1,12 @@
 import {ChangeEvent, FocusEvent, useCallback, useContext, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
-import {CHANGE_EVENT, ERROR_EVENT} from "../events";
+import {CHANGE_EVENT, CHANGE_MANY_EVENT, CustomChangeEvent, CustomChangeManyEvent, CustomErrorEvent, ERROR_EVENT} from "../events";
+import {FormError, FormType} from "../types";
 import {useEventListener} from "./useEventListener";
-import {FormType} from "../types";
 
 export interface UseInputResult {
   value: any;
-  error: any;
+  error: FormError | null;
   submitting: boolean;
 
   handleChange(event: ChangeEvent<HTMLElement> | any): void;
@@ -32,21 +32,31 @@ export function useInput(name: string, defaultValue: any): UseInputResult {
     }
     return value;
   });
-  const [error, setError] = useState(() => getError(name));
 
-  const changeEventHandler = useCallback(event => {
+  const [error, setError] = useState<FormError | null>(() => getError(name));
+
+  const changeEventHandler = useCallback((event: CustomChangeEvent) => {
     if (event.detail.name === name && event.detail.form === formName) {
       setValue(event.detail.value);
     }
   }, [name, formName]);
-  const errorEventHandler = useCallback(event => {
+
+  const errorEventHandler = useCallback((event: CustomErrorEvent) => {
     if (event.detail.name === name && event.detail.form === formName) {
       setError(event.detail.error);
     }
   }, [name, formName]);
 
-  useEventListener(listener, CHANGE_EVENT, changeEventHandler);
-  useEventListener(listener, ERROR_EVENT, errorEventHandler);
+  const changeManyEventHandler = useCallback((event: CustomChangeManyEvent) => {
+    const updates = event.detail.updates;
+    if (updates.has(formName) && (updates.get(formName) as Map<string, any>).has(name)) {
+      change(name, (updates.get(formName) as Map<string, any>).get(name));
+    }
+  }, [name, formName, change]);
+
+  useEventListener(listener, CHANGE_EVENT, changeEventHandler as EventListener);
+  useEventListener(listener, ERROR_EVENT, errorEventHandler as EventListener);
+  useEventListener(listener, CHANGE_MANY_EVENT, changeManyEventHandler as EventListener);
 
   const handleChange = useCallback(event => {
     if (event.target) {
