@@ -27,10 +27,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/netraameht/react-ovm-forms"
+    "url": "https://github.com/dezemand/react-ovm-forms"
   },
   "bugs": {
-    "url": "https://github.com/netraameht/react-ovm-forms/issues"
+    "url": "https://github.com/dezemand/react-ovm-forms/issues"
   },
   "peerDependencies": {
     "react": ">=16.3.0"
