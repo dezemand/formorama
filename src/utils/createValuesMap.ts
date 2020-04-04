@@ -18,7 +18,7 @@ export function createValuesMap<T>(values: T): ValuesMap<T> {
 
     if (Array.isArray(value)) {
       formValue = {type: FormValueType.ARRAY, value: createValueArrayMap(value)};
-    } else if (typeof value === "object") {
+    } else if (typeof value === "object" && value !== null) {
       formValue = {type: FormValueType.OBJECT, value: createValuesMap(value)};
     } else {
       formValue = {type: FormValueType.RAW, value};
