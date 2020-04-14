@@ -1,6 +1,6 @@
 import {ArrayValuesMap, FormValueType, UpdateMap, ValuesMap} from "../types";
 
-function createUpdateObjectMap<T>(updates: UpdateMap, values: ValuesMap<T>, name: string): void {
+export function createUpdateObjectMap<T>(updates: UpdateMap, values: ValuesMap<T>, name: string): void {
   for (const [key, value] of values.entries()) {
     switch (value.type) {
       case FormValueType.RAW:
@@ -17,7 +17,7 @@ function createUpdateObjectMap<T>(updates: UpdateMap, values: ValuesMap<T>, name
   }
 }
 
-function createUpdateArrayMap<T>(updates: UpdateMap, values: ArrayValuesMap<T[], T>, name: string): void {
+export function createUpdateArrayMap<T>(updates: UpdateMap, values: ArrayValuesMap<T[], T>, name: string): void {
   for (const [index, value] of values.entries()) {
     if (value.type !== FormValueType.OBJECT) throw new Error("Value inside array must be an object.");
     createUpdateObjectMap(updates, value.value as any, `${name}[${index}]`);
@@ -25,7 +25,7 @@ function createUpdateArrayMap<T>(updates: UpdateMap, values: ArrayValuesMap<T[],
 }
 
 export function createUpdateMap<T>(values: ValuesMap<T>): UpdateMap {
-  const updates: Map<string | null, Map<string, any>> = new Map();
+  const updates: UpdateMap = new Map();
 
   for (const [key, value] of values.entries()) {
     switch (value.type) {

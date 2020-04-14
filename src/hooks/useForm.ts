@@ -1,9 +1,18 @@
 import {useCallback, useMemo, useRef, useState} from "react";
-import {BLUR_EVENT, CHANGE_EVENT, CHANGE_MANY_EVENT, ChangeEventDetail, ChangeManyEventDetails, DO_SUBMIT_EVENT, ERROR_EVENT, FOCUS_EVENT, FocusBlurEventDetail} from "../events";
-import {ErrorObject, FormError, FormValue, FormValueType, RootFormHook, RootFormHookInternal} from "../types";
+import {
+  BLUR_EVENT,
+  CHANGE_MANY_EVENT,
+  ChangeManyEventDetails,
+  DO_SUBMIT_EVENT,
+  ERROR_EVENT,
+  FOCUS_EVENT,
+  FocusBlurEventDetail
+} from "../events";
+import {ErrorObject, FormError, FormValue, RootFormHook, RootFormHookInternal, ValuesMap} from "../types";
 import {createUpdateMap} from "../utils/createUpdateMap";
-import {createValuesMap} from "../utils/createValuesMap";
+import {createFormValue, createValuesMap} from "../utils/createValuesMap";
 import {getRawValue, getRawValues} from "../utils/getRawValues";
+import {createChangeEvent} from "../utils/createChangeEvent";
 
 export interface UseFormParameters<T> {
   validate?(values: T): ErrorObject<T>;
@@ -11,15 +20,16 @@ export interface UseFormParameters<T> {
 
 export function useForm<T>({validate}: UseFormParameters<T>): RootFormHook<T> {
   const listener: EventTarget = useMemo(() => new EventTarget(), []);
-  const values = useRef<Map<keyof T, FormValue<T[keyof T]>>>(new Map());
+  const values = useRef<ValuesMap<T>>(new Map());
   const errors = useRef<Map<keyof T, FormError | null>>(new Map());
   const focusing = useRef<string | null>(null);
   const target = useRef<EventTarget>(listener);
   const [submitting, setSubmitting] = useState(false);
 
   const change = useCallback<RootFormHook<T>["change"]>((name, value) => {
-    values.current.set(name, {value, type: FormValueType.RAW});
-    target.current.dispatchEvent(new CustomEvent<ChangeEventDetail>(CHANGE_EVENT, {detail: {name: name as string, value, form: null}}));
+    const formValue = createFormValue(value) as FormValue<T[keyof T]>;
+    values.current.set(name, formValue);
+    target.current.dispatchEvent(createChangeEvent(name as string, formValue, null));
   }, []);
 
   const focus = useCallback<RootFormHook<T>["focus"]>((name) => {

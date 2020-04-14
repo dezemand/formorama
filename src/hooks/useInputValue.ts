@@ -4,7 +4,7 @@ import {CHANGE_EVENT} from "../events";
 import {FormType} from "../types";
 import {useEventListener} from "./useEventListener";
 
-export function useInputValue<T>(fields: (keyof T)[]): any[] {
+export function useInputValue<T>(fields: string[]): any[] {
   const formContext = useContext(FormContext);
 
   if (formContext.type === FormType.INVALID) throw new Error("useInputValue must be used in a <Form>");

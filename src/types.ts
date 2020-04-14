@@ -82,6 +82,8 @@ export interface ArrayFormHook<T extends T[]> extends FormHook<T> {
   internal: ArrayFormHookInternal;
 
   getValue(index: number): T[0] | null;
+
+  change(index: number, value: T[0]): void;
 }
 
 export interface RootFormHookInternal<T> extends ObjectFormHookInternal<T> {

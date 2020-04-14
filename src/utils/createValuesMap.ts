@@ -14,18 +14,18 @@ export function createValuesMap<T>(values: T): ValuesMap<T> {
   const map: ValuesMap<T> = new Map();
 
   for (const [key, value] of Object.entries(values)) {
-    let formValue: FormValue<any>;
-
-    if (Array.isArray(value)) {
-      formValue = {type: FormValueType.ARRAY, value: createValueArrayMap(value)};
-    } else if (typeof value === "object" && value !== null) {
-      formValue = {type: FormValueType.OBJECT, value: createValuesMap(value)};
-    } else {
-      formValue = {type: FormValueType.RAW, value};
-    }
-
-    map.set(key as keyof T, formValue);
+    map.set(key as keyof T, createFormValue(value));
   }
 
   return map;
+}
+
+export function createFormValue<T>(value: T): FormValue<T> {
+  if (Array.isArray(value)) {
+    return {type: FormValueType.ARRAY, value: createValueArrayMap(value)};
+  } else if (typeof value === "object" && value !== null) {
+    return {type: FormValueType.OBJECT, value: createValuesMap(value)};
+  } else {
+    return {type: FormValueType.RAW, value};
+  }
 }

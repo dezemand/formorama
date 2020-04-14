@@ -1,8 +1,16 @@
 import {useCallback, useRef} from "react";
-import {CHANGE_EVENT, ChangeEventDetail} from "../events";
-import {ArrayFormHook, FormError, FormValue, FormValueType, ObjectFormHook, ObjectFormHookInternal, ValuesMap} from "../types";
-import {createValuesMap} from "../utils/createValuesMap";
+import {
+  ArrayFormHook,
+  FormError,
+  FormValue,
+  FormValueType,
+  ObjectFormHook,
+  ObjectFormHookInternal,
+  ValuesMap
+} from "../types";
+import {createFormValue, createValuesMap} from "../utils/createValuesMap";
 import {getRawValue, getRawValues} from "../utils/getRawValues";
+import {createChangeEvent} from "../utils/createChangeEvent";
 
 function getInitialValues<T extends T[], S>(parentForm: ArrayFormHook<T>, index: number): ValuesMap<S> {
   const values = parentForm.getValue(index);
@@ -23,15 +31,10 @@ export function useArrayFormItem<T extends T[], S>(parentForm: ArrayFormHook<T>,
   }), [pSetItemValues, index]);
 
   const change = useCallback<ObjectFormHook<S>["change"]>((fieldName, value) => {
-    values.current.set(fieldName, {value, type: FormValueType.RAW});
+    const formValue = createFormValue(value) as FormValue<S[keyof S]>;
+    values.current.set(fieldName, formValue);
     updateParent();
-    listener.dispatchEvent(new CustomEvent<ChangeEventDetail>(CHANGE_EVENT, {
-      detail: {
-        name: fieldName as string,
-        value,
-        form: fullName
-      }
-    }));
+    listener.dispatchEvent(createChangeEvent(fieldName as string, formValue, fullName));
   }, [updateParent, listener, fullName]);
 
   const getValue = useCallback<ObjectFormHook<S>["getValue"]>((name) => {
