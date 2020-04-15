@@ -16,8 +16,11 @@ export function ArrayFormItem({children, index}: ArrayFormItemProps): ReturnType
   const arrayFormItem = useArrayFormItem(formContext.form, index);
 
   return (
-    <FormContext.Provider
-      value={{type: FormType.OBJECT, name: arrayFormItem.internal.name as string, form: arrayFormItem}}>
+    <FormContext.Provider value={{
+      type: FormType.OBJECT,
+      name: arrayFormItem.internal.name as string,
+      form: arrayFormItem
+    }}>
       {children}
     </FormContext.Provider>
   );

@@ -1,9 +1,17 @@
-import {ArrayFormValue, FormValue, FormValueType, RawFormValue, SubFormValue, UpdateMap} from "../types";
+import {
+  ArrayFormValue,
+  ArrayValuesMap,
+  FormValue,
+  FormValueType,
+  RawFormValue,
+  SubFormValue,
+  UpdateMap
+} from "../types";
 import {
   CHANGE_EVENT,
   CHANGE_MANY_EVENT,
   ChangeEventDetail,
-  ChangeManyEventDetails,
+  ChangeManyEventDetail,
   CustomChangeEvent,
   CustomChangeManyEvent
 } from "../events";
@@ -31,7 +39,7 @@ function createChangeManyEvent<T>(fullName: string, formValue: SubFormValue<T> |
       break;
   }
 
-  return new CustomEvent<ChangeManyEventDetails>(CHANGE_MANY_EVENT, {detail: {updates}});
+  return new CustomEvent<ChangeManyEventDetail>(CHANGE_MANY_EVENT, {detail: {updates}});
 }
 
 export function createChangeEvent<T>(name: string, formValue: FormValue<T>, form: string | null): CustomChangeEvent | CustomChangeManyEvent {
@@ -44,10 +52,16 @@ export function createChangeEvent<T>(name: string, formValue: FormValue<T>, form
   }
 }
 
-export function createChangeEventForArray<T>(index: number, formValue: FormValue<T>, form: string): CustomChangeManyEvent {
+export function createChangeEventForArrayItem<T>(index: number, formValue: FormValue<T>, form: string): CustomChangeManyEvent {
   if (formValue.type === FormValueType.OBJECT) {
     return createChangeManyEvent(`${form}[${index}]`, formValue);
   } else {
     throw new Error("Could not make change event for <ArrayForm>: value not an object.");
   }
+}
+
+export function createChangeEventForArray<T>(values: ArrayValuesMap<T[], T>, form: string): CustomChangeManyEvent {
+  const updates = new Map();
+  createUpdateArrayMap(updates, values, form);
+  return new CustomEvent<ChangeManyEventDetail>(CHANGE_MANY_EVENT, {detail: {updates}});
 }

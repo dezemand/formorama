@@ -1,39 +1,35 @@
-import React, {useContext, useState} from "react";
+import React, {FC, ReactNode, useContext} from "react";
 import {ArrayFormItem} from "./ArrayFormItem";
 import {FormContext} from "../contexts/FormContext";
-import {FormType} from "../types";
-import {useEventListener} from "../hooks/useEventListener";
-import {CHANGE_EVENT, CHANGE_MANY_EVENT, CustomChangeEvent, CustomChangeManyEvent} from "../events";
+import {useInputArrayValues} from "..";
+import {ArrayFormHook} from "../types";
 
-interface ArrayFormItemsProps {
-  children: (values: any, index: number) => any;
+interface ArrayFormItemsChildrenParameters {
+  values: any;
+  index: number;
 
+  remove(): void;
 }
 
-export function ArrayFormItems({children}: ArrayFormItemsProps): any {
-  const formContext = useContext(FormContext);
-  const [items, setItems] = useState([]);
-  if (formContext.type !== FormType.ARRAY) throw new Error("<ArrayFormItems> must be in <ArrayForm>");
+interface ArrayFormItemsProps {
+  children: (options: ArrayFormItemsChildrenParameters) => ReactNode;
+}
 
-  const handleChangeEvent = (event: CustomChangeEvent) => {
-    if (event.detail.form && event.detail.form.startsWith(formContext.name)) {
-      setItems(formContext.form.getValues());
-    }
-  };
+export function ArrayFormItems({children}: ArrayFormItemsProps): ReturnType<FC<ArrayFormItemsProps>> {
+  const {name, form} = useContext(FormContext);
+  const arrayItems = useInputArrayValues();
 
-  const handleChangeManyEvent = (event: CustomChangeManyEvent) => {
-    if ([...event.detail.updates.keys()].some(key => key && key.startsWith(formContext.name))) {
-      setItems(formContext.form.getValues());
-    }
-  };
-
-
-  useEventListener(formContext.form.listener, CHANGE_EVENT, handleChangeEvent as EventListener);
-  useEventListener(formContext.form.listener, CHANGE_MANY_EVENT, handleChangeManyEvent as EventListener);
-
-  return items.map((item, index) => (
-    <ArrayFormItem index={index} key={`ArrayFormItem(${formContext.name})[${index}]`}>
-      {children(item, index)}
-    </ArrayFormItem>
-  ));
+  return (
+    <>
+      {arrayItems.map((values, index) => (
+        <ArrayFormItem index={index} key={`ArrayFormItem(${name})[${index}]`}>
+          {children({
+            values,
+            index,
+            remove: () => (form as ArrayFormHook<any>).splice(index, 1)
+          })}
+        </ArrayFormItem>
+      ))}
+    </>
+  );
 }

@@ -18,9 +18,14 @@ export function createUpdateObjectMap<T>(updates: UpdateMap, values: ValuesMap<T
 }
 
 export function createUpdateArrayMap<T>(updates: UpdateMap, values: ArrayValuesMap<T[], T>, name: string): void {
-  for (const [index, value] of values.entries()) {
-    if (value.type !== FormValueType.OBJECT) throw new Error("Value inside array must be an object.");
-    createUpdateObjectMap(updates, value.value as any, `${name}[${index}]`);
+  if (values.size === 0) {
+    if (!updates.has(name)) updates.set(name, new Map());
+    (updates.get(name) as Map<string | null, any>).set(null, null);
+  } else {
+    for (const [index, value] of values.entries()) {
+      if (value.type !== FormValueType.OBJECT) throw new Error("Value inside array must be an object.");
+      createUpdateObjectMap(updates, value.value as any, `${name}[${index}]`);
+    }
   }
 }
 

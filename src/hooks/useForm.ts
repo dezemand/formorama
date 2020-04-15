@@ -2,7 +2,7 @@ import {useCallback, useMemo, useRef, useState} from "react";
 import {
   BLUR_EVENT,
   CHANGE_MANY_EVENT,
-  ChangeManyEventDetails,
+  ChangeManyEventDetail,
   DO_SUBMIT_EVENT,
   ERROR_EVENT,
   FOCUS_EVENT,
@@ -84,7 +84,7 @@ export function useForm<T>({validate}: UseFormParameters<T>): RootFormHook<T> {
 
   const setValues = useCallback<RootFormHook<T>["setValues"]>((newValues) => {
     values.current = createValuesMap(newValues);
-    target.current.dispatchEvent(new CustomEvent<ChangeManyEventDetails>(CHANGE_MANY_EVENT, {detail: {updates: createUpdateMap(values.current)}}));
+    target.current.dispatchEvent(new CustomEvent<ChangeManyEventDetail>(CHANGE_MANY_EVENT, {detail: {updates: createUpdateMap(values.current)}}));
   }, []);
 
   const submit = useCallback<RootFormHook<T>["submit"]>(() => {
