@@ -7,7 +7,6 @@ export const BLUR_EVENT = "BLUR";
 export const ERROR_EVENT = "ERROR";
 export const DO_SUBMIT_EVENT = "DO_SUBMIT";
 
-
 export interface ChangeEventDetail {
   name: string;
   value: any;
@@ -23,11 +22,11 @@ export interface FocusBlurEventDetail {
 
 export type CustomFocusBlurEvent = CustomEvent<FocusBlurEventDetail>;
 
-export interface ChangeManyEventDetails {
+export interface ChangeManyEventDetail {
   updates: UpdateMap;
 }
 
-export type CustomChangeManyEvent = CustomEvent<ChangeManyEventDetails>;
+export type CustomChangeManyEvent = CustomEvent<ChangeManyEventDetail>;
 
 export interface ErrorEventDetail {
   name: string;

@@ -1,8 +1,8 @@
 import {useCallback, useRef} from "react";
-import {CHANGE_EVENT, ChangeEventDetail} from "../events";
 import {FormError, FormValue, FormValueType, ObjectFormHook, ObjectFormHookInternal, ValuesMap} from "../types";
-import {createValuesMap} from "../utils/createValuesMap";
+import {createFormValue, createValuesMap} from "../utils/createValuesMap";
 import {getRawValue, getRawValues} from "../utils/getRawValues";
+import {createChangeEvent} from "../utils/createChangeEvent";
 
 function getInitialValues<T, S>(parentForm: ObjectFormHook<T>, name: string): ValuesMap<S> {
   const values = parentForm.getValue(name as keyof T);
@@ -23,15 +23,10 @@ export function useSubForm<T, S>(parentForm: ObjectFormHook<T>, name: string): O
   }), [pSetSubValues, name]);
 
   const change = useCallback<ObjectFormHook<S>["change"]>((fieldName, value) => {
-    values.current.set(fieldName, {value, type: FormValueType.RAW});
+    const formValue = createFormValue(value) as FormValue<S[keyof S]>;
+    values.current.set(fieldName, formValue);
     updateParent();
-    listener.dispatchEvent(new CustomEvent<ChangeEventDetail>(CHANGE_EVENT, {
-      detail: {
-        name: fieldName as string,
-        value,
-        form: fullName
-      }
-    }));
+    listener.dispatchEvent(createChangeEvent(fieldName as string, formValue, fullName));
   }, [updateParent, listener, fullName]);
 
   const getValue = useCallback<ObjectFormHook<S>["getValue"]>((name) => {

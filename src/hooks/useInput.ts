@@ -1,6 +1,13 @@
 import {ChangeEvent, FocusEvent, useCallback, useContext, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
-import {CHANGE_EVENT, CHANGE_MANY_EVENT, CustomChangeEvent, CustomChangeManyEvent, CustomErrorEvent, ERROR_EVENT} from "../events";
+import {
+  CHANGE_EVENT,
+  CHANGE_MANY_EVENT,
+  CustomChangeEvent,
+  CustomChangeManyEvent,
+  CustomErrorEvent,
+  ERROR_EVENT
+} from "../events";
 import {FormError, FormType} from "../types";
 import {useEventListener} from "./useEventListener";
 
@@ -59,7 +66,7 @@ export function useInput(name: string, defaultValue: any): UseInputResult {
   useEventListener(listener, CHANGE_MANY_EVENT, changeManyEventHandler as EventListener);
 
   const handleChange = useCallback(event => {
-    if (event.target) {
+    if (event && event.target) {
       change(name, event.target.value);
     } else {
       change(name, event);

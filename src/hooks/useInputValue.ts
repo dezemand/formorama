@@ -4,13 +4,17 @@ import {CHANGE_EVENT} from "../events";
 import {FormType} from "../types";
 import {useEventListener} from "./useEventListener";
 
-export function useInputValue<T>(fields: (keyof T)[]): any[] {
+export function useInputValue(fields: string[], form: any): any[] {
   const formContext = useContext(FormContext);
 
-  if (formContext.type === FormType.INVALID) throw new Error("useInputValue must be used in a <Form>");
-  if (formContext.type === FormType.ARRAY) throw new Error("useInputValue in an <ArrayForm> must be inside an <ArrayItemForm>");
+  if (!form) {
+    if (formContext.type === FormType.INVALID) throw new Error("useInputValue must be used in a <Form>");
+    if (formContext.type === FormType.ARRAY) throw new Error("useInputValue in an <ArrayForm> must be inside an <ArrayItemForm>");
 
-  const {form: {getValue, listener}} = formContext;
+    form = formContext.form;
+  }
+
+  const {getValue, listener} = form;
 
   const [values, setValues] = useState<any[]>(() => fields.map(field => getValue(field)));
 
