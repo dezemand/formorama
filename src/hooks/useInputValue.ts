@@ -4,7 +4,7 @@ import {CHANGE_EVENT} from "../events";
 import {FormType} from "../types";
 import {useEventListener} from "./useEventListener";
 
-export function useInputValue<T>(fields: string[], form: any): any[] {
+export function useInputValue(fields: string[], form: any): any[] {
   const formContext = useContext(FormContext);
 
   if (!form) {
