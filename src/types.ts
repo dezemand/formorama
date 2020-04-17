@@ -80,16 +80,14 @@ export interface ArrayFormHookInternal extends FormHookInternal {
 
 export interface ArrayFormHook<T extends T[]> extends FormHook<T> {
   internal: ArrayFormHookInternal;
+  length: number;
+  version: number;
 
   getValue(index: number): T[0] | null;
 
   change(index: number, value: T[0]): void;
 
-  push(value: T[0]): void;
-
-  size(): number;
-
-  splice(index: number, length: number): void;
+  modify(modifier: (input: T) => T): void;
 }
 
 export interface RootFormHookInternal<T> extends ObjectFormHookInternal<T> {

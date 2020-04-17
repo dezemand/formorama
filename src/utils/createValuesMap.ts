@@ -4,7 +4,7 @@ export function createValueArrayMap<T extends T[]>(values: T): ArrayValuesMap<T,
   const map: ArrayValuesMap<T, T[]> = new Map();
 
   values.forEach((value, index) => {
-    map.set(index, {type: FormValueType.OBJECT, value: createValuesMap(value)});
+    map.set(index, createFormValue(value));
   });
 
   return map;

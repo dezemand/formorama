@@ -1,6 +1,6 @@
 {
   "name": "react-ovm-forms",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Library for creating React forms",
   "main": "dist/index.js",
   "module": "dist/index.es.js",

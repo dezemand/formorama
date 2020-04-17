@@ -1,8 +1,10 @@
-import {useCallback, useRef} from "react";
+import {useCallback, useRef, useState} from "react";
 import {ArrayFormHook, ArrayFormHookInternal, ArrayValuesMap, FormValue, FormValueType, ObjectFormHook} from "../types";
 import {createFormValue, createValueArrayMap} from "../utils/createValuesMap";
 import {getRawArrayValues, getRawValue} from "../utils/getRawValues";
-import {createChangeEventForArray, createChangeEventForArrayItem} from "../utils/createChangeEvent";
+import {createChangeEventForArrayItem} from "../utils/createChangeEvent";
+
+const MAX_VERSION = Number.MAX_SAFE_INTEGER;
 
 function getInitialValues<T, S>(parentForm: ObjectFormHook<T>, name: string): ArrayValuesMap<S[], S> {
   const values = parentForm.getValue(name as keyof T);
@@ -11,7 +13,9 @@ function getInitialValues<T, S>(parentForm: ObjectFormHook<T>, name: string): Ar
 
 export function useArrayForm<T, S extends S[]>(parentForm: ObjectFormHook<T>, name: string): ArrayFormHook<S> {
   const values = useRef<ArrayValuesMap<S[], S>>(getInitialValues(parentForm, name));
+  const lengthRef = useRef<number>(values.current.size);
   const fullName = parentForm.internal.name ? `${parentForm.internal.name}.${name}` : name;
+  const [version, setVersion] = useState(0);
 
   const pSetSubValues = parentForm.internal.setSubValues;
   const listener = parentForm.listener;
@@ -21,13 +25,13 @@ export function useArrayForm<T, S extends S[]>(parentForm: ObjectFormHook<T>, na
     value: values.current
   }), [pSetSubValues, name]);
 
-  const normalize = useCallback(() => {
-    const entries = [...values.current.entries()]
-      .sort((a, b) => a[0] - b[0])
-      .map(([_, values], index) => [index, values]);
-    values.current = new Map(entries as any);
-    updateParent();
-  }, [updateParent]);
+  // const normalize = useCallback(() => {
+  //   const entries = [...values.current.entries()]
+  //     .sort((a, b) => a[0] - b[0])
+  //     .map(([_, values], index) => [index, values]);
+  //   values.current = new Map(entries as any);
+  //   updateParent();
+  // }, [updateParent]);
 
   const getValue = useCallback<ArrayFormHook<S>["getValue"]>((index) => {
     if (!values.current.has(index)) return null;
@@ -46,21 +50,22 @@ export function useArrayForm<T, S extends S[]>(parentForm: ObjectFormHook<T>, na
     listener.dispatchEvent(createChangeEventForArrayItem(index, formValue, fullName));
   }, [fullName, listener, updateParent]);
 
-  const size = useCallback<ArrayFormHook<S>["size"]>(() => {
-    return [...values.current.keys()].reduce((prev, curr) => Math.max(prev, curr), -1) + 1;
-  }, []);
+  const modify = useCallback<ArrayFormHook<S>["modify"]>((modifyCallback) => {
+    const currentArray = getValues();
+    const modifiedArray = modifyCallback(currentArray);
+    const formValue = createFormValue(modifiedArray);
 
-  const push = useCallback<ArrayFormHook<S>["push"]>((newValues) => {
-    change(size(), newValues);
-  }, [size, change]);
-
-  const splice = useCallback<ArrayFormHook<S>["splice"]>((index, length) => {
-    for (let i = 0; i < length; i++) {
-      values.current.delete(index + i);
+    if (formValue.type !== FormValueType.ARRAY) {
+      throw new Error("Modified result is not a valid array.");
     }
-    normalize();
-    listener.dispatchEvent(createChangeEventForArray(values.current, fullName));
-  }, [fullName, listener, normalize]);
+    if ([...formValue.value.values()].some(value => value.type !== FormValueType.OBJECT)) {
+      throw new Error("Modified array can only contain objects.");
+    }
+
+    values.current = formValue.value;
+    lengthRef.current = modifiedArray.length;
+    setVersion((version + 1) % MAX_VERSION);
+  }, [getValues, version]);
 
   const focus = useCallback<ArrayFormHookInternal["focus"]>((name) => {
     parentForm.focus(`${fullName}.${name}`);
@@ -77,14 +82,14 @@ export function useArrayForm<T, S extends S[]>(parentForm: ObjectFormHook<T>, na
 
   return {
     listener,
+    length: lengthRef.current,
+    version,
     submitting: parentForm.submitting,
     submit: parentForm.submit,
     getValue,
     getValues,
     change,
-    size,
-    push,
-    splice,
+    modify,
     internal: {
       name: fullName,
       setSubmitting: parentForm.internal.setSubmitting,
