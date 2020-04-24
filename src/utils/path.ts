@@ -1,4 +1,4 @@
-import {Path, PathNode, PathNodeType} from "../types";
+import {Path, PathNode, PathNodeType, UnparsedPath, UnparsedPathNode} from "../types";
 
 export const ROOT_PATH: Path = [];
 
@@ -90,4 +90,28 @@ export function pathSelector(selectorStr: string, path: Path = []): Path {
     });
 
   return [...path, ...mergeArrays(...selectorPaths)];
+}
+
+function parsePathNode(node: UnparsedPathNode): PathNode[] {
+  if (isPathNode(node)) {
+    return [node];
+  } else if (!node || node === "") {
+    throw new Error(`Could not parse ${node}`);
+  } else {
+    return pathSelector(node);
+  }
+}
+
+export function parsePath(path: UnparsedPath): Path {
+  if (isPath(path)) {
+    return path as Path;
+  } else if (!path || path === "") {
+    return ROOT_PATH;
+  } else if (Array.isArray(path)) {
+    return [...mergeArrays(...path.filter(node => node && node !== "").map(node => {
+      return parsePathNode(node);
+    }))];
+  } else {
+    return pathSelector(path);
+  }
 }

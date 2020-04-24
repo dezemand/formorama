@@ -4,15 +4,15 @@ import {DO_SUBMIT_EVENT} from "../events";
 import {useEventListener} from "../hooks/useEventListener";
 import {ErrorObject, FormHook} from "../types";
 
-export interface FormProps<T> {
+export interface FormProps<Values> {
   form: FormHook;
-  onSubmit?: (values: T) => Promise<void> | void;
-  onError?: (errors: ErrorObject, values: T) => Promise<void> | void;
+  onSubmit?: (values: Values) => Promise<void> | void;
+  onError?: (errors: ErrorObject, values: Values) => Promise<void> | void;
   noFormTag?: boolean;
   children?: ReactNode;
 }
 
-export function Form<T extends any>({children, form, onSubmit, onError, noFormTag}: FormProps<T>) {
+export function Form<Values = any>({children, form, onSubmit, onError, noFormTag}: FormProps<Values>) {
   const {root: {submitting, setSubmitting, getValues, getValidationResult, target}} = form;
 
   const submit = useCallback(async () => {

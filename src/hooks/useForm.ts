@@ -8,13 +8,13 @@ import {
   FocusBlurEventDetail,
   POST_CHANGE_EVENT
 } from "../events";
-import {ErrorObject, FormError, FormHook, FormHookType, Path, RootForm} from "../types";
+import {ErrorObject, FormError, FormHook, FormHookType, Path, RootForm, UnparsedPath} from "../types";
 import {createChangesMap, createErrorsMap} from "../utils/changes";
-import {getTreeValue, pathEquals, ROOT_PATH, setTreeValue} from "../utils/path";
+import {getTreeValue, parsePath, pathEquals, ROOT_PATH, setTreeValue} from "../utils/path";
 import {useFormIO} from "./useFormIO";
 
-export interface UseFormParameters<T> {
-  validate?(values: T): ErrorObject;
+export interface UseFormParameters<Values> {
+  validate?(values: Values): ErrorObject;
 }
 
 export function useForm<Values>({validate}: UseFormParameters<Values> = {}): FormHook<Values, Values> {
@@ -27,11 +27,12 @@ export function useForm<Values>({validate}: UseFormParameters<Values> = {}): For
 
   const getValues = useRef(() => ({...values.current}));
 
-  const getValue = useRef((path: Path) => getTreeValue(getValues.current(), path));
+  const getValue = useRef((uPath: UnparsedPath) => getTreeValue(getValues.current(), parsePath(uPath)));
 
-  const getError = useRef((path: Path): FormError | null => getTreeValue(errors.current, path));
+  const getError = useRef((uPath: UnparsedPath): FormError | null => getTreeValue(errors.current, parsePath(uPath)));
 
-  const change = useRef((path: Path, value: any) => {
+  const change = useRef((uPath: UnparsedPath, value: any) => {
+    const path = parsePath(uPath);
     values.current = setTreeValue(values.current, path, value);
     target.current.dispatchEvent(new CustomEvent<ChangeEventDetail>(CHANGE_EVENT, {
       detail: {
@@ -46,11 +47,11 @@ export function useForm<Values>({validate}: UseFormParameters<Values> = {}): For
           errors: []
         }
       }));
-
     }, 0);
   });
 
-  const focus = useRef((path: Path) => {
+  const focus = useRef((uPath: UnparsedPath) => {
+    const path = parsePath(uPath);
     focusing.current = path;
     target.current.dispatchEvent(new CustomEvent<FocusBlurEventDetail>(FOCUS_EVENT, {
       detail: {
@@ -59,7 +60,8 @@ export function useForm<Values>({validate}: UseFormParameters<Values> = {}): For
     }));
   });
 
-  const blur = useRef((path: Path) => {
+  const blur = useRef((uPath: UnparsedPath) => {
+    const path = parsePath(uPath);
     if (focusing.current && pathEquals(path, focusing.current)) {
       focusing.current = null;
 
