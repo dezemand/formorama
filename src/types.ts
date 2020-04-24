@@ -6,9 +6,16 @@ export enum PathNodeType {
 }
 
 export type PathNode = [PathNodeType.OBJECT_KEY, string] | [PathNodeType.ARRAY_INDEX, number];
+
 export type Path = PathNode[];
+
 export type FormError = string | Error;
+
 export type ErrorObject = { path: Path, error: FormError }[];
+
+export type UnparsedPathNode = PathNode | string | null | undefined;
+
+export type UnparsedPath = PathNode[] | UnparsedPathNode[] | string | null | undefined;
 
 export enum FormHookType {
   ARRAY,

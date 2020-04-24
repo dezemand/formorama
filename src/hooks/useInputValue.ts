@@ -1,15 +1,15 @@
 import {useCallback, useContext, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {CHANGE_EVENT, CustomChangeEvent} from "../events";
-import {FormHook, Path, PathNodeType} from "../types";
-import {isPath, pathEquals} from "../utils/path";
+import {FormHook, Path, UnparsedPath} from "../types";
+import {parsePath, pathEquals} from "../utils/path";
 import {useEventListener} from "./useEventListener";
 
-export function useInputValue(fields: (string | Path)[], form?: FormHook, path?: Path): any[] {
+export function useInputValue(fields: (UnparsedPath)[], form?: FormHook, uPath?: UnparsedPath): any[] {
   const formContext = useContext(FormContext);
   form = form || formContext;
-  path = path || form.path;
-  const fieldPaths = fields.map(field => isPath(field) ? [...path, ...field] : [...path, [PathNodeType.OBJECT_KEY, field]]) as Path[];
+  const path = uPath ? parsePath(uPath) : form.path;
+  const fieldPaths: Path[] = fields.map(field => [...path, ...parsePath(field)]);
 
   const {root: {getValue, target}} = form;
 
