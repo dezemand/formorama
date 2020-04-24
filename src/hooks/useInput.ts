@@ -1,87 +1,63 @@
-import {ChangeEvent, FocusEvent, useCallback, useContext, useState} from "react";
+import {useCallback, useContext, useMemo, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
-import {
-  CHANGE_EVENT,
-  CHANGE_MANY_EVENT,
-  CustomChangeEvent,
-  CustomChangeManyEvent,
-  CustomErrorEvent,
-  ERROR_EVENT
-} from "../events";
-import {FormError, FormType} from "../types";
+import {CHANGE_EVENT, CustomChangeEvent} from "../events";
+import {FormError, InputHook, Path, PathNodeType} from "../types";
+import {pathEquals} from "../utils/path";
 import {useEventListener} from "./useEventListener";
 
-export interface UseInputResult {
-  value: any;
-  error: FormError | null;
-  submitting: boolean;
+export function useInput(name: string, defaultValue: any): InputHook {
+  const form = useContext(FormContext);
+  const path = useMemo<Path>(() => [...form.path, [PathNodeType.OBJECT_KEY, name]], [form.path, name]);
 
-  handleChange(event: ChangeEvent<HTMLElement> | any): void;
-
-  handleFocus(event: FocusEvent): void;
-
-  handleBlur(event: FocusEvent): void;
-}
-
-export function useInput(name: string, defaultValue: any): UseInputResult {
-  const formContext = useContext(FormContext);
-
-  if (formContext.type === FormType.INVALID) throw new Error("useInput must be used in a <Form>");
-  if (formContext.type === FormType.ARRAY) throw new Error("useInput in an <ArrayForm> must be inside an <ArrayItemForm>");
-
-  const {name: formName, form: {getValue, change, focus, blur, getError, listener, submitting}} = formContext;
+  const {root: {change, focus, blur, submitting, getValue, target, getError}} = form;
 
   const [value, setValue] = useState(() => {
-    let value = getValue(name);
+    let value = getValue(path);
     if (value === null) {
       value = defaultValue;
-      change(name, defaultValue);
+      change(path, defaultValue);
     }
     return value;
   });
-
-  const [error, setError] = useState<FormError | null>(() => getError(name));
+  const [error, setError] = useState<FormError | null>(() => getError(path));
 
   const changeEventHandler = useCallback((event: CustomChangeEvent) => {
-    if (event.detail.name === name && event.detail.form === formName) {
-      setValue(event.detail.value);
+    for (const {path: valuePath, value} of event.detail.values) {
+      if (pathEquals(valuePath, path)) {
+        setValue(value);
+      }
     }
-  }, [name, formName]);
-
-  const errorEventHandler = useCallback((event: CustomErrorEvent) => {
-    if (event.detail.name === name && event.detail.form === formName) {
-      setError(event.detail.error);
+    for (const {path: errorPath, error} of event.detail.errors) {
+      if (pathEquals(errorPath, path)) {
+        setError(error);
+      }
     }
-  }, [name, formName]);
+  }, [path]);
 
-  const changeManyEventHandler = useCallback((event: CustomChangeManyEvent) => {
-    const updates = event.detail.updates;
-    if (updates.has(formName) && (updates.get(formName) as Map<string, any>).has(name)) {
-      change(name, (updates.get(formName) as Map<string, any>).get(name));
-    }
-  }, [name, formName, change]);
+  useEventListener(target, CHANGE_EVENT, changeEventHandler as EventListener);
 
-  useEventListener(listener, CHANGE_EVENT, changeEventHandler as EventListener);
-  useEventListener(listener, ERROR_EVENT, errorEventHandler as EventListener);
-  useEventListener(listener, CHANGE_MANY_EVENT, changeManyEventHandler as EventListener);
-
-  const handleChange = useCallback(event => {
+  const handleChange = useCallback<InputHook["handleChange"]>(event => {
     if (event && event.target) {
-      change(name, event.target.value);
+      change(path, event.target.value);
     } else {
-      change(name, event);
+      change(path, event);
     }
-  }, [change, name]);
+  }, [change, path]);
 
-  const handleFocus = useCallback(() => {
-    focus(name);
-  }, [focus, name]);
+  const handleFocus = useCallback<InputHook["handleFocus"]>(() => {
+    focus(path);
+  }, [focus, path]);
 
-  const handleBlur = useCallback(() => {
-    blur(name);
-  }, [blur, name]);
+  const handleBlur = useCallback<InputHook["handleBlur"]>(() => {
+    blur(path);
+  }, [blur, path]);
 
   return {
-    value, error, handleChange, handleFocus, handleBlur, submitting
+    value,
+    error,
+    handleChange,
+    handleFocus,
+    handleBlur,
+    submitting
   };
 }

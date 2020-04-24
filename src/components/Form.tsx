@@ -2,25 +2,25 @@ import React, {ReactNode, useCallback} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {DO_SUBMIT_EVENT} from "../events";
 import {useEventListener} from "../hooks/useEventListener";
-import {ErrorObject, FormType, RootFormHook} from "../types";
+import {ErrorObject, FormHook} from "../types";
 
 export interface FormProps<T> {
-  form: RootFormHook<T>;
+  form: FormHook;
   onSubmit?: (values: T) => Promise<void> | void;
-  onError?: (errors: ErrorObject<T>, values: T) => Promise<void> | void;
+  onError?: (errors: ErrorObject, values: T) => Promise<void> | void;
   noFormTag?: boolean;
   children?: ReactNode;
 }
 
 export function Form<T extends any>({children, form, onSubmit, onError, noFormTag}: FormProps<T>) {
-  const {submitting, internal: {getValidationResult, setSubmitting}, getValues} = form;
+  const {root: {submitting, setSubmitting, getValues, getValidationResult, target}} = form;
 
   const submit = useCallback(async () => {
     if (submitting) return;
 
     setSubmitting(true);
     const values = getValues();
-    const [errored, validateResult] = await getValidationResult();
+    const [errored, validateResult] = await getValidationResult(values);
 
     if (errored && onError) await onError(validateResult, values);
     if (!errored && onSubmit) await onSubmit(values);
@@ -33,10 +33,10 @@ export function Form<T extends any>({children, form, onSubmit, onError, noFormTa
     await submit();
   }, [submit]);
 
-  useEventListener(form.listener, DO_SUBMIT_EVENT, submit);
+  useEventListener(target, DO_SUBMIT_EVENT, submit);
 
   return (
-    <FormContext.Provider value={{type: FormType.ROOT, name: null, form}}>
+    <FormContext.Provider value={form}>
       {noFormTag ? (
         children
       ) : (

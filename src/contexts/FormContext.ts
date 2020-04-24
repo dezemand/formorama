@@ -1,6 +1,12 @@
 import {Context, createContext} from "react";
-import {FormContextValue, FormType} from "../types";
+import {FormHook} from "../types";
 
-export const FormContext: Context<FormContextValue<any>> = createContext({type: FormType.INVALID} as FormContextValue<any>);
+const defaultValue = new Proxy({}, {
+  get(): any {
+    throw new Error("No FormContext found");
+  }
+});
+
+export const FormContext: Context<FormHook> = createContext(defaultValue as FormHook);
 
 export const FormConsumer = FormContext.Consumer;
