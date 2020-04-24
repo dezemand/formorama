@@ -2,9 +2,9 @@ import {useMemo} from "react";
 import {FormHook, FormHookType, Path, PathNodeType} from "../types";
 import {useFormIO} from "./useFormIO";
 
-export function useArrayFormItem(parent: FormHook, index: number): FormHook {
+export function useArrayFormItem<Values = any, ParentValues = any, RootValues = any>(parent: FormHook<ParentValues, RootValues>, index: number): FormHook<Values, RootValues> {
   const path = useMemo<Path>(() => [...parent.path, [PathNodeType.ARRAY_INDEX, index]], [parent.path, index]);
-  const io = useFormIO(parent.root, path);
+  const io = useFormIO<Values>(parent.root, path);
 
   return {
     type: FormHookType.OBJECT,

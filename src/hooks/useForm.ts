@@ -1,5 +1,13 @@
 import {useMemo, useRef, useState} from "react";
-import {BLUR_EVENT, CHANGE_EVENT, ChangeEventDetail, DO_SUBMIT_EVENT, FOCUS_EVENT, FocusBlurEventDetail} from "../events";
+import {
+  BLUR_EVENT,
+  CHANGE_EVENT,
+  ChangeEventDetail,
+  DO_SUBMIT_EVENT,
+  FOCUS_EVENT,
+  FocusBlurEventDetail,
+  POST_CHANGE_EVENT
+} from "../events";
 import {ErrorObject, FormError, FormHook, FormHookType, Path, RootForm} from "../types";
 import {createChangesMap, createErrorsMap} from "../utils/changes";
 import {getTreeValue, pathEquals, ROOT_PATH, setTreeValue} from "../utils/path";
@@ -9,37 +17,8 @@ export interface UseFormParameters<T> {
   validate?(values: T): ErrorObject;
 }
 
-// const getValidationResult = useCallback<RootFormHookInternal<T>["getValidationResult"]>(async (valuesObject) => {
-//   if (!validate) return [false, []];
-//
-//   let errored = false;
-//   const formErrors = await validate(valuesObject || getValues());
-//   const formErrorsMap = new Map(formErrors);
-//
-//   for (const field of values.current.keys()) {
-//     if (formErrorsMap.get(field)) {
-//       errored = true;
-//       const error = formErrorsMap.get(field) as FormError;
-//       formErrorsMap.delete(field);
-//       errors.current.set(field, error);
-//       target.current.dispatchEvent(new CustomEvent(ERROR_EVENT, {detail: {name: field, error: error}}));
-//     } else {
-//       errors.current.delete(field);
-//       target.current.dispatchEvent(new CustomEvent(ERROR_EVENT, {detail: {name: field, error: null}}));
-//     }
-//   }
-//
-//   for (const [field, error] of formErrorsMap.entries()) {
-//     errors.current.set(field, error);
-//     target.current.dispatchEvent(new CustomEvent(ERROR_EVENT, {detail: {name: field, error: error}}));
-//   }
-//
-//   return [errored, formErrors];
-// }, [getValues, validate]);
-//
-
-export function useForm<T>({validate}: UseFormParameters<T>): FormHook {
-  const values = useRef<T>({} as T);
+export function useForm<Values>({validate}: UseFormParameters<Values> = {}): FormHook<Values, Values> {
+  const values = useRef<Values>({} as Values);
   const errors = useRef<ErrorObject>([]);
   const focusing = useRef<Path | null>(null);
   const target = useRef<EventTarget>(new EventTarget());
@@ -60,6 +39,15 @@ export function useForm<T>({validate}: UseFormParameters<T>): FormHook {
         errors: []
       }
     }));
+    window.setTimeout(() => {
+      target.current.dispatchEvent(new CustomEvent<ChangeEventDetail>(POST_CHANGE_EVENT, {
+        detail: {
+          values: createChangesMap(path, value),
+          errors: []
+        }
+      }));
+
+    }, 0);
   });
 
   const focus = useRef((path: Path) => {
@@ -87,7 +75,7 @@ export function useForm<T>({validate}: UseFormParameters<T>): FormHook {
     target.current.dispatchEvent(new CustomEvent(DO_SUBMIT_EVENT));
   });
 
-  const getValidationResult = useRef(async (valuesObject?: T): Promise<[boolean, any]> => {
+  const getValidationResult = useRef(async (valuesObject?: Values): Promise<[boolean, any]> => {
     if (!validate) return [false, []];
 
     let errored = false;
@@ -118,7 +106,7 @@ export function useForm<T>({validate}: UseFormParameters<T>): FormHook {
     getValidationResult: getValidationResult.current
   };
 
-  const io = useFormIO(root, path);
+  const io = useFormIO<Values>(root, path);
 
   return {
     type: FormHookType.OBJECT,

@@ -1,7 +1,7 @@
 import {useCallback} from "react";
 import {FormIOHook, Path, RootForm} from "../types";
 
-export function useFormIO(root: RootForm, path: Path): FormIOHook {
+export function useFormIO<Values = any, RootValues = any>(root: RootForm<RootValues>, path: Path): FormIOHook<Values> {
   const {getValue: _getValue, change: _change} = root;
 
   const getValues = useCallback(() => _getValue(path), [_getValue, path]);

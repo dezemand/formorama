@@ -15,17 +15,17 @@ export enum FormHookType {
   OBJECT
 }
 
-export interface RootForm {
+export interface RootForm<RootValues = any> {
   submitting: boolean;
   target: EventTarget;
 
-  getValues(): any;
+  getValues(): RootValues;
 
-  getValue(path: Path): any;
+  getValue<T>(path: Path): T;
 
   getError(path: Path): FormError | null;
 
-  change(path: Path, value: any): void;
+  change<T>(path: Path, value: T): void;
 
   focus(path: Path): void;
 
@@ -35,23 +35,23 @@ export interface RootForm {
 
   setSubmitting(submitting: boolean): void;
 
-  getValidationResult(values?: any): Promise<[boolean, any]>;
+  getValidationResult(values?: RootValues): Promise<[boolean, any]>;
 }
 
-export interface FormIOHook {
-  getValues(): any;
+export interface FormIOHook<Values = any> {
+  getValues(): Values;
 
   getValue(path: Path): any;
 
-  change(path: Path, value: any): void;
+  change<T>(path: Path, value: T): void;
 
-  modify<T>(modifier: (input: T) => T): void;
+  modify(modifier: (input: Values) => Values): void;
 }
 
-export interface FormHook extends FormIOHook {
+export interface FormHook<Values = any, RootValues = any> extends FormIOHook<Values> {
   path: Path;
 
-  root: RootForm;
+  root: RootForm<RootValues>;
 
   type: FormHookType;
 }
