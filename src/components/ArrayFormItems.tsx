@@ -1,37 +1,61 @@
-import React, {FC, ReactNode, useContext} from "react";
-import {ArrayFormItem} from "./ArrayFormItem";
+import React, {ComponentClass, createElement, FC, FunctionComponent, ReactNode, useCallback, useContext, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
-import {ArrayFormContextValue} from "../types";
-import {useInputArrayValues} from "../hooks/useInputArrayValues";
+import {CHANGE_EVENT, CustomChangeEvent} from "../events";
+import {useEventListener} from "../hooks/useEventListener";
+import {pathParentOf} from "../utils/path";
+import {ArrayFormItem} from "./ArrayFormItem";
 
-interface ArrayFormItemsChildrenParameters {
+interface ArrayFormItemsChildrenParams {
   values: any;
   index: number;
 
   remove(): void;
 }
 
-interface ArrayFormItemsProps {
-  children: (options: ArrayFormItemsChildrenParameters) => ReactNode;
+interface ArrayFormItemsPropsUsingChildren {
+  children: (options: ArrayFormItemsChildrenParams) => ReactNode;
+  component: undefined | null;
 }
 
-export function ArrayFormItems({children}: ArrayFormItemsProps): ReturnType<FC<ArrayFormItemsProps>> {
-  const {name, form} = useContext(FormContext) as ArrayFormContextValue<any>;
-  useInputArrayValues(form);
+interface ArrayFormItemsPropsUsingComponent {
+  component: FunctionComponent<ArrayFormItemsChildrenParams> | ComponentClass<ArrayFormItemsChildrenParams> | string;
+  children: undefined | null;
+}
+
+type ArrayFormItemsProps = ArrayFormItemsPropsUsingChildren | ArrayFormItemsPropsUsingComponent;
+
+export function ArrayFormItems({children, component}: ArrayFormItemsProps): ReturnType<FC<ArrayFormItemsProps>> {
+  const form = useContext(FormContext);
+  const {getValues, change} = form;
+  const [items, setItems] = useState<any[]>(() => getValues());
+
+  const handleChange = useCallback((event: CustomChangeEvent) => {
+    for (const {path} of event.detail.values) {
+      if (pathParentOf(form.path, path)) {
+        setItems(getValues());
+      }
+    }
+  }, [form.path, getValues]);
+
+  useEventListener(form.root.target, CHANGE_EVENT, handleChange as EventListener);
 
   const removeItem = (index: number) => {
-    form.modify(arr => arr.filter((_: any, i: number) => i !== index));
+    change([], getValues().filter((_: any, i: number) => i !== index));
   };
+
+  const getItemElement = (values: any, index: number) => (
+    children ? (
+      children({values, index, remove: () => removeItem(index)})
+    ) : (component ? (
+      createElement(component, {values, index, remove: () => removeItem(index)})
+    ) : null)
+  );
 
   return (
     <>
-      {form.getValues().map((values: any, index: number) => (
-        <ArrayFormItem index={index} key={`ArrayFormItem(${name},${form.version},${index})`}>
-          {children({
-            values,
-            index,
-            remove: () => removeItem(index)
-          })}
+      {(items || []).map((values, index) => (
+        <ArrayFormItem index={index} key={`item${index}`}>
+          {getItemElement(values, index)}
         </ArrayFormItem>
       ))}
     </>

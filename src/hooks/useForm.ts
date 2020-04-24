@@ -1,116 +1,129 @@
-import {useCallback, useMemo, useRef, useState} from "react";
-import {
-  BLUR_EVENT,
-  CHANGE_MANY_EVENT,
-  ChangeManyEventDetail,
-  DO_SUBMIT_EVENT,
-  ERROR_EVENT,
-  FOCUS_EVENT,
-  FocusBlurEventDetail
-} from "../events";
-import {ErrorObject, FormError, FormValue, RootFormHook, RootFormHookInternal, ValuesMap} from "../types";
-import {createUpdateMap} from "../utils/createUpdateMap";
-import {createFormValue, createValuesMap} from "../utils/createValuesMap";
-import {getRawValue, getRawValues} from "../utils/getRawValues";
-import {createChangeEvent} from "../utils/createChangeEvent";
+import {useMemo, useRef, useState} from "react";
+import {BLUR_EVENT, CHANGE_EVENT, ChangeEventDetail, DO_SUBMIT_EVENT, FOCUS_EVENT, FocusBlurEventDetail} from "../events";
+import {ErrorObject, FormError, FormHook, FormHookType, Path, RootForm} from "../types";
+import {createChangesMap, createErrorsMap} from "../utils/changes";
+import {getTreeValue, pathEquals, ROOT_PATH, setTreeValue} from "../utils/path";
+import {useFormIO} from "./useFormIO";
 
 export interface UseFormParameters<T> {
-  validate?(values: T): ErrorObject<T>;
+  validate?(values: T): ErrorObject;
 }
 
-export function useForm<T>({validate}: UseFormParameters<T>): RootFormHook<T> {
-  const listener: EventTarget = useMemo(() => new EventTarget(), []);
-  const values = useRef<ValuesMap<T>>(new Map());
-  const errors = useRef<Map<keyof T, FormError | null>>(new Map());
-  const focusing = useRef<string | null>(null);
-  const target = useRef<EventTarget>(listener);
+// const getValidationResult = useCallback<RootFormHookInternal<T>["getValidationResult"]>(async (valuesObject) => {
+//   if (!validate) return [false, []];
+//
+//   let errored = false;
+//   const formErrors = await validate(valuesObject || getValues());
+//   const formErrorsMap = new Map(formErrors);
+//
+//   for (const field of values.current.keys()) {
+//     if (formErrorsMap.get(field)) {
+//       errored = true;
+//       const error = formErrorsMap.get(field) as FormError;
+//       formErrorsMap.delete(field);
+//       errors.current.set(field, error);
+//       target.current.dispatchEvent(new CustomEvent(ERROR_EVENT, {detail: {name: field, error: error}}));
+//     } else {
+//       errors.current.delete(field);
+//       target.current.dispatchEvent(new CustomEvent(ERROR_EVENT, {detail: {name: field, error: null}}));
+//     }
+//   }
+//
+//   for (const [field, error] of formErrorsMap.entries()) {
+//     errors.current.set(field, error);
+//     target.current.dispatchEvent(new CustomEvent(ERROR_EVENT, {detail: {name: field, error: error}}));
+//   }
+//
+//   return [errored, formErrors];
+// }, [getValues, validate]);
+//
+
+export function useForm<T>({validate}: UseFormParameters<T>): FormHook {
+  const values = useRef<T>({} as T);
+  const errors = useRef<ErrorObject>([]);
+  const focusing = useRef<Path | null>(null);
+  const target = useRef<EventTarget>(new EventTarget());
   const [submitting, setSubmitting] = useState(false);
+  const path = useMemo(() => ROOT_PATH, []);
 
-  const change = useCallback<RootFormHook<T>["change"]>((name, value) => {
-    const formValue = createFormValue(value) as FormValue<T[keyof T]>;
-    values.current.set(name, formValue);
-    target.current.dispatchEvent(createChangeEvent(name as string, formValue, null));
-  }, []);
+  const getValues = useRef(() => ({...values.current}));
 
-  const focus = useCallback<RootFormHook<T>["focus"]>((name) => {
-    focusing.current = name;
-    target.current.dispatchEvent(new CustomEvent<FocusBlurEventDetail>(FOCUS_EVENT, {detail: {name, form: null}}));
-  }, []);
+  const getValue = useRef((path: Path) => getTreeValue(getValues.current(), path));
 
-  const blur = useCallback<RootFormHook<T>["blur"]>((name) => {
-    if (focusing.current === name) focusing.current = null;
-    target.current.dispatchEvent(new CustomEvent<FocusBlurEventDetail>(BLUR_EVENT, {detail: {name, form: null}}));
-  }, []);
+  const getError = useRef((path: Path): FormError | null => getTreeValue(errors.current, path));
 
-  const getValue = useCallback<RootFormHook<T>["getValue"]>((name) => {
-    return values.current.has(name) ? getRawValue(values.current.get(name) as FormValue<T[typeof name]>) : null;
-  }, []);
+  const change = useRef((path: Path, value: any) => {
+    values.current = setTreeValue(values.current, path, value);
+    target.current.dispatchEvent(new CustomEvent<ChangeEventDetail>(CHANGE_EVENT, {
+      detail: {
+        values: createChangesMap(path, value),
+        errors: []
+      }
+    }));
+  });
 
-  const getError = useCallback<RootFormHook<T>["getError"]>((name) => {
-    return errors.current.has(name) ? errors.current.get(name) as FormError : null;
-  }, []);
+  const focus = useRef((path: Path) => {
+    focusing.current = path;
+    target.current.dispatchEvent(new CustomEvent<FocusBlurEventDetail>(FOCUS_EVENT, {
+      detail: {
+        path
+      }
+    }));
+  });
 
-  const getValues = useCallback<RootFormHook<T>["getValues"]>(() => {
-    return getRawValues<T>(values.current);
-  }, []);
+  const blur = useRef((path: Path) => {
+    if (focusing.current && pathEquals(path, focusing.current)) {
+      focusing.current = null;
 
-  const getValidationResult = useCallback<RootFormHookInternal<T>["getValidationResult"]>(async (valuesObject) => {
+      target.current.dispatchEvent(new CustomEvent<FocusBlurEventDetail>(BLUR_EVENT, {
+        detail: {
+          path
+        }
+      }));
+    }
+  });
+
+  const submit = useRef(() => {
+    target.current.dispatchEvent(new CustomEvent(DO_SUBMIT_EVENT));
+  });
+
+  const getValidationResult = useRef(async (valuesObject?: T): Promise<[boolean, any]> => {
     if (!validate) return [false, []];
 
     let errored = false;
-    const formErrors = await validate(valuesObject || getValues());
-    const formErrorsMap = new Map(formErrors);
+    const formErrors = await validate(valuesObject || getValues.current());
+    errors.current = createErrorsMap([], formErrors);
 
-    for (const field of values.current.keys()) {
-      if (formErrorsMap.get(field)) {
-        errored = true;
-        const error = formErrorsMap.get(field) as FormError;
-        formErrorsMap.delete(field);
-        errors.current.set(field, error);
-        target.current.dispatchEvent(new CustomEvent(ERROR_EVENT, {detail: {name: field, error: error}}));
-      } else {
-        errors.current.delete(field);
-        target.current.dispatchEvent(new CustomEvent(ERROR_EVENT, {detail: {name: field, error: null}}));
+    target.current.dispatchEvent(new CustomEvent<ChangeEventDetail>(CHANGE_EVENT, {
+      detail: {
+        values: [],
+        errors: errors.current
       }
-    }
-
-    for (const [field, error] of formErrorsMap.entries()) {
-      errors.current.set(field, error);
-      target.current.dispatchEvent(new CustomEvent(ERROR_EVENT, {detail: {name: field, error: error}}));
-    }
+    }));
 
     return [errored, formErrors];
-  }, [getValues, validate]);
+  });
 
-  const setValues = useCallback<RootFormHook<T>["setValues"]>((newValues) => {
-    values.current = createValuesMap(newValues);
-    target.current.dispatchEvent(new CustomEvent<ChangeManyEventDetail>(CHANGE_MANY_EVENT, {detail: {updates: createUpdateMap(values.current)}}));
-  }, []);
+  const root: RootForm = {
+    submitting,
+    target: target.current,
+    getValues: getValues.current,
+    getValue: getValue.current,
+    getError: getError.current,
+    change: change.current,
+    focus: focus.current,
+    blur: blur.current,
+    submit: submit.current,
+    setSubmitting,
+    getValidationResult: getValidationResult.current
+  };
 
-  const submit = useCallback<RootFormHook<T>["submit"]>(() => {
-    target.current.dispatchEvent(new CustomEvent(DO_SUBMIT_EVENT));
-  }, []);
-
-  const setSubValues = useCallback<RootFormHookInternal<T>["setSubValues"]>((name, value) => {
-    values.current.set(name, value);
-  }, []);
+  const io = useFormIO(root, path);
 
   return {
-    change,
-    focus,
-    blur,
-    listener: target.current,
-    getValue,
-    getError,
-    getValues,
-    submitting,
-    submit,
-    setValues,
-    internal: {
-      setSubmitting,
-      getValidationResult,
-      name: null,
-      setSubValues
-    }
+    type: FormHookType.OBJECT,
+    path,
+    root,
+    ...io
   };
 }

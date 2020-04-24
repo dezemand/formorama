@@ -10,3 +10,4 @@ export {useInput} from "./hooks/useInput";
 // export {useInputArrayValues} from "./hooks/useInputArrayValues";
 export {useInputValue} from "./hooks/useInputValue";
 export {useForm} from "./hooks/useForm";
+export {pathSelector} from "./utils/path";

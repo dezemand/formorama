@@ -1,132 +1,70 @@
-export enum FormType {
-  INVALID,
-  ROOT,
-  OBJECT,
-  ARRAY
+import {ChangeEvent, FocusEvent} from "react";
+
+export enum PathNodeType {
+  OBJECT_KEY,
+  ARRAY_INDEX
 }
 
-export enum FormValueType {
-  RAW,
-  OBJECT,
-  ARRAY
-}
-
-export interface IFormValue<T> {
-  value: T;
-  type: FormValueType;
-}
-
-export interface RawFormValue<T> extends IFormValue<T> {
-  type: FormValueType.RAW;
-}
-
-export interface SubFormValue<T> extends IFormValue<ValuesMap<T>> {
-  type: FormValueType.OBJECT;
-}
-
-export interface ArrayFormValue<T> extends IFormValue<ArrayValuesMap<T[], T>> {
-  type: FormValueType.ARRAY;
-}
-
-export type FormValue<T> = RawFormValue<T> | SubFormValue<T> | ArrayFormValue<T>;
-
-export type ValuesMap<T> = Map<keyof T, FormValue<T[keyof T]>>;
-export type ArrayValuesMap<T extends S[], S> = Map<number, FormValue<T[0]>>;
+export type PathNode = [PathNodeType.OBJECT_KEY, string] | [PathNodeType.ARRAY_INDEX, number];
+export type Path = PathNode[];
 export type FormError = string | Error;
-export type ErrorObject<T> = [keyof T, FormError | null][];
-export type UpdateMap = Map<string | null, Map<string | null, any>>;
+export type ErrorObject = { path: Path, error: FormError }[];
 
-interface FormHookInternal {
-  name: string | null;
-
-  setSubmitting(submitting: boolean): void;
+export enum FormHookType {
+  ARRAY,
+  OBJECT
 }
 
-interface FormHook<T> {
-  listener: EventTarget;
+export interface RootForm {
   submitting: boolean;
-  internal: FormHookInternal;
+  target: EventTarget;
 
-  getValues(): T;
+  getValues(): any;
+
+  getValue(path: Path): any;
+
+  getError(path: Path): FormError | null;
+
+  change(path: Path, value: any): void;
+
+  focus(path: Path): void;
+
+  blur(path: Path): void;
 
   submit(): void;
+
+  setSubmitting(submitting: boolean): void;
+
+  getValidationResult(values?: any): Promise<[boolean, any]>;
 }
 
-export interface ObjectFormHookInternal<T> extends FormHookInternal {
-  setSubValues(name: keyof T, value: FormValue<any>): void;
+export interface FormIOHook {
+  getValues(): any;
+
+  getValue(path: Path): any;
+
+  change(path: Path, value: any): void;
+
+  modify<T>(modifier: (input: T) => T): void;
 }
 
-export interface ObjectFormHook<T> extends FormHook<T> {
-  internal: ObjectFormHookInternal<T>;
+export interface FormHook extends FormIOHook {
+  path: Path;
 
-  change<K extends keyof T>(name: K, value: T[K]): void;
+  root: RootForm;
 
-  focus(name: string): void;
-
-  blur(name: string): void;
-
-  getValue<K extends keyof T>(name: K): T[K] | null;
-
-  getError<K extends keyof T>(name: K): FormError | null;
+  type: FormHookType;
 }
 
-export interface ArrayFormHookInternal extends FormHookInternal {
-  focus(name: string): void;
 
-  blur(name: string): void;
+export interface InputHook {
+  value: any;
+  error: FormError | null;
+  submitting: boolean;
 
-  setItemValues(index: number, values: any): void;
+  handleChange(event: ChangeEvent<HTMLElement> | any): void;
+
+  handleFocus(event: FocusEvent): void;
+
+  handleBlur(event: FocusEvent): void;
 }
-
-export interface ArrayFormHook<T extends T[]> extends FormHook<T> {
-  internal: ArrayFormHookInternal;
-  length: number;
-  version: number;
-
-  getValue(index: number): T[0] | null;
-
-  change(index: number, value: T[0]): void;
-
-  modify(modifier: (input: T) => T): void;
-}
-
-export interface RootFormHookInternal<T> extends ObjectFormHookInternal<T> {
-  getValidationResult(values?: T): Promise<[boolean, ErrorObject<T>]>;
-}
-
-export interface RootFormHook<T> extends ObjectFormHook<T> {
-  internal: RootFormHookInternal<T>;
-
-  setValues(values: T): void;
-}
-
-interface IFormContextValue<T> {
-  form: T;
-  name: string | null;
-  type: FormType;
-}
-
-export interface InvalidFormContextValue extends IFormContextValue<null> {
-  type: FormType.INVALID;
-}
-
-export interface RootFormContextValue<T> extends IFormContextValue<RootFormHook<T>> {
-  type: FormType.ROOT;
-  name: null;
-}
-
-export interface SubFormContextValue<T> extends IFormContextValue<ObjectFormHook<T>> {
-  type: FormType.OBJECT;
-  name: string;
-}
-
-export interface ArrayFormContextValue<T extends T[]> extends IFormContextValue<ArrayFormHook<T>> {
-  type: FormType.ARRAY;
-  name: string;
-}
-
-export type FormContextValue<T> =
-  InvalidFormContextValue
-  | RootFormContextValue<T>
-  | SubFormContextValue<T>
-  | ArrayFormContextValue<any>;
