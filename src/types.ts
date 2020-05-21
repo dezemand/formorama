@@ -11,7 +11,7 @@ export type Path = PathNode[];
 
 export type FormError = string | Error;
 
-export type ErrorObject = { path: Path, error: FormError }[];
+export type ErrorObject = { path: Path, error: FormError | null }[];
 
 export type UnparsedPathNode = PathNode | string | null | undefined;
 
@@ -31,6 +31,8 @@ export interface RootForm<RootValues = any> {
   getValue<T>(path: Path): T;
 
   getError(path: Path): FormError | null;
+
+  isFocussed(path: Path): boolean;
 
   change<T>(path: Path, value: T): void;
 
@@ -53,6 +55,8 @@ export interface FormIOHook<Values = any> {
   change<T>(path: Path, value: T): void;
 
   modify(modifier: (input: Values) => Values): void;
+
+  submit(): void;
 }
 
 export interface FormHook<Values = any, RootValues = any> extends FormIOHook<Values> {
@@ -63,11 +67,11 @@ export interface FormHook<Values = any, RootValues = any> extends FormIOHook<Val
   type: FormHookType;
 }
 
-
 export interface InputHook {
   value: any;
   error: FormError | null;
   submitting: boolean;
+  focussed: boolean;
 
   handleChange(event: ChangeEvent<HTMLElement> | any): void;
 

@@ -1,6 +1,6 @@
 import {useCallback, useContext, useMemo, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
-import {CHANGE_EVENT, CustomChangeEvent} from "../events";
+import {BLUR_EVENT, CHANGE_EVENT, CustomChangeEvent, CustomFocusBlurEvent, FOCUS_EVENT} from "../events";
 import {FormError, InputHook, Path, PathNodeType} from "../types";
 import {pathEquals} from "../utils/path";
 import {useEventListener} from "./useEventListener";
@@ -9,7 +9,7 @@ export function useInput(name: string, defaultValue: any): InputHook {
   const form = useContext(FormContext);
   const path = useMemo<Path>(() => [...form.path, [PathNodeType.OBJECT_KEY, name]], [form.path, name]);
 
-  const {root: {change, focus, blur, submitting, getValue, target, getError}} = form;
+  const {root: {change, focus, blur, submitting, getValue, target, getError, isFocussed}} = form;
 
   const [value, setValue] = useState(() => {
     let value = getValue(path);
@@ -20,6 +20,7 @@ export function useInput(name: string, defaultValue: any): InputHook {
     return value;
   });
   const [error, setError] = useState<FormError | null>(() => getError(path));
+  const [focussed, setFocussed] = useState<boolean>(() => isFocussed(path));
 
   const changeEventHandler = useCallback((event: CustomChangeEvent) => {
     for (const {path: valuePath, value} of event.detail.values) {
@@ -34,7 +35,21 @@ export function useInput(name: string, defaultValue: any): InputHook {
     }
   }, [path]);
 
+  const focusEventHandler = useCallback((event: CustomFocusBlurEvent) => {
+    if (pathEquals(event.detail.path, path)) {
+      setFocussed(true);
+    }
+  }, [path]);
+
+  const blurEventHandler = useCallback((event: CustomFocusBlurEvent) => {
+    if (pathEquals(event.detail.path, path)) {
+      setFocussed(false);
+    }
+  }, [path]);
+
   useEventListener(target, CHANGE_EVENT, changeEventHandler as EventListener);
+  useEventListener(target, FOCUS_EVENT, focusEventHandler as EventListener);
+  useEventListener(target, BLUR_EVENT, blurEventHandler as EventListener);
 
   const handleChange = useCallback<InputHook["handleChange"]>(event => {
     if (event && event.target) {
@@ -58,6 +73,7 @@ export function useInput(name: string, defaultValue: any): InputHook {
     handleChange,
     handleFocus,
     handleBlur,
-    submitting
+    submitting,
+    focussed
   };
 }

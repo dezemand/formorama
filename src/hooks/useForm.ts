@@ -1,20 +1,12 @@
 import {useMemo, useRef, useState} from "react";
-import {
-  BLUR_EVENT,
-  CHANGE_EVENT,
-  ChangeEventDetail,
-  DO_SUBMIT_EVENT,
-  FOCUS_EVENT,
-  FocusBlurEventDetail,
-  POST_CHANGE_EVENT
-} from "../events";
+import {BLUR_EVENT, CHANGE_EVENT, ChangeEventDetail, DO_SUBMIT_EVENT, FOCUS_EVENT, FocusBlurEventDetail, POST_CHANGE_EVENT} from "../events";
 import {ErrorObject, FormError, FormHook, FormHookType, Path, RootForm, UnparsedPath} from "../types";
-import {createChangesMap, createErrorsMap} from "../utils/changes";
+import {addNullErrors, createChangesMap, createErrorsMap} from "../utils/changes";
 import {getTreeValue, parsePath, pathEquals, ROOT_PATH, setTreeValue} from "../utils/path";
 import {useFormIO} from "./useFormIO";
 
 export interface UseFormParameters<Values> {
-  validate?(values: Values): ErrorObject;
+  validate?(values: Values): ErrorObject | Promise<ErrorObject>;
 }
 
 export function useForm<Values>({validate}: UseFormParameters<Values> = {}): FormHook<Values, Values> {
@@ -80,9 +72,9 @@ export function useForm<Values>({validate}: UseFormParameters<Values> = {}): For
   const getValidationResult = useRef(async (valuesObject?: Values): Promise<[boolean, any]> => {
     if (!validate) return [false, []];
 
-    let errored = false;
-    const formErrors = await validate(valuesObject || getValues.current());
-    errors.current = createErrorsMap([], formErrors);
+    const validationResult = await validate(valuesObject || getValues.current());
+    const errorMap = createErrorsMap([], validationResult);
+    errors.current = addNullErrors(errorMap, errors.current);
 
     target.current.dispatchEvent(new CustomEvent<ChangeEventDetail>(CHANGE_EVENT, {
       detail: {
@@ -91,7 +83,11 @@ export function useForm<Values>({validate}: UseFormParameters<Values> = {}): For
       }
     }));
 
-    return [errored, formErrors];
+    return [errorMap.length > 0, validationResult];
+  });
+
+  const isFocussed = useRef((uPath: UnparsedPath) => {
+    return focusing.current !== null && pathEquals(parsePath(uPath), focusing.current);
   });
 
   const root: RootForm = {
@@ -105,7 +101,8 @@ export function useForm<Values>({validate}: UseFormParameters<Values> = {}): For
     blur: blur.current,
     submit: submit.current,
     setSubmitting,
-    getValidationResult: getValidationResult.current
+    getValidationResult: getValidationResult.current,
+    isFocussed: isFocussed.current
   };
 
   const io = useFormIO<Values>(root, path);

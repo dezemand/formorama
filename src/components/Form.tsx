@@ -22,8 +22,13 @@ export function Form<Values = any>({children, form, onSubmit, onError, noFormTag
     const values = getValues();
     const [errored, validateResult] = await getValidationResult(values);
 
-    if (errored && onError) await onError(validateResult, values);
-    if (!errored && onSubmit) await onSubmit(values);
+    if (errored && onError) {
+      await onError(validateResult, values);
+    }
+
+    if (!errored && onSubmit) {
+      await onSubmit(values);
+    }
 
     setSubmitting(false);
   }, [getValidationResult, getValues, onError, onSubmit, setSubmitting, submitting]);

@@ -1,5 +1,5 @@
-import {FormError, Path, PathNodeType} from "../types";
-import {isObject} from "./path";
+import {ErrorObject, FormError, Path, PathNodeType} from "../types";
+import {isObject, pathEquals} from "./path";
 
 function mergeArrays<T>(...arrays: T[][]): T[] {
   return arrays.reduce((acc, val) => [...acc, ...val], []);
@@ -19,7 +19,7 @@ function isFormError(error: any): error is FormError {
   return typeof error === "string" || error instanceof Error;
 }
 
-export function createErrorsMap(currentPath: Path, error: any): { path: Path, error: FormError }[] {
+export function createErrorsMap(currentPath: Path, error: any): ErrorObject {
   if (Array.isArray(error) && error.length > 0) {
     return mergeArrays(...error.map((value, index) => createErrorsMap([...currentPath, [PathNodeType.ARRAY_INDEX, index]], value)));
   } else if (isObject(error) && !Array.isArray(error) && Object.entries(error).length > 0) {
@@ -29,4 +29,16 @@ export function createErrorsMap(currentPath: Path, error: any): { path: Path, er
   } else {
     return [];
   }
+}
+
+export function addNullErrors(current: ErrorObject, old: ErrorObject): ErrorObject {
+  const nullErrors: ErrorObject = [];
+
+  for (const oldError of old) {
+    if (!current.find(currentError => pathEquals(currentError.path, oldError.path))) {
+      nullErrors.push({error: null, path: oldError.path});
+    }
+  }
+
+  return [...current, ...nullErrors];
 }
