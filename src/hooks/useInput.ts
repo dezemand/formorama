@@ -9,7 +9,7 @@ export function useInput(name: string, defaultValue: any): InputHook {
   const form = useContext(FormContext);
   const path = useMemo<Path>(() => [...form.path, [PathNodeType.OBJECT_KEY, name]], [form.path, name]);
 
-  const {root: {change, focus, blur, submitting, getValue, target, getError, isFocussed}} = form;
+  const {root: {change, focus, blur, submitting, getValue, target, getError, isFocused}} = form;
 
   const [value, setValue] = useState(() => {
     let value = getValue(path);
@@ -20,7 +20,7 @@ export function useInput(name: string, defaultValue: any): InputHook {
     return value;
   });
   const [error, setError] = useState<FormError | null>(() => getError(path));
-  const [focussed, setFocussed] = useState<boolean>(() => isFocussed(path));
+  const [focused, setFocused] = useState<boolean>(() => isFocused(path));
 
   const changeEventHandler = useCallback((event: CustomChangeEvent) => {
     for (const {path: valuePath, value} of event.detail.values) {
@@ -37,13 +37,13 @@ export function useInput(name: string, defaultValue: any): InputHook {
 
   const focusEventHandler = useCallback((event: CustomFocusBlurEvent) => {
     if (pathEquals(event.detail.path, path)) {
-      setFocussed(true);
+      setFocused(true);
     }
   }, [path]);
 
   const blurEventHandler = useCallback((event: CustomFocusBlurEvent) => {
     if (pathEquals(event.detail.path, path)) {
-      setFocussed(false);
+      setFocused(false);
     }
   }, [path]);
 
@@ -74,6 +74,6 @@ export function useInput(name: string, defaultValue: any): InputHook {
     handleFocus,
     handleBlur,
     submitting,
-    focussed
+    focused
   };
 }

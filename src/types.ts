@@ -22,37 +22,41 @@ export enum FormHookType {
   OBJECT
 }
 
-export interface RootForm<RootValues = any> {
-  submitting: boolean;
-  target: EventTarget;
-
+export interface RootFormFunctions<RootValues = any> {
   getValues(): RootValues;
 
-  getValue<T>(path: Path): T;
+  getValue<T>(path: UnparsedPath): T;
 
-  getError(path: Path): FormError | null;
+  getError(path: UnparsedPath): FormError | null;
 
-  isFocussed(path: Path): boolean;
+  setErrors(errors: any): [boolean, any];
 
-  change<T>(path: Path, value: T): void;
+  isFocused(path: UnparsedPath): boolean;
 
-  focus(path: Path): void;
+  change<T>(path: UnparsedPath, value: T): void;
 
-  blur(path: Path): void;
+  focus(path: UnparsedPath): void;
+
+  blur(path: UnparsedPath): void;
 
   submit(): void;
 
-  setSubmitting(submitting: boolean): void;
-
   getValidationResult(values?: RootValues): Promise<[boolean, any]>;
+}
+
+export interface RootForm<RootValues = any> extends RootFormFunctions<RootValues> {
+  submitting: boolean;
+  target: EventTarget;
+
+  setSubmitting(submitting: boolean): void;
 }
 
 export interface FormIOHook<Values = any> {
   getValues(): Values;
 
-  getValue(path: Path): any;
+  getValue(path: UnparsedPath): any;
 
-  change<T>(path: Path, value: T): void;
+  change<T>(path: UnparsedPath, value: T): void;
 
   modify(modifier: (input: Values) => Values): void;
 
@@ -71,7 +75,7 @@ export interface InputHook {
   value: any;
   error: FormError | null;
   submitting: boolean;
-  focussed: boolean;
+  focused: boolean;
 
   handleChange(event: ChangeEvent<HTMLElement> | any): void;
 
