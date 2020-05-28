@@ -25,7 +25,8 @@ export default {
     resolve(),
     typescript({
       rollupCommonJSResolveHack: true,
-      clean: true
+      clean: true,
+      useTsconfigDeclarationDir: true
     }),
     commonjs()
   ]
