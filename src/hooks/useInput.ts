@@ -2,7 +2,7 @@ import {useCallback, useContext, useMemo, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {BLUR_EVENT, CHANGE_EVENT, CustomChangeEvent, CustomFocusBlurEvent, FOCUS_EVENT} from "../events";
 import {FormError, InputHook, Path, PathNodeType} from "../types";
-import {pathEquals} from "../utils/path";
+import {pathEquals, pathParentOf, setTreeValue} from "../utils/path";
 import {useEventListener} from "./useEventListener";
 
 export function useInput(name: string, defaultValue: any): InputHook {
@@ -23,15 +23,30 @@ export function useInput(name: string, defaultValue: any): InputHook {
   const [focused, setFocused] = useState<boolean>(() => isFocused(path));
 
   const changeEventHandler = useCallback((event: CustomChangeEvent) => {
+    let newValue = value;
+    let changedValue = false;
+
     for (const {path: valuePath, value} of event.detail.values) {
       if (pathEquals(valuePath, path)) {
-        setValue(value);
+        newValue = value;
+        changedValue = true;
+      } else if (pathParentOf(path, valuePath)) {
+        const subPath = valuePath.slice(path.length);
+        const tree = newValue || (subPath[0][0] === PathNodeType.ARRAY_INDEX ? [] : {});
+        setTreeValue(tree, subPath, value);
+        newValue = tree;
+        changedValue = true;
       }
     }
+
     for (const {path: errorPath, error} of event.detail.errors) {
       if (pathEquals(errorPath, path)) {
         setError(error);
       }
+    }
+
+    if (changedValue) {
+      setValue(newValue);
     }
   }, [path]);
 
