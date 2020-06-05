@@ -23,7 +23,7 @@ export function useInput(name: string, defaultValue: any): InputHook {
   const [focused, setFocused] = useState<boolean>(() => isFocused(path));
 
   const changeEventHandler = useCallback((event: CustomChangeEvent) => {
-    let newValue = value;
+    let newValue = getValue(path);
     let changedValue = false;
 
     for (const {path: valuePath, value} of event.detail.values) {
@@ -48,7 +48,7 @@ export function useInput(name: string, defaultValue: any): InputHook {
     if (changedValue) {
       setValue(newValue);
     }
-  }, [path]);
+  }, [path, getValue]);
 
   const focusEventHandler = useCallback((event: CustomFocusBlurEvent) => {
     if (pathEquals(event.detail.path, path)) {
