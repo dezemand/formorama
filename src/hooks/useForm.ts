@@ -1,5 +1,13 @@
-import {useMemo, useRef, useState} from "react";
-import {BLUR_EVENT, CHANGE_EVENT, ChangeEventDetail, DO_SUBMIT_EVENT, FOCUS_EVENT, FocusBlurEventDetail, POST_CHANGE_EVENT} from "../events";
+import {useEffect, useMemo, useRef, useState} from "react";
+import {
+  BLUR_EVENT,
+  CHANGE_EVENT,
+  ChangeEventDetail,
+  DO_SUBMIT_EVENT,
+  FOCUS_EVENT,
+  FocusBlurEventDetail,
+  POST_CHANGE_EVENT
+} from "../events";
 import {ErrorObject, FormHook, FormHookType, Path, RootForm, RootFormFunctions} from "../types";
 import {addNullErrors, createChangesMap, createErrorsMap} from "../utils/changes";
 import {createCustomEvent, createEventTarget} from "../utils/events";
@@ -10,13 +18,18 @@ export interface UseFormParameters<Values> {
   validate?(values: Values): any | Promise<any>;
 }
 
-export function useForm<Values>({validate}: UseFormParameters<Values> = {}): FormHook<Values, Values> {
+export function useForm<Values>(params: UseFormParameters<Values> = {}): FormHook<Values, Values> {
   const values = useRef<Values>({} as Values);
   const errors = useRef<ErrorObject>([]);
   const focusing = useRef<Path | null>(null);
   const target = useRef<EventTarget>(createEventTarget());
   const [submitting, setSubmitting] = useState(false);
   const path = useMemo(() => ROOT_PATH, []);
+  const paramsRef = useRef<UseFormParameters<Values>>({});
+
+  useEffect(() => {
+    paramsRef.current = params;
+  }, [params]);
 
   const getValues = useRef<RootFormFunctions<Values>["getValues"]>(() => ({...values.current}));
 
@@ -93,8 +106,8 @@ export function useForm<Values>({validate}: UseFormParameters<Values> = {}): For
     },
 
     async getValidationResult(valuesObject) {
-      if (!validate) return [false, []];
-      return setErrors.current(await validate(valuesObject || getValues.current()));
+      if (!paramsRef.current.validate) return [false, []];
+      return setErrors.current(await paramsRef.current.validate(valuesObject || getValues.current()));
     },
 
     isFocused(uPath) {
