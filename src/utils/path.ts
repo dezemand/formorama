@@ -1,6 +1,6 @@
-import {Path, PathNode, PathNodeType, UnparsedPath, UnparsedPathNode} from "../types";
+import {PathNode, PathNodeType, UnparsedPath, UnparsedPathNode} from "../types";
 
-export const ROOT_PATH: Path = [];
+export const ROOT_PATH: PathNode[] = [];
 
 export function isObject(value: any): boolean {
   return typeof value === "object" && value !== null;
@@ -16,7 +16,7 @@ export function isPathNode(value: any): value is PathNode {
     );
 }
 
-export function isPath(value: any): boolean {
+export function isPath(value: any): value is PathNode[] {
   return Array.isArray(value) && value.every(node => isPathNode(node));
 }
 
@@ -33,7 +33,7 @@ function getValue(tree: any, node: PathNode): any {
   }
 }
 
-export function getTreeValue(tree: any, path: Path): any {
+export function getTreeValue(tree: any, path: PathNode[]): any {
   let value = tree;
 
   for (const treeNode of path) {
@@ -45,7 +45,7 @@ export function getTreeValue(tree: any, path: Path): any {
   return value;
 }
 
-export function setTreeValue(tree: any, path: Path, value: any): any {
+export function setTreeValue(tree: any, path: PathNode[], value: any): any {
   if (path.length === 0) return value;
 
   const [frontNode, ...nextPath] = path;
@@ -57,7 +57,7 @@ export function setTreeValue(tree: any, path: Path, value: any): any {
   return tree;
 }
 
-export function pathParentOf(a: Path, b: Path): boolean {
+export function pathParentOf(a: PathNode[], b: PathNode[]): boolean {
   for (let i = 0; i < a.length; i++) {
     if ((a[i] && !b[i]) || a[i][0] !== b[i][0] || a[i][1] !== b[i][1]) {
       return false;
@@ -66,7 +66,7 @@ export function pathParentOf(a: Path, b: Path): boolean {
   return true;
 }
 
-export function pathEquals(a: Path, b: Path): boolean {
+export function pathEquals(a: PathNode[], b: PathNode[]): boolean {
   return a.length === b.length && pathParentOf(a, b);
 
 }
@@ -77,15 +77,15 @@ function mergeArrays<T>(...arrays: T[][]): T[] {
   return arrays.reduce((acc, val) => [...acc, ...val], []);
 }
 
-export function pathSelector(selectorStr: string, path: Path = []): Path {
-  const selectorPaths: Path[] = selectorStr
+export function pathSelector(selectorStr: string, path: PathNode[] = []): PathNode[] {
+  const selectorPaths: PathNode[][] = selectorStr
     .split(".")
     .map(part => {
       const regexRes = PATH_STR_REGEX.exec(part);
       if (!regexRes || !regexRes[2]) return [[PathNodeType.OBJECT_KEY, part]];
       return [
-        ...((regexRes[1] && regexRes[1] !== "") ? [[PathNodeType.OBJECT_KEY, regexRes[1]]] : []) as Path,
-        ...regexRes[2].split("[").slice(1).map(item => [PathNodeType.ARRAY_INDEX, Number(item.slice(0, -1))]) as Path
+        ...((regexRes[1] && regexRes[1] !== "") ? [[PathNodeType.OBJECT_KEY, regexRes[1]]] : []) as PathNode[],
+        ...regexRes[2].split("[").slice(1).map(item => [PathNodeType.ARRAY_INDEX, Number(item.slice(0, -1))]) as PathNode[]
       ];
     });
 
@@ -102,9 +102,9 @@ function parsePathNode(node: UnparsedPathNode): PathNode[] {
   }
 }
 
-export function parsePath(path: UnparsedPath): Path {
+export function parsePath(path: UnparsedPath): PathNode[] {
   if (isPath(path)) {
-    return path as Path;
+    return path;
   } else if (!path || path === "") {
     return ROOT_PATH;
   } else if (Array.isArray(path)) {
