@@ -1,10 +1,10 @@
 {
-  "name": "react-ovm-forms",
+  "name": "formorama",
   "version": "0.6.8",
-  "description": "Library for creating React forms",
-  "main": "dist/react-ovm-forms.js",
-  "module": "dist/react-ovm-forms.es.js",
-  "jsnext:main": "dist/react-ovm-forms.es.js",
+  "description": "Forms in React, using hooks and contexts",
+  "main": "dist/formorama.js",
+  "module": "dist/formorama.es.js",
+  "jsnext:main": "dist/formorama.es.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c",
@@ -28,10 +28,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dezemand/react-ovm-forms"
+    "url": "https://github.com/dezemand/formorama"
   },
   "bugs": {
-    "url": "https://github.com/dezemand/react-ovm-forms/issues"
+    "url": "https://github.com/dezemand/formorama/issues"
   },
   "peerDependencies": {
     "react": ">=16.8.0"
