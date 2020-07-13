@@ -1,11 +1,5 @@
 import {ChangeEvent, FocusEvent} from "react";
-
-export enum PathNodeType {
-  OBJECT_KEY,
-  ARRAY_INDEX
-}
-
-export type PathNode = [PathNodeType.OBJECT_KEY, string] | [PathNodeType.ARRAY_INDEX, number];
+import {PathNode} from "./store/Path";
 
 export type Path = PathNode[];
 

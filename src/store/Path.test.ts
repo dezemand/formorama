@@ -1,5 +1,4 @@
-import {PathNodeType} from "../types";
-import {Path} from "./Path";
+import {Path, PathNodeType} from "./Path";
 
 test("Constructor works", () => {
   const path = new Path([[PathNodeType.OBJECT_KEY, "a"], [PathNodeType.ARRAY_INDEX, 1], [PathNodeType.OBJECT_KEY, "c"]]);
@@ -58,13 +57,21 @@ test("Not equal paths, same lengths", () => {
 });
 
 test("Creating a path string", () => {
-  const path = new Path([[PathNodeType.OBJECT_KEY, "a"], [PathNodeType.ARRAY_INDEX, 1], [PathNodeType.OBJECT_KEY, "c"], [PathNodeType.OBJECT_KEY, "d"], [PathNodeType.ARRAY_INDEX, 2], [PathNodeType.ARRAY_INDEX, 0]]);
+  const path = new Path([
+    [PathNodeType.OBJECT_KEY, "a"], [PathNodeType.ARRAY_INDEX, 1],
+    [PathNodeType.OBJECT_KEY, "c"], [PathNodeType.OBJECT_KEY, "d"],
+    [PathNodeType.ARRAY_INDEX, 2], [PathNodeType.ARRAY_INDEX, 0]]
+  );
 
   expect(path.pathString).toBe("a[1].c.d[2][0]");
 });
 
 test("Parsing a path string returns the same path", () => {
-  const path = new Path([[PathNodeType.OBJECT_KEY, "a"], [PathNodeType.ARRAY_INDEX, 1], [PathNodeType.OBJECT_KEY, "c"], [PathNodeType.OBJECT_KEY, "d"], [PathNodeType.ARRAY_INDEX, 2], [PathNodeType.ARRAY_INDEX, 0]]);
+  const path = new Path([
+    [PathNodeType.OBJECT_KEY, "a"], [PathNodeType.ARRAY_INDEX, 1],
+    [PathNodeType.OBJECT_KEY, "c"], [PathNodeType.OBJECT_KEY, "d"],
+    [PathNodeType.ARRAY_INDEX, 2], [PathNodeType.ARRAY_INDEX, 0]
+  ]);
   const parsedPath = Path.parse(path.pathString);
 
   expect(path.equals(parsedPath)).toBe(true);
@@ -95,18 +102,18 @@ test("Concatting paths works", () => {
 
   const fullPath = new Path([[PathNodeType.OBJECT_KEY, "a"], [PathNodeType.OBJECT_KEY, "b"], [PathNodeType.OBJECT_KEY, "c"], [PathNodeType.OBJECT_KEY, "d"]]);
 
-  const concattedPath = path1.concat(path2);
+  const concatenatedPath = path1.concat(path2);
 
-  expect(concattedPath.equals(fullPath)).toBe(true);
-  expect(concattedPath.nodes).toEqual(fullPath.nodes);
+  expect(concatenatedPath.equals(fullPath)).toBe(true);
+  expect(concatenatedPath.nodes).toEqual(fullPath.nodes);
 });
 
 test("Slicing paths works", () => {
   const path = new Path([[PathNodeType.OBJECT_KEY, "a"], [PathNodeType.OBJECT_KEY, "b"], [PathNodeType.OBJECT_KEY, "c"], [PathNodeType.OBJECT_KEY, "d"]]);
 
-  const slicedPath = path.slice(0, 2);
+  const slicedPath = path.slice(1, 2);
 
-  expect(slicedPath.equals(new Path([[PathNodeType.OBJECT_KEY, "a"], [PathNodeType.OBJECT_KEY, "b"]]))).toBe(true);
+  expect(slicedPath.equals(new Path([[PathNodeType.OBJECT_KEY, "b"]]))).toBe(true);
 });
 
 test("toString works", () => {

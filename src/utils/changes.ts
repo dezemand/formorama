@@ -1,4 +1,5 @@
-import {ErrorObject, FormError, Path, PathNodeType} from "../types";
+import {PathNodeType} from "../store/Path";
+import {ErrorObject, FormError, Path} from "../types";
 import {isObject, pathEquals} from "./path";
 
 function mergeArrays<T>(...arrays: T[][]): T[] {

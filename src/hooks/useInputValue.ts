@@ -1,7 +1,8 @@
 import {useCallback, useContext, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {CHANGE_EVENT, CustomChangeEvent} from "../events";
-import {FormHook, Path, PathNodeType, UnparsedPath} from "../types";
+import {PathNodeType} from "../store/Path";
+import {FormHook, Path, UnparsedPath} from "../types";
 import {parsePath, pathEquals, pathParentOf, setTreeValue} from "../utils/path";
 import {useEventListener} from "./useEventListener";
 

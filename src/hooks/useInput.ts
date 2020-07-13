@@ -1,7 +1,8 @@
 import {useCallback, useContext, useMemo, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {BLUR_EVENT, CHANGE_EVENT, CustomChangeEvent, CustomFocusBlurEvent, FOCUS_EVENT} from "../events";
-import {FormError, InputHook, Path, PathNodeType} from "../types";
+import {PathNodeType} from "../store/Path";
+import {FormError, InputHook, Path} from "../types";
 import {pathEquals, pathParentOf, setTreeValue} from "../utils/path";
 import {useEventListener} from "./useEventListener";
 

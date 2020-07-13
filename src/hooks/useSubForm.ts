@@ -1,5 +1,6 @@
 import {useMemo} from "react";
-import {FormHook, FormHookType, Path, PathNodeType} from "../types";
+import {PathNodeType} from "../store/Path";
+import {FormHook, FormHookType, Path} from "../types";
 import {useFormIO} from "./useFormIO";
 
 export function useSubForm<Values = any, ParentValues = any, RootValues = any>(parent: FormHook<ParentValues, RootValues>, name: string): FormHook<Values, RootValues> {

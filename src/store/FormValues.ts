@@ -1,6 +1,4 @@
-import {getTreeValue} from "../utils/path";
 import {Change} from "./Change";
-import {ChangeSet} from "./ChangeSet";
 import {ImmutableValuesTree} from "./ImmutableValuesTree";
 import {Path} from "./Path";
 
@@ -8,26 +6,42 @@ export class FormValues<Values = any> {
   public readonly values: ImmutableValuesTree<Values>;
 
   constructor(values: Values) {
-    this.values = new ImmutableValuesTree(values);
+    this.values = values instanceof ImmutableValuesTree ? values : new ImmutableValuesTree(values);
   }
 
-  public change(path: Path, value: any): Change {
-    return Change.fromNewValue(this, path, value);
+  public change(path: Path, value: any): Change[] {
+    return ImmutableValuesTree.EMPTY_OBJECT
+      .set(path, value)
+      .entries()
+      .map(([path, value]) => new Change(path, value));
   }
 
-  public compare(otherValues: FormValues): ChangeSet {
-    return new ChangeSet();
+  public compare(otherValues: FormValues): Change[] {
+    const thisEntries = this.values.entries();
+    const otherEntries = otherValues.values.entries();
+
+    const notInThis = otherEntries
+      .filter(([otherPath, otherValue]) => !thisEntries.some(([thisPath, thisValue]) => otherPath.equals(thisPath) && otherValue === thisValue));
+    const notInOther = thisEntries
+      .filter(([thisPath, thisValue]) => !otherEntries.some(([otherPath, otherValue]) => thisPath.equals(otherPath) && thisValue === otherValue));
+
+    const changes = notInThis.map(([path, value]) => new Change(path, value));
+    const removedChanges = notInOther
+      .filter(([path]) => !changes.some(change => change.path.equals(path)))
+      .map(([path]) => new Change(path, null));
+
+    return [...changes, ...removedChanges];
   }
 
-  public apply(change: Change): FormValues {
-    return new FormValues(this.values.set(change.path, change.value));
+  public apply(changes: Change[]): FormValues {
+    let newValues = this.values;
+    for (const change of changes) {
+      newValues = newValues.set(change.path, change.value);
+    }
+    return new FormValues(newValues);
   }
 
-  public subValues(path: Path): FormValues {
-    return new FormValues(this.getValue(path));
-  }
-
-  public getValue(path: Path): any {
-    return getTreeValue(this.values, path.nodes);
+  public get<T>(path: Path): T {
+    return this.values.get(path);
   }
 }

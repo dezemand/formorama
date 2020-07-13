@@ -1,4 +1,4 @@
-import {PathNode, PathNodeType, UnparsedPath, UnparsedPathNode} from "../types";
+import {Path, PathNode, PathNodeType, UnparsedPath, UnparsedPathNode} from "../store/Path";
 
 export const ROOT_PATH: PathNode[] = [];
 
@@ -11,8 +11,7 @@ export function isPathNode(value: any): value is PathNode {
     && value.length === 2
     && (
       (value[0] === PathNodeType.OBJECT_KEY && typeof value[1] === "string")
-      ||
-      (value[0] === PathNodeType.ARRAY_INDEX && typeof value[1] === "number")
+      || (value[0] === PathNodeType.ARRAY_INDEX && typeof value[1] === "number")
     );
 }
 
@@ -103,7 +102,9 @@ function parsePathNode(node: UnparsedPathNode): PathNode[] {
 }
 
 export function parsePath(path: UnparsedPath): PathNode[] {
-  if (isPath(path)) {
+  if (path instanceof Path) {
+    return path.nodes;
+  } else if (isPath(path)) {
     return path;
   } else if (!path || path === "") {
     return ROOT_PATH;
