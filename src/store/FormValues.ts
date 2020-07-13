@@ -20,7 +20,7 @@ export class FormValues<Values = any> {
   }
 
   public apply(change: Change): FormValues {
-    return new FormValues(this.values);
+    return new FormValues(this.values.set(change.path, change.value));
   }
 
   public subValues(path: Path): FormValues {

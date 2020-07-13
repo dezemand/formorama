@@ -9,7 +9,9 @@
   "scripts": {
     "build": "rollup -c",
     "start": "rollup -c -w",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "react",
@@ -39,7 +41,9 @@
   "devDependencies": {
     "@babel/core": "^7.8.7",
     "@babel/runtime": "^7.8.7",
+    "@types/jest": "^26.0.4",
     "@types/react": "^16.9.23",
+    "jest": "^26.1.0",
     "react": "^16.13.0",
     "rollup": "^2.0.5",
     "rollup-plugin-babel": "^4.4.0",
@@ -47,6 +51,7 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.2",
     "rollup-plugin-typescript2": "^0.26.0",
+    "ts-jest": "^26.1.2",
     "typescript": "^3.8.3"
   },
   "files": [

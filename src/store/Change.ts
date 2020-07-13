@@ -24,4 +24,8 @@ export class Change {
 
     return new Change(changePath, newValueTree.raw);
   }
+
+  public toString(): string {
+    return `[Change '${this.path.pathString}' to '${this.value}']`;
+  }
 }
