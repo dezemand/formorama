@@ -1,5 +1,6 @@
 import {EventEmitter} from "events";
 import {BLUR_EVENT, CHANGE_EVENT, FOCUS_EVENT} from "../events";
+import {Change} from "./Change";
 import {FormValues} from "./FormValues";
 import {ImmutableValuesTree} from "./ImmutableValuesTree";
 import {Path} from "./Path";
@@ -17,6 +18,14 @@ export class FormController<Values = any> extends EventEmitter {
 
   public change(path: Path, value: any): void {
     const changes = this.values.change(path, value);
+    this.values = this.values.apply(changes);
+    this.emit(CHANGE_EVENT, changes);
+  }
+
+  public modify(path: Path, modifier: (values: any) => any): void {
+    const oldValues = new FormValues(this.values.get(path));
+    const newValues = new FormValues(modifier(oldValues.values.raw));
+    const changes = oldValues.compare(newValues).map(change => new Change(path.concat(change.path), change.value));
     this.values = this.values.apply(changes);
     this.emit(CHANGE_EVENT, changes);
   }

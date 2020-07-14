@@ -41,7 +41,7 @@ export class FormValues<Values = any> {
     return new FormValues(newValues);
   }
 
-  public get<T>(path: Path): T {
+  public get<T = any>(path: Path): T {
     return this.values.get(path);
   }
 }
