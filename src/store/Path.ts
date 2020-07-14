@@ -1,4 +1,4 @@
-import {parsePath} from "../utils/path";
+import {parsePath} from "../utils/parsePath";
 
 /**
  *
@@ -16,7 +16,7 @@ export type PathNode = [PathNodeType.OBJECT_KEY, string] | [PathNodeType.ARRAY_I
 /**
  *
  */
-export type UnparsedPathNode = PathNode | string | null | undefined;
+export type UnparsedPathNode = PathNode | string;
 
 /**
  *
@@ -110,6 +110,6 @@ export class Path {
    * @param path
    */
   public static parse(path: UnparsedPath): Path {
-    return new Path(parsePath(path));
+    return parsePath(path);
   }
 }

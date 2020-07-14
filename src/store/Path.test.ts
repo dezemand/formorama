@@ -96,7 +96,7 @@ test("Adding works", () => {
   expect(addedPath.nodes).toEqual(fullPath.nodes);
 });
 
-test("Concatting paths works", () => {
+test("Concatenating paths works", () => {
   const path1 = new Path([[PathNodeType.OBJECT_KEY, "a"], [PathNodeType.OBJECT_KEY, "b"]]);
   const path2 = new Path([[PathNodeType.OBJECT_KEY, "c"], [PathNodeType.OBJECT_KEY, "d"]]);
 
@@ -121,4 +121,31 @@ test("toString works", () => {
 
   expect(path.toString()).toBe("[Path: 'a[1].c.d[2][0]']");
   expect(String(path)).toBe("[Path: 'a[1].c.d[2][0]']");
+});
+
+test("Using the parser on path nodes", () => {
+  const parsedPath = Path.parse([[PathNodeType.OBJECT_KEY, "a"], [PathNodeType.OBJECT_KEY, "b"], [PathNodeType.ARRAY_INDEX, 1], [PathNodeType.OBJECT_KEY, "c"]]);
+  const constructedPath = new Path([[PathNodeType.OBJECT_KEY, "a"], [PathNodeType.OBJECT_KEY, "b"], [PathNodeType.ARRAY_INDEX, 1], [PathNodeType.OBJECT_KEY, "c"]]);
+
+  expect(parsedPath.equals(constructedPath)).toBe(true);
+});
+
+test("Using the parser on a path", () => {
+  const path = new Path([[PathNodeType.OBJECT_KEY, "a"], [PathNodeType.OBJECT_KEY, "b"], [PathNodeType.ARRAY_INDEX, 1], [PathNodeType.OBJECT_KEY, "c"]]);
+  const parsedPath = Path.parse(path);
+
+  expect(parsedPath.equals(path)).toBe(true);
+});
+
+test("Using the parser on an empty string or null", () => {
+  expect(Path.parse("").isRoot).toBe(true);
+  expect(Path.parse(null).isRoot).toBe(true);
+  expect(Path.parse(undefined).isRoot).toBe(true);
+});
+
+test("Using the parser on a string array", () => {
+  const parsedPath = Path.parse(["a.b", "c[3]"]);
+  const path = new Path([[PathNodeType.OBJECT_KEY, "a"], [PathNodeType.OBJECT_KEY, "b"], [PathNodeType.OBJECT_KEY, "c"], [PathNodeType.ARRAY_INDEX, 3]]);
+
+  expect(parsedPath.equals(path)).toBe(true);
 });

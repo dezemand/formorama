@@ -1,12 +1,12 @@
 import {Path, PathNode, PathNodeType, UnparsedPath, UnparsedPathNode} from "../store/Path";
 
-export const ROOT_PATH: PathNode[] = [];
+const PATH_STR_REGEX = /([a-zA-Z0-9]+)((?:\[\d+])+)?/;
 
-export function isObject(value: any): boolean {
-  return typeof value === "object" && value !== null;
+function mergeArrays<T>(...arrays: T[][]): T[] {
+  return arrays.reduce((acc, val) => [...acc, ...val], []);
 }
 
-export function isPathNode(value: any): value is PathNode {
+function isPathNode(value: any): value is PathNode {
   return Array.isArray(value)
     && value.length === 2
     && (
@@ -15,14 +15,8 @@ export function isPathNode(value: any): value is PathNode {
     );
 }
 
-export function isPath(value: any): value is PathNode[] {
+function isPathNodeArray(value: any): value is PathNode[] {
   return Array.isArray(value) && value.every(node => isPathNode(node));
-}
-
-const PATH_STR_REGEX = /([a-zA-Z0-9]+)((?:\[\d+])+)?/;
-
-function mergeArrays<T>(...arrays: T[][]): T[] {
-  return arrays.reduce((acc, val) => [...acc, ...val], []);
 }
 
 function pathSelector(selectorStr: string, path: PathNode[] = []): PathNode[] {
@@ -43,27 +37,19 @@ function pathSelector(selectorStr: string, path: PathNode[] = []): PathNode[] {
 }
 
 function parsePathNode(node: UnparsedPathNode): PathNode[] {
-  if (isPathNode(node)) {
-    return [node];
-  } else if (!node || node === "") {
-    throw new Error(`Could not parse ${node}`);
-  } else {
-    return pathSelector(node);
-  }
+  return isPathNode(node) ? [node] : pathSelector(node);
 }
 
-export function parsePath(path: UnparsedPath): PathNode[] {
+export function parsePath(path: UnparsedPath): Path {
   if (path instanceof Path) {
-    return path.nodes;
-  } else if (isPath(path)) {
     return path;
+  } else if (isPathNodeArray(path)) {
+    return new Path(path);
   } else if (!path || path === "") {
-    return ROOT_PATH;
+    return Path.ROOT;
   } else if (Array.isArray(path)) {
-    return [...mergeArrays(...path.filter(node => node && node !== "").map(node => {
-      return parsePathNode(node);
-    }))];
+    return new Path([...mergeArrays(...path.filter(node => node && node !== "").map(node => parsePathNode(node)))]);
   } else {
-    return pathSelector(path);
+    return new Path(pathSelector(path));
   }
 }
