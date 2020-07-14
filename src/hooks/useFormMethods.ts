@@ -2,7 +2,7 @@ import {useRef} from "react";
 import {FormController} from "../store/FormController";
 import {Path, UnparsedPath} from "../store/Path";
 
-export interface FormMethods<Values> {
+export interface FormMethods {
   change<T>(uPath: UnparsedPath, value: T): void;
 
   getValue<T>(uPath: UnparsedPath): T;
@@ -18,7 +18,7 @@ export interface FormMethods<Values> {
   submit(): void;
 }
 
-export function useFormMethods<Values>(controller: FormController, path: Path): FormMethods<Values> {
+export function useFormMethods(controller: FormController, path: Path): FormMethods {
   const methods = useRef({
     change<T>(uPath: UnparsedPath, value: T): void {
       controller.change(path.concat(Path.parse(uPath)), value);

@@ -8,9 +8,9 @@ interface ArrayFormItemProps {
   index: number;
 }
 
-export function ArrayFormItem<Values = any, ParentValues = any, RootValues = any>({children, index}: ArrayFormItemProps): ReturnType<FC<ArrayFormItemProps>> {
-  const parentCtx = useContext<FormCtx>(FormContext);
-  const ctx = useRef<FormCtx>({
+export function ArrayFormItem<RootValues = any>({children, index}: ArrayFormItemProps): ReturnType<FC<ArrayFormItemProps>> {
+  const parentCtx = useContext<FormCtx<RootValues>>(FormContext);
+  const ctx = useRef<FormCtx<RootValues>>({
     controller: parentCtx.controller,
     path: parentCtx.path.add([PathNodeType.ARRAY_INDEX, index])
   });

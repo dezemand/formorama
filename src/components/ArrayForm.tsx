@@ -8,9 +8,9 @@ interface ArrayFormProps {
   name: string;
 }
 
-export function ArrayForm<Values = any, ParentValues = any, RootValues = any>({children, name}: ArrayFormProps): ReturnType<FC<ArrayFormProps>> {
-  const parentCtx = useContext<FormCtx>(FormContext);
-  const ctx = useRef<FormCtx>({
+export function ArrayForm<RootValues = any>({children, name}: ArrayFormProps): ReturnType<FC<ArrayFormProps>> {
+  const parentCtx = useContext<FormCtx<RootValues>>(FormContext);
+  const ctx = useRef<FormCtx<RootValues>>({
     controller: parentCtx.controller,
     path: parentCtx.path.add([PathNodeType.OBJECT_KEY, name])
   });

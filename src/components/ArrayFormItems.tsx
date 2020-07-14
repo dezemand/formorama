@@ -24,7 +24,7 @@ function defaultGetKey(_: unknown, index: number): any {
 }
 
 export function ArrayFormItems<ParentValues extends Array<ParentValues> = any[], RootValues = any>({children, component, getKey}: ArrayFormItemsProps<ParentValues>): ReturnType<FC<ArrayFormItemsProps<ParentValues>>> {
-  const form = useFormContext();
+  const form = useFormContext<RootValues>();
   const [items] = useInputValue([Path.ROOT]) as [ParentValues[0][]];
 
   const removeItem = (index: number) => {

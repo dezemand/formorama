@@ -8,9 +8,9 @@ interface SubFormProps {
   name: string;
 }
 
-export function SubForm({children, name}: SubFormProps): ReturnType<FC<SubFormProps>> {
-  const parentCtx = useContext<FormCtx>(FormContext);
-  const ctx = useRef<FormCtx>({
+export function SubForm<RootValues = any>({children, name}: SubFormProps): ReturnType<FC<SubFormProps>> {
+  const parentCtx = useContext<FormCtx<RootValues>>(FormContext);
+  const ctx = useRef<FormCtx<RootValues>>({
     controller: parentCtx.controller,
     path: parentCtx.path.add([PathNodeType.OBJECT_KEY, name])
   });

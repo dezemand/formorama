@@ -8,14 +8,14 @@ export interface FormCtx<RootValues = any> {
   path: Path;
 }
 
-export interface FormHook<RootValues = any, Values = any> extends FormMethods<Values> {
+export interface FormHook<RootValues = any> extends FormMethods {
   ctx: FormCtx<RootValues>;
 }
 
 export function useForm<RootValues>(params: FormControllerParams<RootValues> = {}): FormHook<RootValues> {
   const controller = useRef(new FormController<RootValues>(params));
   const methods = useFormMethods(controller.current, Path.ROOT);
-  const result = useRef<FormHook<RootValues, RootValues>>({
+  const result = useRef<FormHook<RootValues>>({
     ctx: {
       path: Path.ROOT,
       controller: controller.current
