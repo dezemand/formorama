@@ -1,5 +1,6 @@
 import React, {ComponentClass, createElement, FC, FunctionComponent, ReactNode} from "react";
-import {useFormContext, useInputValue} from "..";
+import {useFormContext} from "../hooks/useFormContext";
+import {useInputValue} from "../hooks/useInputValue";
 import {Path} from "../store/Path";
 import {ArrayFormItem} from "./ArrayFormItem";
 
