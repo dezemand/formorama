@@ -3,7 +3,7 @@ import {Path} from "./Path";
 
 interface TestValues {
   a: string;
-  b: string;
+  b?: string;
   c: { d: number }[];
   e: { f: string };
 }
@@ -160,4 +160,76 @@ test("Entries works", () => {
     [Path.parse("c[1].d"), 2],
     [Path.parse("e.f"), "value 3"]
   ]);
+});
+
+test("Can create from entries", () => {
+  const newTree = ImmutableValuesTree.fromEntries([
+    [Path.parse("a"), "value 1"],
+    [Path.parse("b"), "value 2"],
+    [Path.parse("c[0].d"), 1],
+    [Path.parse("c[1].d"), 2],
+    [Path.parse("e.f"), "value 3"]
+  ]);
+
+  expect(newTree.raw).toEqual({
+    a: "value 1",
+    b: "value 2",
+    c: [{d: 1}, {d: 2}],
+    e: {
+      f: "value 3"
+    }
+  });
+});
+
+test("Putting a tree's entries in fromEntries results in the same tree", () => {
+  const entries = testTree.entries();
+  const newTrees = ImmutableValuesTree.fromEntries(entries);
+
+  expect(newTrees.raw).toEqual(testTree.raw);
+});
+
+test("Comparing trees works", () => {
+  interface TestValues2 extends TestValues {
+    g: string
+  }
+
+  const otherTree = new ImmutableValuesTree<TestValues2>({
+    a: "value 1",
+    c: [{d: 1}],
+    e: {
+      f: "changed value"
+    },
+    g: "added value"
+  });
+
+  const changes = testTree.compare(otherTree);
+
+  expect(changes.length).toBe(4);
+  expect(changes).toContainEqual([Path.parse("b"), null]);
+  expect(changes).toContainEqual([Path.parse("c[1].d"), null]);
+  expect(changes).toContainEqual([Path.parse("e.f"), "changed value"]);
+  expect(changes).toContainEqual([Path.parse("g"), "added value"]);
+});
+
+test("Comparing works the other way around too", () => {
+  interface TestValues2 extends TestValues {
+    g: string
+  }
+
+  const otherTree = new ImmutableValuesTree<TestValues2>({
+    a: "value 1",
+    c: [{d: 1}],
+    e: {
+      f: "changed value"
+    },
+    g: "added value"
+  });
+
+  const changes = otherTree.compare(testTree);
+
+  expect(changes.length).toBe(4);
+  expect(changes).toContainEqual([Path.parse("b"), "value 2"]);
+  expect(changes).toContainEqual([Path.parse("c[1].d"), 2]);
+  expect(changes).toContainEqual([Path.parse("e.f"), "value 3"]);
+  expect(changes).toContainEqual([Path.parse("g"), null]);
 });

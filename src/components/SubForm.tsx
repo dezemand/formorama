@@ -1,6 +1,7 @@
-import React, {FC, ReactNode, useContext} from "react";
+import React, {FC, ReactNode, useContext, useRef} from "react";
 import {FormContext} from "../contexts/FormContext";
-import {useSubForm} from "../hooks/useSubForm";
+import {FormCtx} from "../hooks/useForm";
+import {PathNodeType} from "../store/Path";
 
 interface SubFormProps {
   children?: ReactNode;
@@ -8,11 +9,14 @@ interface SubFormProps {
 }
 
 export function SubForm({children, name}: SubFormProps): ReturnType<FC<SubFormProps>> {
-  const parent = useContext(FormContext);
-  const subForm = useSubForm(parent, name);
+  const parentCtx = useContext<FormCtx>(FormContext);
+  const ctx = useRef<FormCtx>({
+    controller: parentCtx.controller,
+    path: parentCtx.path.add([PathNodeType.OBJECT_KEY, name])
+  });
 
   return (
-    <FormContext.Provider value={subForm}>
+    <FormContext.Provider value={ctx.current}>
       {children}
     </FormContext.Provider>
   );

@@ -1,47 +1,48 @@
 import React, {ReactNode, useCallback} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {DO_SUBMIT_EVENT} from "../events";
-import {useEventListener} from "../hooks/useEventListener";
-import {ErrorObject, FormHook} from "../types";
+import {useEventEmitter} from "../hooks/useEventEmitter";
+import {FormHook} from "../hooks/useForm";
+import {Path} from "../store/Path";
 
 export interface FormProps<Values> {
-  form: FormHook;
+  form: FormHook<Values>;
   onSubmit?: (values: Values) => Promise<void> | void;
-  onError?: (errors: ErrorObject, values: Values) => Promise<void> | void;
+  onError?: () => Promise<void> | void;
   noFormTag?: boolean;
   children?: ReactNode;
 }
 
 export function Form<Values = any>({children, form, onSubmit, onError, noFormTag}: FormProps<Values>) {
-  const {root: {submitting, setSubmitting, getValues, getValidationResult, target}} = form;
+  const {ctx} = form;
+  const {controller} = ctx;
 
   const submit = useCallback(async () => {
-    if (submitting) return;
+    if (controller.submitting) return;
 
-    setSubmitting(true);
-    const values = getValues();
-    const [errored, validateResult] = await getValidationResult(values);
+    controller.submitting = true;
+    const errored = await controller.validate();
 
     if (errored && onError) {
-      await onError(validateResult, values);
+      await onError();
     }
 
     if (!errored && onSubmit) {
-      await onSubmit(values);
+      await onSubmit(controller.getValue<Values>(Path.ROOT));
     }
 
-    setSubmitting(false);
-  }, [getValidationResult, getValues, onError, onSubmit, setSubmitting, submitting]);
+    controller.submitting = false;
+  }, [onError, onSubmit]);
 
   const formSubmit = useCallback(async event => {
     event.preventDefault();
     await submit();
   }, [submit]);
 
-  useEventListener(target, DO_SUBMIT_EVENT, submit);
+  useEventEmitter(controller, DO_SUBMIT_EVENT, submit);
 
   return (
-    <FormContext.Provider value={form}>
+    <FormContext.Provider value={ctx}>
       {noFormTag ? (
         children
       ) : (

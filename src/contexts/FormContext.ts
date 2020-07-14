@@ -1,12 +1,6 @@
 import {Context, createContext} from "react";
-import {FormHook} from "../types";
+import {FormCtx} from "../hooks/useForm";
 
-const defaultValue = new Proxy({}, {
-  get(): any {
-    throw new Error("No FormContext found");
-  }
-});
-
-export const FormContext: Context<FormHook> = createContext(defaultValue as FormHook);
+export const FormContext: Context<FormCtx> = createContext({} as FormCtx);
 
 export const FormConsumer = FormContext.Consumer;

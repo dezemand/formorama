@@ -17,20 +17,9 @@ export class FormValues<Values = any> {
   }
 
   public compare(otherValues: FormValues): Change[] {
-    const thisEntries = this.values.entries();
-    const otherEntries = otherValues.values.entries();
-
-    const notInThis = otherEntries
-      .filter(([otherPath, otherValue]) => !thisEntries.some(([thisPath, thisValue]) => otherPath.equals(thisPath) && otherValue === thisValue));
-    const notInOther = thisEntries
-      .filter(([thisPath, thisValue]) => !otherEntries.some(([otherPath, otherValue]) => thisPath.equals(otherPath) && thisValue === otherValue));
-
-    const changes = notInThis.map(([path, value]) => new Change(path, value));
-    const removedChanges = notInOther
-      .filter(([path]) => !changes.some(change => change.path.equals(path)))
-      .map(([path]) => new Change(path, null));
-
-    return [...changes, ...removedChanges];
+    return this.values
+      .compare(otherValues.values)
+      .map(([path, value]) => new Change(path, value));
   }
 
   public apply(changes: Change[]): FormValues {

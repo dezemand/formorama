@@ -51,16 +51,6 @@ test("Adding a value to an array", () => {
   expect(changes).toContainEqual(new Change(Path.parse("c[2].d"), 42));
 });
 
-test("Removing a value from an array", () => {
-  const changes = testValues.change(Path.parse("c[1]"), undefined);
-
-  console.log(changes.map(change => [change.path.pathString, change.value]));
-
-  const a = testValues.apply(changes);
-
-  console.log(a.values.raw, a.values.raw.c.length);
-});
-
 test("Comparing to different values", () => {
   const otherValues = new FormValues<TestValues>({
     a: "different",

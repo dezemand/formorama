@@ -1,7 +1,7 @@
-import React, {FC, ReactNode, useContext} from "react";
+import React, {FC, ReactNode, useContext, useRef} from "react";
 import {FormContext} from "../contexts/FormContext";
-import {useArrayForm} from "../hooks/useArrayForm";
-import {FormHook} from "../types";
+import {FormCtx} from "../hooks/useForm";
+import {PathNodeType} from "../store/Path";
 
 interface ArrayFormProps {
   children?: ReactNode;
@@ -9,11 +9,14 @@ interface ArrayFormProps {
 }
 
 export function ArrayForm<Values = any, ParentValues = any, RootValues = any>({children, name}: ArrayFormProps): ReturnType<FC<ArrayFormProps>> {
-  const parent = useContext<FormHook<ParentValues, RootValues>>(FormContext);
-  const arrayForm = useArrayForm<Values, ParentValues, RootValues>(parent, name);
+  const parentCtx = useContext<FormCtx>(FormContext);
+  const ctx = useRef<FormCtx>({
+    controller: parentCtx.controller,
+    path: parentCtx.path.add([PathNodeType.OBJECT_KEY, name])
+  });
 
   return (
-    <FormContext.Provider value={arrayForm}>
+    <FormContext.Provider value={ctx.current}>
       {children}
     </FormContext.Provider>
   );

@@ -64,6 +64,41 @@ export class ImmutableValuesTree<T = any> {
     return entries;
   }
 
+  /**
+   *
+   * @param other
+   */
+  public compare(other: ImmutableValuesTree): [Path, any][] {
+    const thisEntries = this.entries();
+    const otherEntries = other.entries();
+
+    const notInThis = otherEntries
+      .filter(([otherPath, otherValue]) => !thisEntries.some(([thisPath, thisValue]) => otherPath.equals(thisPath) && otherValue === thisValue));
+    const notInOther = thisEntries
+      .filter(([thisPath, thisValue]) => !otherEntries.some(([otherPath, otherValue]) => thisPath.equals(otherPath) && thisValue === otherValue));
+
+    const removedChanges = notInOther
+      .filter(([path]) => !notInThis.some(([changePath]) => changePath.equals(path)))
+      .map(([path]) => [path, null] as [Path, any]);
+
+    return [
+      ...notInThis,
+      ...removedChanges
+    ];
+  }
+
+  /**
+   *
+   * @param entries
+   * @param tree
+   */
+  public static fromEntries(entries: [Path, any][], tree: ImmutableValuesTree = ImmutableValuesTree.EMPTY_OBJECT): ImmutableValuesTree {
+    for (const [path, value] of entries) {
+      tree = tree.set(path, value);
+    }
+    return tree;
+  }
+
   private static getValue(tree: any, node: PathNode): any {
     if (tree === null || tree === undefined) return null;
 
@@ -86,7 +121,7 @@ export class ImmutableValuesTree<T = any> {
       case PathNodeType.ARRAY_INDEX:
         const arrValues = this.isArray(tree) ? [...tree] : [];
         arrValues[frontNode[1]] = this.setValue(arrValues[frontNode[1]], value, nextNodes);
-        return arrValues.filter(value => value !== undefined);
+        return arrValues;
       case PathNodeType.OBJECT_KEY:
         const objValues = this.isObject(tree) ? {...tree} : {};
         objValues[frontNode[1]] = this.setValue(objValues[frontNode[1]], value, nextNodes);

@@ -1,46 +1,23 @@
-import {useCallback, useContext, useState} from "react";
+import {useCallback, useContext, useMemo, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
-import {CHANGE_EVENT, CustomChangeEvent} from "../events";
-import {PathNodeType} from "../store/Path";
-import {FormHook, Path, UnparsedPath} from "../types";
-import {parsePath, pathEquals, pathParentOf, setTreeValue} from "../utils/path";
-import {useEventListener} from "./useEventListener";
+import {CHANGE_EVENT} from "../events";
+import {Path, UnparsedPath} from "../store/Path";
+import {useEventEmitter} from "./useEventEmitter";
+import {FormCtx, FormHook} from "./useForm";
 
 export function useInputValue(fields: (UnparsedPath)[], form?: FormHook, uPath?: UnparsedPath): any[] {
-  const formContext = useContext(FormContext);
-  form = form || formContext;
-  const path = uPath ? parsePath(uPath) : form.path;
-  const fieldPaths: Path[] = fields.map(field => [...path, ...parsePath(field)]);
+  const context = useContext<FormCtx>(FormContext);
+  const ctx = (form && form.ctx) || context;
+  const path = uPath ? Path.parse(uPath) : ctx.path;
+  const fieldPaths = useMemo(() => fields.map(field => path.concat(Path.parse(field))), [fields, path]);
 
-  const {root: {getValue, target}} = form;
+  const [result, setResult] = useState<any[]>(fieldPaths.map(fieldPath => ctx.controller.getValue(fieldPath)));
 
-  const [values, setValues] = useState<any[]>(() => fieldPaths.map(fieldPath => getValue(fieldPath)));
+  const changeListener = useCallback(changes => {
 
-  const handleChange = useCallback((event: CustomChangeEvent) => {
-    const newValues = [...values];
-    let changed = false;
+  }, []);
 
-    for (const {path: valuePath, value} of event.detail.values) {
-      for (const [index, fieldPath] of fieldPaths.entries()) {
-        if (pathEquals(valuePath, fieldPath)) {
-          newValues[index] = value;
-          changed = true;
-        } else if (pathParentOf(fieldPath, valuePath)) {
-          const subPath = valuePath.slice(fieldPath.length);
-          const tree = newValues[index] || (subPath[0][0] === PathNodeType.ARRAY_INDEX ? [] : {});
-          setTreeValue(tree, subPath, value);
-          newValues[index] = tree;
-          changed = true;
-        }
-      }
-    }
+  useEventEmitter(ctx.controller, CHANGE_EVENT, changeListener);
 
-    if (changed) {
-      setValues(newValues);
-    }
-  }, [fieldPaths, values]);
-
-  useEventListener(target, CHANGE_EVENT, handleChange as EventListener);
-
-  return values;
+  return result;
 }
