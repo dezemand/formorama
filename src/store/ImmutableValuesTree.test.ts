@@ -233,3 +233,23 @@ test("Comparing works the other way around too", () => {
   expect(changes).toContainEqual([Path.parse("e.f"), "value 3"]);
   expect(changes).toContainEqual([Path.parse("g"), null]);
 });
+
+test("Works with primary types", () => {
+  const tree = new ImmutableValuesTree<string>("value 1");
+
+  expect(tree.raw).toBe("value 1");
+  expect(tree.get(Path.ROOT)).toBe("value 1");
+
+  const newTree = tree.set(Path.ROOT, "value 2");
+
+  expect(newTree.raw).toBe("value 2");
+  expect(newTree.get(Path.ROOT)).toBe("value 2");
+});
+
+test("Works with changing primary type to an object", () => {
+  const tree = new ImmutableValuesTree<string>("value 1");
+  const newTree = tree.set(Path.parse("a.b"), "value 2");
+
+  expect(newTree.raw).toEqual({a: {b: "value 2"}});
+  expect(newTree.get(Path.parse("a.b"))).toBe("value 2");
+});

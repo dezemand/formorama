@@ -21,7 +21,9 @@ export class ImmutableValuesTree<T = any> {
       value = ImmutableValuesTree.getValue(value, pathNode);
     }
 
-    if (value === undefined) value = null;
+    if (value === undefined) {
+      value = null;
+    }
 
     return value;
   }
@@ -100,20 +102,28 @@ export class ImmutableValuesTree<T = any> {
   }
 
   private static getValue(tree: any, node: PathNode): any {
-    if (tree === null || tree === undefined) return null;
+    if (tree === null || tree === undefined) {
+      return null;
+    }
 
     switch (node[0]) {
       case PathNodeType.ARRAY_INDEX:
-        if (!this.isArray(tree)) throw new Error("Can't access non-array");
+        if (!this.isArray(tree)) {
+          throw new Error("Can't access non-array");
+        }
         return tree[node[1]];
       case PathNodeType.OBJECT_KEY:
-        if (!this.isObject(tree)) throw new Error("Can't access non-object");
+        if (!this.isObject(tree)) {
+          throw new Error("Can't access non-object");
+        }
         return tree[node[1]];
     }
   }
 
   private static setValue(tree: any, value: any, nodes: PathNode[]): any {
-    if (nodes.length === 0) return value;
+    if (nodes.length === 0) {
+      return value;
+    }
 
     const [frontNode, ...nextNodes] = nodes;
 
