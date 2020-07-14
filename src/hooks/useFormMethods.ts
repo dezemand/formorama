@@ -13,7 +13,7 @@ export interface FormMethods<Values> {
 
   isFocusing(uPath: UnparsedPath): boolean;
 
-  modify<T>(modifier: (values: T) => T, uPath: UnparsedPath): void;
+  modify<T>(modifier: (values: T) => T, uPath?: UnparsedPath): void;
 
   submit(): void;
 }
@@ -35,7 +35,7 @@ export function useFormMethods<Values>(controller: FormController, path: Path): 
     isFocusing(uPath: UnparsedPath): boolean {
       return controller.isFocusing(path.concat(Path.parse(uPath)));
     },
-    modify<T>(modifier: (values: T) => T, uPath: UnparsedPath): void {
+    modify<T>(modifier: (values: T) => T, uPath: UnparsedPath = Path.ROOT): void {
       controller.modify(modifier, path.concat(Path.parse(uPath)));
     },
     submit(): void {

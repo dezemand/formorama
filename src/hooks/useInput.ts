@@ -1,4 +1,4 @@
-import {ChangeEvent, useCallback, useContext, useMemo, useState} from "react";
+import {useCallback, useContext, useMemo, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {CHANGE_EVENT, ERROR_EVENT, FOCUS_EVENT} from "../events";
 import {Change} from "../store/Change";
@@ -8,8 +8,8 @@ import {useEventEmitter} from "./useEventEmitter";
 import {FormCtx} from "./useForm";
 import {useSubmitting} from "./useSubmitting";
 
-export function fixValue<ValueType>(obj: ChangeEvent | ValueType): ValueType {
-  return obj instanceof Event ? (obj.target as HTMLInputElement).value as any : obj as any;
+export function fixValue<ValueType>(obj: any): ValueType {
+  return obj.target ? obj.target.value : obj;
 }
 
 interface InputHook<ValueType> {
@@ -19,11 +19,11 @@ interface InputHook<ValueType> {
   touched: boolean;
   submitting: boolean;
 
-  handleChange(eventOrValue: ChangeEvent<HTMLElement> | any): void;
+  handleChange(eventOrValue: any): void;
 
-  handleFocus(event: FocusEvent): void;
+  handleFocus(): void;
 
-  handleBlur(event: FocusEvent): void;
+  handleBlur(): void;
 }
 
 export function useInput<ValueType>(name: string, defaultValue: ValueType): InputHook<ValueType> {

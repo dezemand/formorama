@@ -9,4 +9,3 @@ export {useFormContext} from "./hooks/useFormContext";
 export {useInput} from "./hooks/useInput";
 export {useInputValue} from "./hooks/useInputValue";
 export {useForm} from "./hooks/useForm";
-export {pathSelector} from "./utils/path";

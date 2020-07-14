@@ -39,5 +39,5 @@ export function useInputValue(fields: (UnparsedPath)[], form?: FormHook, uPath?:
 
   useEventEmitter(ctx.controller, CHANGE_EVENT, changeListener);
 
-  return result;
+  return result.map(res => res[1]);
 }

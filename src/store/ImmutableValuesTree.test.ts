@@ -67,6 +67,22 @@ test("Getting a deep value", () => {
   expect(testTree.get(path)).toBe(2);
 });
 
+test("Getting object values from arrays does not work", () => {
+  const path = Path.parse("c.d");
+
+  expect(() => {
+    testTree.get(path);
+  }).toThrow();
+});
+
+test("Getting array values from objects does not work", () => {
+  const path = Path.parse("e[0]");
+
+  expect(() => {
+    testTree.get(path);
+  }).toThrow();
+});
+
 test("Setting a new value", () => {
   interface TestValues2 extends TestValues {
     g: string
@@ -252,4 +268,15 @@ test("Works with changing primary type to an object", () => {
 
   expect(newTree.raw).toEqual({a: {b: "value 2"}});
   expect(newTree.get(Path.parse("a.b"))).toBe("value 2");
+});
+
+test("BUG: When comparing, root should not appear as null if it's not unset", () => {
+  const tree = new ImmutableValuesTree(null);
+  const otherTree = new ImmutableValuesTree([{d: 1}, {d: 2}]);
+
+  const changes1 = tree.compare(otherTree);
+  const changes2 = otherTree.compare(tree);
+
+  expect(changes1).not.toContainEqual([Path.ROOT, null]);
+  expect(changes2).toContainEqual([Path.ROOT, null]);
 });

@@ -80,7 +80,7 @@ export class ImmutableValuesTree<T = any> {
       .filter(([thisPath, thisValue]) => !otherEntries.some(([otherPath, otherValue]) => thisPath.equals(otherPath) && thisValue === otherValue));
 
     const removedChanges = notInOther
-      .filter(([path]) => !notInThis.some(([changePath]) => changePath.equals(path)))
+      .filter(([path]) => !path.isRoot && !notInThis.some(([changePath]) => changePath.equals(path)))
       .map(([path]) => [path, null] as [Path, any]);
 
     return [
