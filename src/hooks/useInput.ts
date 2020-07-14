@@ -52,9 +52,16 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
 
   // Event listeners for the controller
   const focusListener = useCallback<(focusedPath: Path) => void>(focusedPath => {
-    setFocused(focusedPath && focusedPath.equals(path));
-    setTouched(controller.hasTouched(path));
-  }, [controller, path]);
+    const nextFocused = Boolean(focusedPath && focusedPath.equals(path));
+    const nextTouched = controller.hasTouched(path);
+
+    if (touched !== nextTouched) {
+      setTouched(nextTouched);
+    }
+    if (focused !== nextFocused) {
+      setFocused(nextFocused);
+    }
+  }, [controller, path, touched, focused]);
 
   const changeListener = useCallback<(changes: Change[]) => void>(changes => {
     const subChanges = Change.subChanges(changes, path);
@@ -64,20 +71,16 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
   }, [path, value]);
 
   const errorListener = useCallback<(errors: [Path, any][]) => void>(errors => {
-    let updated = false;
-    let errorTree = new ImmutableValuesTree(value);
+    const subChanges = Change.subChanges(errors.map(([path, error]) => new Change(path, error)), path);
 
-    for (const [errorPath, error] of errors) {
-      if (path.parentOf(errorPath)) {
-        updated = true;
-        errorTree = errorTree.set(errorPath.slice(path.nodes.length), error);
+    if (subChanges.length > 0) {
+      let tree = new ImmutableValuesTree(error);
+      for (const change of subChanges) {
+        tree = tree.set(change.path, change.value);
       }
+      setError(tree.raw);
     }
-
-    if (updated) {
-      setError(errorTree.raw);
-    }
-  }, [path, value]);
+  }, [path, error]);
 
   useEventEmitter(controller, FOCUS_EVENT, focusListener);
   useEventEmitter(controller, CHANGE_EVENT, changeListener);

@@ -32,7 +32,7 @@ export function Form<Values = any>({children, form, onSubmit, onError, noFormTag
     }
 
     controller.submitting = false;
-  }, [onError, onSubmit]);
+  }, [onError, onSubmit, controller]);
 
   const formSubmit = useCallback(async event => {
     event.preventDefault();
