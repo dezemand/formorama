@@ -8,7 +8,7 @@ import {Path} from "../store/Path";
 export interface FormProps<Values> {
   form: FormHook<Values>;
   onSubmit?: (values: Values) => Promise<void> | void;
-  onError?: () => Promise<void> | void;
+  onError?: (errors: any, values: Values) => Promise<void> | void;
   noFormTag?: boolean;
   children?: ReactNode;
 }
@@ -21,13 +21,13 @@ export function Form<Values = any>({children, form, onSubmit, onError, noFormTag
     if (controller.submitting) return;
 
     controller.submitting = true;
-    const errored = await controller.validate();
+    const valid = await controller.validate();
 
-    if (errored && onError) {
-      await onError();
+    if (!valid && onError) {
+      await onError(controller.getError(Path.ROOT), controller.getValue<Values>(Path.ROOT));
     }
 
-    if (!errored && onSubmit) {
+    if (valid && onSubmit) {
       await onSubmit(controller.getValue<Values>(Path.ROOT));
     }
 
