@@ -22,12 +22,12 @@ export class FormValues<Values = any> {
       .map(([path, value]) => new Change(path, value));
   }
 
-  public apply(changes: Change[]): FormValues {
-    let newValues = this.values;
+  public apply<T = any>(changes: Change[]): FormValues<T> {
+    let newValues: ImmutableValuesTree = this.values;
     for (const change of changes) {
       newValues = newValues.set(change.path, change.value);
     }
-    return new FormValues(newValues);
+    return new FormValues<T>(newValues.clean().raw);
   }
 
   public get<T = any>(path: Path): T {

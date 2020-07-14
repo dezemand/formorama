@@ -91,6 +91,13 @@ export class ImmutableValuesTree<T = any> {
 
   /**
    *
+   */
+  public clean(): ImmutableValuesTree {
+    return new ImmutableValuesTree(ImmutableValuesTree.clean(this.raw));
+  }
+
+  /**
+   *
    * @param entries
    * @param tree
    */
@@ -158,5 +165,27 @@ export class ImmutableValuesTree<T = any> {
     } else {
       entries.push([path, values]);
     }
+  }
+
+  private static clean(tree: any): any {
+    if (this.isArray(tree)) {
+      return tree
+        .map((value) => this.clean(value))
+        .filter(value => this.cleanFilter(value));
+    } else if (this.isObject(tree)) {
+      return Object.entries(tree)
+        .map(([key, value]) => [key, this.clean(value)] as [string, any])
+        .filter(([, value]) => this.cleanFilter(value))
+        .reduce((prev, [key, value]) => ({...prev, [key]: value}), {});
+    } else {
+      return tree;
+    }
+  }
+
+  private static cleanFilter(value: any): any {
+    return !((this.isArray(value) && value.length === 0)
+      || (this.isObject(value) && Object.entries(value).length === 0)
+      || (value === null)
+      || (value === undefined));
   }
 }

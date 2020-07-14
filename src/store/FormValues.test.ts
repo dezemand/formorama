@@ -28,6 +28,7 @@ test("Constructor works", () => {
   const values = new FormValues(testObject);
 
   expect(values.values.raw).toEqual(testObject);
+  expect(values.get(Path.ROOT)).toEqual(testObject);
 });
 
 test("Changing a value", () => {
@@ -69,20 +70,22 @@ test("Comparing to different values", () => {
   expect(changes).toContainEqual(new Change(Path.parse("b"), null));
 });
 
-test("Applying a change works", () => {
+test("Applying a change", () => {
   const changes = [new Change(Path.parse("a"), "new value")];
 
   const newValues = testValues.apply(changes);
 
   expect(newValues.values.get(Path.parse("a"))).toBe("new value");
+  expect(newValues.get(Path.parse("a"))).toBe("new value");
 });
 
-test("Applying a deep change works", () => {
+test("Applying a deep change", () => {
   const changes = [new Change(Path.parse("c[1].d"), 42)];
 
   const newValues = testValues.apply(changes);
 
   expect(newValues.values.get(Path.parse("c[1].d"))).toBe(42);
+  expect(newValues.get(Path.parse("c[1].d"))).toBe(42);
 });
 
 test("Applying multiple changes", () => {
@@ -94,7 +97,7 @@ test("Applying multiple changes", () => {
 
   const newValues = testValues.apply(changes);
 
-  expect(newValues.values.raw).toEqual({
+  expect(newValues.get(Path.ROOT)).toEqual({
     a: "value 1",
     b: "new value",
     c: [{d: 42}, {d: 43}],
@@ -102,4 +105,78 @@ test("Applying multiple changes", () => {
       f: "value 3"
     }
   });
+});
+
+test("Applying no changes", () => {
+  const newValues = testValues.apply([]);
+
+  expect(newValues.get(Path.ROOT)).toEqual(testObject);
+});
+
+test("Works with primary types", () => {
+  const values = new FormValues<string>("value 1");
+
+  expect(values.get(Path.ROOT)).toBe("value 1");
+});
+
+test("Changes work with primary types", () => {
+  const values = new FormValues<string>("value 1");
+  const changes = [new Change(Path.ROOT, "value 2")];
+
+  const newValues = values.apply(changes);
+
+  expect(newValues.get(Path.ROOT)).toBe("value 2");
+});
+
+test("Creating sub changes", () => {
+  interface TestValues2 extends TestValues {
+    e: {
+      f: string;
+      g: string;
+    };
+  }
+
+  const newValues = new FormValues<TestValues2>({
+    ...testObject,
+    a: "changed but not relevant",
+    e: {f: "changed value", g: "new value"}
+  });
+
+  const changes = testValues.compare(newValues);
+  const subChanges = Change.subChanges(changes, Path.parse("e"));
+
+  expect(subChanges.length).toBe(2);
+  expect(subChanges).toContainEqual(new Change(Path.parse("f"), "changed value"));
+  expect(subChanges).toContainEqual(new Change(Path.parse("g"), "new value"));
+});
+
+test("Applying sub changes", () => {
+  interface TestValues2 extends TestValues {
+    e: {
+      f: string;
+      g: string;
+    };
+  }
+
+  const newValues = new FormValues<TestValues2>({
+    ...testObject,
+    a: "changed but not relevant",
+    e: {f: "changed value", g: "new value"}
+  });
+  const subValues = new FormValues<TestValues["e"]>(testObject.e);
+  const changes = testValues.compare(newValues);
+  const subChanges = Change.subChanges(changes, Path.parse("e"));
+
+  const newSubValues = subValues.apply<TestValues2["e"]>(subChanges);
+
+  expect(newSubValues.get(Path.ROOT)).toEqual({f: "changed value", g: "new value"});
+});
+
+test("Remove last item", () => {
+  const newValues = new FormValues({...testObject, c: [{d: 2}]});
+  const changes = testValues.compare(newValues);
+
+  const changedValues = testValues.apply(changes);
+
+  expect(changedValues.get(Path.parse("c"))).toEqual([{d: 2}]);
 });

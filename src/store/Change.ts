@@ -8,4 +8,10 @@ export class Change {
     this.path = path;
     this.value = value;
   }
+
+  public static subChanges(changes: Change[], path: Path): Change[] {
+    return changes
+      .filter(change => path.parentOf(change.path))
+      .map(change => new Change(change.path.slice(path.nodes.length), change.value));
+  }
 }
