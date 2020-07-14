@@ -25,12 +25,14 @@ function mergeArrays<T>(...arrays: T[][]): T[] {
   return arrays.reduce((acc, val) => [...acc, ...val], []);
 }
 
-export function pathSelector(selectorStr: string, path: PathNode[] = []): PathNode[] {
+function pathSelector(selectorStr: string, path: PathNode[] = []): PathNode[] {
   const selectorPaths: PathNode[][] = selectorStr
     .split(".")
     .map(part => {
       const regexRes = PATH_STR_REGEX.exec(part);
-      if (!regexRes || !regexRes[2]) return [[PathNodeType.OBJECT_KEY, part]];
+      if (!regexRes || !regexRes[2]) {
+        return [[PathNodeType.OBJECT_KEY, part]];
+      }
       return [
         ...((regexRes[1] && regexRes[1] !== "") ? [[PathNodeType.OBJECT_KEY, regexRes[1]]] : []) as PathNode[],
         ...regexRes[2].split("[").slice(1).map(item => [PathNodeType.ARRAY_INDEX, Number(item.slice(0, -1))]) as PathNode[]
