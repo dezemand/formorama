@@ -1,6 +1,6 @@
 {
   "name": "formorama",
-  "version": "0.7.0-alpha1",
+  "version": "0.7.0-alpha2",
   "description": "Forms in React, using hooks and contexts",
   "main": "dist/formorama.js",
   "module": "dist/formorama.es.js",
