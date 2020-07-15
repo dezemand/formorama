@@ -1,42 +1,55 @@
-import React, {ReactNode, useCallback} from "react";
+import React, {FC, FormEvent, FormEventHandler, ReactNode, Ref, useCallback} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {DO_SUBMIT_EVENT} from "../events";
 import {useEventEmitter} from "../hooks/useEventEmitter";
 import {FormHook} from "../hooks/useForm";
 import {Path} from "../store/Path";
 
-export interface FormProps<Values> {
-  form: FormHook<Values>;
-  onSubmit?: (values: Values) => Promise<void> | void;
-  onError?: (errors: any, values: Values) => Promise<void> | void;
-  noFormTag?: boolean;
-  children?: ReactNode;
+interface ErrorExtraResult<Values> {
+  values: Values;
+  event?: FormEvent<HTMLFormElement>;
 }
 
-export function Form<Values = any>({children, form, onSubmit, onError, noFormTag}: FormProps<Values>) {
+interface SubmitExtraResult {
+  event?: FormEvent<HTMLFormElement>;
+}
+
+export interface FormProps<Values> {
+  form: FormHook<Values>;
+  onSubmit?: (values: Values, extra: SubmitExtraResult) => Promise<void> | void;
+  onError?: (errors: any, extra: ErrorExtraResult<Values>) => Promise<void> | void;
+  noFormTag?: boolean;
+  children?: ReactNode;
+  formRef?: Ref<HTMLFormElement>;
+}
+
+export function Form<Values = any>({children, form, onSubmit, onError, noFormTag, formRef}: FormProps<Values>): ReturnType<FC<FormProps<Values>>> {
   const {ctx} = form;
   const {controller} = ctx;
 
-  const submit = useCallback(async () => {
-    if (controller.submitting) return;
+  const submit = useCallback(async (event?: FormEvent<HTMLFormElement>) => {
+    if (controller.submitting) {
+      return;
+    }
 
     controller.submitting = true;
     const valid = await controller.validate();
 
-    if (!valid && onError) {
-      await onError(controller.getError(Path.ROOT), controller.getValue<Values>(Path.ROOT));
-    }
-
     if (valid && onSubmit) {
-      await onSubmit(controller.getValue<Values>(Path.ROOT));
+      await onSubmit(controller.getValue<Values>(Path.ROOT), {event});
+    } else if (!valid && onError) {
+      await onError(controller.getError(Path.ROOT), {
+        values: controller.getValue<Values>(Path.ROOT),
+        event
+      });
     }
 
     controller.submitting = false;
   }, [onError, onSubmit, controller]);
 
-  const formSubmit = useCallback(async event => {
+  const formSubmit = useCallback<FormEventHandler<HTMLFormElement>>(async event => {
     event.preventDefault();
-    await submit();
+    await submit(event);
   }, [submit]);
 
   useEventEmitter(controller, DO_SUBMIT_EVENT, submit);
@@ -46,7 +59,7 @@ export function Form<Values = any>({children, form, onSubmit, onError, noFormTag
       {noFormTag ? (
         children
       ) : (
-        <form onSubmit={formSubmit}>
+        <form onSubmit={formSubmit} ref={formRef}>
           {children}
         </form>
       )}
