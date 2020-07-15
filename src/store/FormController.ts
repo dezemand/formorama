@@ -5,8 +5,12 @@ import {FormValues} from "./FormValues";
 import {ImmutableValuesTree} from "./ImmutableValuesTree";
 import {Path} from "./Path";
 
+const DEFAULT_MAX_LISTENERS = 2 ** 16;
+
 export interface FormControllerParams<Values> {
   validate?(values: Values): any | Promise<any>;
+
+  maxListeners?: number;
 }
 
 export class FormController<Values = any> extends EventEmitter {
@@ -17,6 +21,7 @@ export class FormController<Values = any> extends EventEmitter {
   constructor(params: FormControllerParams<Values> = {}) {
     super();
     this._params = params;
+    this.setMaxListeners(params.maxListeners || DEFAULT_MAX_LISTENERS);
   }
 
   private _errors: ImmutableValuesTree = ImmutableValuesTree.EMPTY_OBJECT;
@@ -32,6 +37,7 @@ export class FormController<Values = any> extends EventEmitter {
 
   public set params(params: FormControllerParams<Values>) {
     this._params = params;
+    this.setMaxListeners(params.maxListeners || DEFAULT_MAX_LISTENERS);
   }
 
   private _submitting = false;

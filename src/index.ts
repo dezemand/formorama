@@ -5,6 +5,7 @@ export {ArrayForm} from "./components/ArrayForm";
 export {ArrayFormItem} from "./components/ArrayFormItem";
 export {ArrayFormItems} from "./components/ArrayFormItems";
 export {FormConsumer} from "./contexts/FormContext";
+export {SubmissionError} from "./exceptions/SubmissionError";
 export {useFormContext} from "./hooks/useFormContext";
 export {useInput} from "./hooks/useInput";
 export {useInputValue} from "./hooks/useInputValue";

@@ -1,8 +1,10 @@
 import React, {FC, FormEvent, FormEventHandler, ReactNode, Ref, useCallback} from "react";
+import {SubmissionError} from "..";
 import {FormContext} from "../contexts/FormContext";
 import {DO_SUBMIT_EVENT} from "../events";
 import {useEventEmitter} from "../hooks/useEventEmitter";
 import {FormHook} from "../hooks/useForm";
+import {ImmutableValuesTree} from "../store/ImmutableValuesTree";
 import {Path} from "../store/Path";
 
 interface ErrorExtraResult<Values> {
@@ -36,7 +38,16 @@ export function Form<Values = any>({children, form, onSubmit, onError, noFormTag
     const valid = await controller.validate();
 
     if (valid && onSubmit) {
-      await onSubmit(controller.getValue<Values>(Path.ROOT), {event});
+      try {
+        await onSubmit(controller.getValue<Values>(Path.ROOT), {event});
+        controller.errors = ImmutableValuesTree.EMPTY_OBJECT;
+      } catch (e) {
+        if (e instanceof SubmissionError) {
+          controller.errors = e.errors;
+        } else {
+          throw e;
+        }
+      }
     } else if (!valid && onError) {
       await onError(controller.getError(Path.ROOT), {
         values: controller.getValue<Values>(Path.ROOT),
