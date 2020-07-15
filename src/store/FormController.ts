@@ -57,6 +57,14 @@ export class FormController<Values = any> extends EventEmitter {
     this.emit(CHANGE_EVENT, changes);
   }
 
+  public changeError(path: Path, error: any): void {
+    const errors = this._errors.set(path, error);
+    const filteredErrors = ImmutableValuesTree.fromEntries(errors.entries().filter(([, error]) => Boolean(error)));
+    const delta = this._errors.compare(filteredErrors);
+    this._errors = filteredErrors;
+    this.emit(ERROR_EVENT, delta);
+  }
+
   public modify<T>(modifier: (values: T) => T, path: Path = Path.ROOT): void {
     const oldValues = new FormValues(this.values.get(path));
     const newValues = new FormValues(modifier(oldValues.values.raw));

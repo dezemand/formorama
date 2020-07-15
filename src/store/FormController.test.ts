@@ -328,7 +328,9 @@ test("Validate can succeed after failure by changing the validate function", asy
 test("Validate can succeed after failure by changing the values", async () => {
   const validate = jest.fn((values: TestValues) => {
     const errors: any = {};
-    if (values.a === "value 1") errors.a = "invalid value";
+    if (values.a === "value 1") {
+      errors.a = "invalid value";
+    }
     return errors;
   });
   const errorListener = jest.fn();
@@ -369,4 +371,20 @@ test("Can submit", () => {
   controller.removeListener(DO_SUBMIT_EVENT, submitListener);
 
   expect(submitListener).toBeCalledTimes(1);
+});
+
+test("Can change error", () => {
+  const controller = new FormController();
+  const errorListener = jest.fn();
+
+  controller.on(ERROR_EVENT, errorListener);
+
+  controller.changeError(Path.parse("a.b"), "an error");
+
+  controller.removeListener(ERROR_EVENT, errorListener);
+
+  expect(controller.getError(Path.parse("a.b"))).toBe("an error");
+  expect(controller.getError(Path.ROOT)).toEqual({a: {b: "an error"}});
+  expect(errorListener).toBeCalledTimes(1);
+  expect(errorListener.mock.calls[0][0]).toEqual([[Path.parse("a.b"), "an error"]]);
 });

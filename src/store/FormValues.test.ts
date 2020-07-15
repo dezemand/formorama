@@ -1,6 +1,6 @@
 import {Change} from "./Change";
 import {FormValues} from "./FormValues";
-import {Path} from "./Path";
+import {Path, PathNodeType} from "./Path";
 
 interface TestValues {
   a: string;
@@ -179,4 +179,25 @@ test("Remove last item", () => {
   const changedValues = testValues.apply(changes);
 
   expect(changedValues.get(Path.parse("c"))).toEqual([{d: 2}]);
+});
+
+test("Instances in an array", () => {
+  class Test {
+    constructor(public readonly value: string) {
+    }
+  }
+
+  const value1 = new Test("First");
+  const value2 = new Test("Second");
+  const value3 = new Test("Third");
+
+  const values = new FormValues([value1, value2, value3]);
+  const newValues = new FormValues([value1, value3]);
+
+  const changes = values.compare(newValues);
+  const changedValues = values.apply(changes);
+
+  expect(changedValues.get<Test[]>(Path.ROOT).length).toBe(2);
+  expect(changedValues.get<Test>(new Path([[PathNodeType.ARRAY_INDEX, 0]]))).toBe(value1);
+  expect(changedValues.get<Test>(new Path([[PathNodeType.ARRAY_INDEX, 1]]))).toBe(value3);
 });

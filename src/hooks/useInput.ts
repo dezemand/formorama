@@ -22,6 +22,8 @@ interface InputHook<ValueType> {
 
   handleChange(eventOrValue: any): void;
 
+  handleError(error: any): void;
+
   handleFocus(): void;
 
   handleBlur(): void;
@@ -40,6 +42,10 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
   // Event handlers for elements
   const handleChange = useCallback<InputHook<ValueType>["handleChange"]>(eventOrValue => {
     controller.change(path, fixValue(eventOrValue));
+  }, [controller, path]);
+
+  const handleError = useCallback<InputHook<ValueType>["handleError"]>(error => {
+    controller.changeError(path, error);
   }, [controller, path]);
 
   const handleFocus = useCallback<InputHook<ValueType>["handleFocus"]>(() => {
@@ -94,6 +100,7 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
     submitting,
     handleFocus,
     handleBlur,
-    handleChange
+    handleChange,
+    handleError
   };
 }
