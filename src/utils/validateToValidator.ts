@@ -1,7 +1,6 @@
-import {FieldError} from "../store/FormErrors";
 import {ImmutableValuesTree} from "../store/ImmutableValuesTree";
 import {Path} from "../store/Path";
-import {IValidator, ValidationResult} from "../validation/Validator";
+import {FieldError, IValidator, ValidationResult} from "../validation/Validator";
 
 /**
  * This will turn a validateSubmission function into a validator.
