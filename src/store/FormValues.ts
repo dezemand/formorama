@@ -10,10 +10,7 @@ export class FormValues<Values = any> {
   }
 
   public change(path: Path, value: any): Change[] {
-    return ImmutableValuesTree.EMPTY_OBJECT
-      .set(path, value)
-      .entries()
-      .map(([path, value]) => new Change(path, value));
+    return this.compare(new FormValues(this.values.set(path, value)));
   }
 
   public compare(otherValues: FormValues): Change[] {

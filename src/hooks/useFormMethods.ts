@@ -27,7 +27,7 @@ export function useFormMethods(controller: FormController, path: Path): FormMeth
       return controller.getValue(path.concat(Path.parse(uPath)));
     },
     getError(uPath: UnparsedPath) {
-      return controller.getError(path.concat(Path.parse(uPath)));
+      return controller.getErrors(path.concat(Path.parse(uPath)));
     },
     hasTouched(uPath: UnparsedPath): boolean {
       return controller.hasTouched(path.concat(Path.parse(uPath)));

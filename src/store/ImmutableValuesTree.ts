@@ -1,8 +1,8 @@
 import {Path, PathNode, PathNodeType} from "./Path";
 
 export class ImmutableValuesTree<T = any> {
-  public static EMPTY_OBJECT: ImmutableValuesTree<{}> = new ImmutableValuesTree({});
-  public static EMPTY_ARRAY: ImmutableValuesTree<[]> = new ImmutableValuesTree([]);
+  public static readonly EMPTY_OBJECT: ImmutableValuesTree<{}> = new ImmutableValuesTree({});
+  public static readonly EMPTY_ARRAY: ImmutableValuesTree<[]> = new ImmutableValuesTree([]);
 
   public readonly raw: T;
 

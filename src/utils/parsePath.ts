@@ -1,6 +1,6 @@
 import {Path, PathNode, PathNodeType, UnparsedPath, UnparsedPathNode} from "../store/Path";
 
-const PATH_STR_REGEX = /([a-zA-Z0-9]+)((?:\[\d+])+)?/;
+const PATH_STR_REGEX = /([a-zA-Z0-9]*)((?:\[\d+])+)?/;
 
 function mergeArrays<T>(...arrays: T[][]): T[] {
   return arrays.reduce((acc, val) => [...acc, ...val], []);

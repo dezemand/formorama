@@ -2,9 +2,10 @@ import {useCallback, useContext, useMemo, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {CHANGE_EVENT, ERROR_EVENT, FOCUS_EVENT} from "../events";
 import {Change} from "../store/Change";
+import {FieldError} from "../store/FormErrors";
 import {FormValues} from "../store/FormValues";
-import {ImmutableValuesTree} from "../store/ImmutableValuesTree";
 import {Path, PathNodeType} from "../store/Path";
+import {ValidationError} from "../validation/Validator";
 import {useEventEmitter} from "./useEventEmitter";
 import {FormCtx} from "./useForm";
 import {useSubmitting} from "./useSubmitting";
@@ -15,7 +16,8 @@ export function fixValue<ValueType>(obj: any): ValueType {
 
 interface InputHook<ValueType> {
   value: ValueType;
-  error: null;
+  error: ValidationError | null;
+  errors: ValidationError[];
   focused: boolean;
   touched: boolean;
   submitting: boolean;
@@ -34,7 +36,7 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
   const path = useMemo<Path>(() => formPath.add([PathNodeType.OBJECT_KEY, name]), [formPath, name]);
 
   const [value, setValue] = useState<FormValues<ValueType>>(() => new FormValues(controller.getValue(path)));
-  const [error, setError] = useState(() => controller.getError(path));
+  const [errors, setErrors] = useState(() => controller.getErrors(path));
   const [focused, setFocused] = useState(() => controller.isFocusing(path));
   const [touched, setTouched] = useState(() => controller.hasTouched(path));
   const submitting = useSubmitting();
@@ -45,7 +47,7 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
   }, [controller, path]);
 
   const handleError = useCallback<InputHook<ValueType>["handleError"]>(error => {
-    controller.changeError(path, error);
+    controller.changeErrors(path, error);
   }, [controller, path]);
 
   const handleFocus = useCallback<InputHook<ValueType>["handleFocus"]>(() => {
@@ -76,17 +78,12 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
     }
   }, [path, value]);
 
-  const errorListener = useCallback<(errors: [Path, any][]) => void>(errors => {
-    const subChanges = Change.subChanges(errors.map(([path, error]) => new Change(path, error)), path);
-
-    if (subChanges.length > 0) {
-      let tree = new ImmutableValuesTree(error);
-      for (const change of subChanges) {
-        tree = tree.set(change.path, change.value);
-      }
-      setError(tree.raw);
+  const errorListener = useCallback<(errors: FieldError[]) => void>(errors => {
+    const error = errors.find(([errorPath]) => errorPath.equals(path));
+    if (error) {
+      setErrors(error[1]);
     }
-  }, [path, error]);
+  }, [path]);
 
   useEventEmitter(controller, FOCUS_EVENT, focusListener);
   useEventEmitter(controller, CHANGE_EVENT, changeListener);
@@ -94,7 +91,8 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
 
   return {
     value: value.get(Path.ROOT) === null ? defaultValue : value.get(Path.ROOT),
-    error,
+    error: errors.length > 0 ? errors[0] : null,
+    errors,
     focused,
     touched,
     submitting,

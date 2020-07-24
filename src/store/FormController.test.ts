@@ -202,14 +202,14 @@ test("Setting submitting works", () => {
 });
 
 test("Validation can succeed", async () => {
-  const validate = jest.fn((values) => ({a: null}));
+  const validate = jest.fn((_) => ({a: null}));
   const errorListener = jest.fn();
   const controller = new FormController({validate});
-  controller.change(Path.ROOT, testValues);
+  await controller.change(Path.ROOT, testValues);
 
   controller.on(ERROR_EVENT, errorListener);
 
-  const valid = await controller.validate();
+  const valid = await controller.validateSubmission();
 
   controller.removeListener(ERROR_EVENT, errorListener);
 
@@ -217,22 +217,21 @@ test("Validation can succeed", async () => {
   expect(validate).toBeCalledTimes(1);
   expect(validate.mock.calls[0][0]).toEqual(testValues);
   expect(validate.mock.results[0].value).toEqual({a: null});
-  expect(errorListener).toBeCalledTimes(1);
-  expect(errorListener.mock.calls[0][0]).toEqual([]);
+  expect(errorListener).toBeCalledTimes(0);
 });
 
 test("Validation can fail", async () => {
-  const validate = jest.fn((values) => ({
+  const validate = jest.fn((_) => ({
     a: "error 1",
     c: [null, {d: "error 2"}]
   }));
   const errorListener = jest.fn();
   const controller = new FormController({validate});
-  controller.change(Path.ROOT, testValues);
+  await controller.change(Path.ROOT, testValues);
 
   controller.on(ERROR_EVENT, errorListener);
 
-  const valid = await controller.validate();
+  const valid = await controller.validateSubmission();
 
   controller.removeListener(ERROR_EVENT, errorListener);
 
@@ -245,81 +244,81 @@ test("Validation can fail", async () => {
   });
   expect(errorListener).toBeCalledTimes(1);
   expect(errorListener.mock.calls[0][0]).toEqual([
-    [Path.parse("a"), "error 1"],
-    [Path.parse("c[1].d"), "error 2"]
+    [Path.parse("a"), ["error 1"]],
+    [Path.parse("c[1].d"), ["error 2"]]
   ]);
-  expect(controller.getError(Path.parse("a"))).toBe("error 1");
-  expect(controller.getError(Path.parse("c[1].d"))).toBe("error 2");
+  expect(controller.getErrors(Path.parse("a"))).toEqual(["error 1"]);
+  expect(controller.getErrors(Path.parse("c[1].d"))).toEqual(["error 2"]);
 });
 
 test("Validation function can be updated", async () => {
-  const validate1 = jest.fn((values) => ({a: "error 1"}));
-  const validate2 = jest.fn((values) => ({a: "error 2"}));
+  const validate1 = jest.fn((_) => ({a: "error 1"}));
+  const validate2 = jest.fn((_) => ({a: "error 2"}));
   const errorListener = jest.fn();
   const controller = new FormController({validate: validate1});
-  controller.change(Path.ROOT, testValues);
+  await controller.change(Path.ROOT, testValues);
 
   controller.on(ERROR_EVENT, errorListener);
 
-  const valid1 = await controller.validate();
+  const valid1 = await controller.validateSubmission();
 
   expect(valid1).toBe(false);
   expect(validate1).toBeCalledTimes(1);
   expect(validate2).toBeCalledTimes(0);
-  expect(controller.getError(Path.parse("a"))).toBe("error 1");
+  expect(controller.getErrors(Path.parse("a"))).toEqual(["error 1"]);
   expect(errorListener).toBeCalledTimes(1);
-  expect(errorListener.mock.calls[0][0]).toEqual([[Path.parse("a"), "error 1"]]);
+  expect(errorListener.mock.calls[0][0]).toEqual([[Path.parse("a"), ["error 1"]]]);
 
   controller.params = {validate: validate2};
 
-  const valid2 = await controller.validate();
+  const valid2 = await controller.validateSubmission();
 
   expect(valid2).toBe(false);
   expect(validate2).toBeCalledTimes(1);
-  expect(controller.getError(Path.parse("a"))).toBe("error 2");
+  expect(controller.getErrors(Path.parse("a"))).toEqual(["error 2"]);
   expect(errorListener).toBeCalledTimes(2);
-  expect(errorListener.mock.calls[1][0]).toEqual([[Path.parse("a"), "error 2"]]);
+  expect(errorListener.mock.calls[1][0]).toEqual([[Path.parse("a"), ["error 2"]]]);
 
   controller.removeListener(ERROR_EVENT, errorListener);
 });
 
-test("Validate can succeed after failure by changing the validate function", async () => {
-  const validate1 = jest.fn((values) => ({
+test("Validate can succeed after failure by changing the validateSubmission function", async () => {
+  const validate1 = jest.fn((_) => ({
     a: "error 1",
     c: [null, {d: "error 2"}]
   }));
-  const validate2 = jest.fn((values) => ({a: null}));
+  const validate2 = jest.fn((_) => ({a: null}));
   const errorListener = jest.fn();
   const controller = new FormController({validate: validate1});
-  controller.change(Path.ROOT, testValues);
+  await controller.change(Path.ROOT, testValues);
 
   controller.on(ERROR_EVENT, errorListener);
 
-  const valid1 = await controller.validate();
+  const valid1 = await controller.validateSubmission();
 
   expect(valid1).toBe(false);
   expect(validate1).toBeCalledTimes(1);
   expect(validate2).toBeCalledTimes(0);
-  expect(controller.getError(Path.parse("a"))).toBe("error 1");
-  expect(controller.getError(Path.parse("c[1].d"))).toBe("error 2");
+  expect(controller.getErrors(Path.parse("a"))).toEqual(["error 1"]);
+  expect(controller.getErrors(Path.parse("c[1].d"))).toEqual(["error 2"]);
   expect(errorListener).toBeCalledTimes(1);
   expect(errorListener.mock.calls[0][0]).toEqual([
-    [Path.parse("a"), "error 1"],
-    [Path.parse("c[1].d"), "error 2"]
+    [Path.parse("a"), ["error 1"]],
+    [Path.parse("c[1].d"), ["error 2"]]
   ]);
 
   controller.params = {validate: validate2};
 
-  const valid2 = await controller.validate();
+  const valid2 = await controller.validateSubmission();
 
   expect(valid2).toBe(true);
   expect(validate2).toBeCalledTimes(1);
-  expect(controller.getError(Path.parse("a"))).toBe(null);
-  expect(controller.getError(Path.parse("c[1].d"))).toBe(null);
+  expect(controller.getErrors(Path.parse("a"))).toEqual([]);
+  expect(controller.getErrors(Path.parse("c[1].d"))).toEqual([]);
   expect(errorListener).toBeCalledTimes(2);
   expect(errorListener.mock.calls[1][0]).toEqual([
-    [Path.parse("a"), null],
-    [Path.parse("c[1].d"), null]
+    [Path.parse("a"), []],
+    [Path.parse("c[1].d"), []]
   ]);
 
   controller.removeListener(ERROR_EVENT, errorListener);
@@ -335,27 +334,27 @@ test("Validate can succeed after failure by changing the values", async () => {
   });
   const errorListener = jest.fn();
   const controller = new FormController({validate});
-  controller.change(Path.ROOT, testValues);
+  await controller.change(Path.ROOT, testValues);
 
   controller.on(ERROR_EVENT, errorListener);
 
-  const valid1 = await controller.validate();
+  const valid1 = await controller.validateSubmission();
 
   expect(valid1).toBe(false);
   expect(validate).toBeCalledTimes(1);
-  expect(controller.getError(Path.parse("a"))).toBe("invalid value");
+  expect(controller.getErrors(Path.parse("a"))).toEqual(["invalid value"]);
   expect(errorListener).toBeCalledTimes(1);
-  expect(errorListener.mock.calls[0][0]).toEqual([[Path.parse("a"), "invalid value"]]);
+  expect(errorListener.mock.calls[0][0]).toEqual([[Path.parse("a"), ["invalid value"]]]);
 
-  controller.change(Path.parse("a"), "not value 1");
+  await controller.change(Path.parse("a"), "not value 1");
 
-  const valid2 = await controller.validate();
+  const valid2 = await controller.validateSubmission();
 
   expect(valid2).toBe(true);
   expect(validate).toBeCalledTimes(2);
-  expect(controller.getError(Path.parse("a"))).toBe(null);
+  expect(controller.getErrors(Path.parse("a"))).toEqual([]);
   expect(errorListener).toBeCalledTimes(2);
-  expect(errorListener.mock.calls[1][0]).toEqual([[Path.parse("a"), null]]);
+  expect(errorListener.mock.calls[1][0]).toEqual([[Path.parse("a"), []]]);
 
   controller.removeListener(ERROR_EVENT, errorListener);
 });
@@ -379,12 +378,11 @@ test("Can change error", () => {
 
   controller.on(ERROR_EVENT, errorListener);
 
-  controller.changeError(Path.parse("a.b"), "an error");
+  controller.changeErrors(Path.parse("a.b"), ["an error"]);
 
   controller.removeListener(ERROR_EVENT, errorListener);
 
-  expect(controller.getError(Path.parse("a.b"))).toBe("an error");
-  expect(controller.getError(Path.ROOT)).toEqual({a: {b: "an error"}});
+  expect(controller.getErrors(Path.parse("a.b"))).toEqual(["an error"]);
   expect(errorListener).toBeCalledTimes(1);
-  expect(errorListener.mock.calls[0][0]).toEqual([[Path.parse("a.b"), "an error"]]);
+  expect(errorListener.mock.calls[0][0]).toEqual([[Path.parse("a.b"), ["an error"]]]);
 });

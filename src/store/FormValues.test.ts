@@ -181,6 +181,13 @@ test("Remove last item", () => {
   expect(changedValues.get(Path.parse("c"))).toEqual([{d: 2}]);
 });
 
+test("Change", () => {
+  const changes = testValues.change(Path.parse("c"), [{d: 2}]);
+  const changedValues = testValues.apply(changes);
+
+  expect(changedValues.get(Path.parse("c"))).toEqual([{d: 2}]);
+});
+
 test("Instances in an array", () => {
   class Test {
     constructor(public readonly value: string) {

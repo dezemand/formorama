@@ -149,3 +149,10 @@ test("Using the parser on a string array", () => {
 
   expect(parsedPath.equals(path)).toBe(true);
 });
+
+test("Using the parser on only array indices", () => {
+  const parsedPath = Path.parse("[0][1][2]");
+  const path = new Path([[PathNodeType.ARRAY_INDEX, 0], [PathNodeType.ARRAY_INDEX, 1], [PathNodeType.ARRAY_INDEX, 2]]);
+
+  expect(parsedPath.equals(path)).toBe(true);
+});

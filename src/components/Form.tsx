@@ -1,10 +1,10 @@
 import React, {FC, FormEvent, FormEventHandler, ReactNode, Ref, useCallback} from "react";
-import {SubmissionError} from "..";
 import {FormContext} from "../contexts/FormContext";
 import {DO_SUBMIT_EVENT} from "../events";
+import {SubmissionError} from "../exceptions/SubmissionError";
 import {useEventEmitter} from "../hooks/useEventEmitter";
 import {FormHook} from "../hooks/useForm";
-import {ImmutableValuesTree} from "../store/ImmutableValuesTree";
+import {FormErrors} from "../store/FormErrors";
 import {Path} from "../store/Path";
 
 interface ErrorExtraResult<Values> {
@@ -35,21 +35,21 @@ export function Form<Values = any>({children, form, onSubmit, onError, noFormTag
     }
 
     controller.submitting = true;
-    const valid = await controller.validate();
+    const valid = await controller.validateSubmission();
 
     if (valid && onSubmit) {
       try {
         await onSubmit(controller.getValue<Values>(Path.ROOT), {event});
-        controller.errors = ImmutableValuesTree.EMPTY_OBJECT;
+        controller.errors = FormErrors.EMPTY;
       } catch (e) {
         if (e instanceof SubmissionError) {
-          controller.errors = e.errors;
+          controller.errors = new FormErrors(e.errors.entries().map(([path, error]) => [path, [error]]));
         } else {
           throw e;
         }
       }
     } else if (!valid && onError) {
-      await onError(controller.getError(Path.ROOT), {
+      await onError(controller.getErrors(Path.ROOT), {
         values: controller.getValue<Values>(Path.ROOT),
         event
       });
