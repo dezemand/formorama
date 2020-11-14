@@ -27,7 +27,7 @@ export function useInputValue(fields: (UnparsedPath)[], form?: FormHook, uPath?:
       newResult[index] = [path, value.apply(subChanges)];
     }
 
-    if (updated.some(x => x)) {
+    if (updated.some(Boolean)) {
       setResult(newResult);
     }
   }, [result]);
