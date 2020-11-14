@@ -386,3 +386,86 @@ test("Can change error", () => {
   expect(errorListener).toBeCalledTimes(1);
   expect(errorListener.mock.calls[0][0]).toEqual([[Path.parse("a.b"), ["an error"]]]);
 });
+
+test("Submit without validation", async () => {
+  const controller = new FormController();
+  const errorListener = jest.fn();
+  controller.on(ERROR_EVENT, errorListener);
+
+  const result = await controller.validateSubmission();
+
+  controller.removeListener(ERROR_EVENT, errorListener);
+
+  expect(result).toBe(true);
+  expect(errorListener).not.toBeCalled();
+});
+
+test("Validation on blur resulting in an error", async () => {
+  const controller = new FormController<TestValues>({
+    validate: ({a}: TestValues) => ({a: a === "bad" ? "error" : undefined})
+  });
+  const errorListener = jest.fn();
+  controller.on(ERROR_EVENT, errorListener);
+
+  controller.focus(Path.parse("a"));
+  await controller.change(Path.parse("a"), "bad");
+
+  expect(errorListener).not.toBeCalled();
+
+  controller.blur(Path.parse("a"));
+
+  // Wait 1 tick
+  await (new Promise(resolve => setTimeout(resolve)));
+
+  expect(errorListener).toBeCalledTimes(1);
+  expect(errorListener.mock.calls[0][0]).toEqual([
+    [Path.parse("a"), ["error"]]
+  ]);
+});
+
+test("Validation on blur resolving an error", async () => {
+  const controller = new FormController<TestValues>({
+    validate: ({a}: TestValues) => ({a: a === "bad" ? "error" : undefined})
+  });
+  const errorListener = jest.fn();
+
+  controller.focus(Path.parse("a"));
+  await controller.change(Path.parse("a"), "bad");
+  controller.blur(Path.parse("a"));
+  await (new Promise(resolve => setTimeout(resolve)));
+
+  controller.on(ERROR_EVENT, errorListener);
+
+  controller.focus(Path.parse("a"));
+  await controller.change(Path.parse("a"), "good");
+  controller.blur(Path.parse("a"));
+
+  await (new Promise(resolve => setTimeout(resolve)));
+  controller.removeListener(ERROR_EVENT, errorListener);
+
+  expect(errorListener).toBeCalledTimes(1);
+  expect(errorListener.mock.calls[0][0]).toEqual([[Path.parse("a"), []]]);
+});
+
+test("Focusing the same path does nothing", () => {
+  const focusListener = jest.fn();
+  const blurListener = jest.fn();
+  const controller = new FormController();
+  const path = Path.parse("a");
+
+  controller.on(FOCUS_EVENT, focusListener);
+  controller.on(BLUR_EVENT, blurListener);
+
+  controller.focus(path);
+  controller.focus(path);
+  controller.blur(path);
+
+  controller.removeListener(FOCUS_EVENT, focusListener);
+  controller.removeListener(BLUR_EVENT, blurListener);
+
+  expect(focusListener).toBeCalledTimes(2);
+  expect(focusListener.mock.calls[0][0]).toEqual(path);
+  expect(focusListener.mock.calls[1][0]).toEqual(null);
+  expect(blurListener).toBeCalledTimes(1);
+  expect(focusListener.mock.calls[0][0]).toEqual(path);
+});

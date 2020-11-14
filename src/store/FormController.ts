@@ -84,8 +84,7 @@ export class FormController<Values = any> extends EventEmitter {
 
     if (oldFocus) {
       this.emit(BLUR_EVENT, oldFocus);
-      // noinspection JSIgnoredPromiseFromCall
-      this.validateBlur(oldFocus);
+      this.validateBlur(oldFocus).catch(() => void 0);
     }
 
     this._focusing = path;
