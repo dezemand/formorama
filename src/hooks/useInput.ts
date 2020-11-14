@@ -1,94 +1,103 @@
 import {useCallback, useContext, useMemo, useState} from "react";
 import {FormContext} from "../contexts/FormContext";
-import {BLUR_EVENT, CHANGE_EVENT, CustomChangeEvent, CustomFocusBlurEvent, FOCUS_EVENT} from "../events";
-import {FormError, InputHook, Path, PathNodeType} from "../types";
-import {pathEquals, pathParentOf, setTreeValue} from "../utils/path";
-import {useEventListener} from "./useEventListener";
+import {CHANGE_EVENT, ERROR_EVENT, FOCUS_EVENT} from "../events";
+import {Change} from "../store/Change";
+import {FormValues} from "../store/FormValues";
+import {Path, PathNodeType} from "../store/Path";
+import {FieldError, ValidationError} from "../validation/Validator";
+import {useEventEmitter} from "./useEventEmitter";
+import {FormCtx} from "./useForm";
+import {useSubmitting} from "./useSubmitting";
 
-export function useInput(name: string, defaultValue: any): InputHook {
-  const form = useContext(FormContext);
-  const path = useMemo<Path>(() => [...form.path, [PathNodeType.OBJECT_KEY, name]], [form.path, name]);
+export function fixValue<ValueType>(obj: any): ValueType {
+  return obj.target ? obj.target.value : obj;
+}
 
-  const {root: {change, focus, blur, submitting, getValue, target, getError, isFocused}} = form;
+interface InputHook<ValueType> {
+  value: ValueType;
+  error: ValidationError | null;
+  errors: ValidationError[];
+  focused: boolean;
+  touched: boolean;
+  submitting: boolean;
 
-  const [value, setValue] = useState(() => {
-    let value = getValue(path);
-    if (value === null) {
-      value = defaultValue;
-      change(path, defaultValue);
+  handleChange(eventOrValue: any): void;
+
+  handleError(error: any): void;
+
+  handleFocus(): void;
+
+  handleBlur(): void;
+}
+
+export function useInput<ValueType>(name: string, defaultValue: ValueType): InputHook<ValueType> {
+  const {path: formPath, controller} = useContext<FormCtx>(FormContext);
+  const path = useMemo<Path>(() => formPath.add([PathNodeType.OBJECT_KEY, name]), [formPath, name]);
+
+  const [value, setValue] = useState<FormValues<ValueType>>(() => new FormValues(controller.getValue(path)));
+  const [errors, setErrors] = useState(() => controller.getErrors(path));
+  const [focused, setFocused] = useState(() => controller.isFocusing(path));
+  const [touched, setTouched] = useState(() => controller.hasTouched(path));
+  const submitting = useSubmitting();
+
+  // Event handlers for elements
+  const handleChange = useCallback<InputHook<ValueType>["handleChange"]>(eventOrValue => {
+    controller.change(path, fixValue(eventOrValue));
+  }, [controller, path]);
+
+  const handleError = useCallback<InputHook<ValueType>["handleError"]>(error => {
+    controller.changeErrors(path, error);
+  }, [controller, path]);
+
+  const handleFocus = useCallback<InputHook<ValueType>["handleFocus"]>(() => {
+    controller.focus(path);
+  }, [controller, path]);
+
+  const handleBlur = useCallback<InputHook<ValueType>["handleBlur"]>(() => {
+    controller.blur(path);
+  }, [controller, path]);
+
+  // Event listeners for the controller
+  const focusListener = useCallback<(focusedPath: Path) => void>(focusedPath => {
+    const nextFocused = Boolean(focusedPath && focusedPath.equals(path));
+    const nextTouched = controller.hasTouched(path);
+
+    if (touched !== nextTouched) {
+      setTouched(nextTouched);
     }
-    return value;
-  });
-  const [error, setError] = useState<FormError | null>(() => getError(path));
-  const [focused, setFocused] = useState<boolean>(() => isFocused(path));
-
-  const changeEventHandler = useCallback((event: CustomChangeEvent) => {
-    let newValue = getValue(path);
-    let changedValue = false;
-
-    for (const {path: valuePath, value} of event.detail.values) {
-      if (pathEquals(valuePath, path)) {
-        newValue = value;
-        changedValue = true;
-      } else if (pathParentOf(path, valuePath)) {
-        const subPath = valuePath.slice(path.length);
-        const tree = newValue || (subPath[0][0] === PathNodeType.ARRAY_INDEX ? [] : {});
-        setTreeValue(tree, subPath, value);
-        newValue = tree;
-        changedValue = true;
-      }
+    if (focused !== nextFocused) {
+      setFocused(nextFocused);
     }
+  }, [controller, path, touched, focused]);
 
-    for (const {path: errorPath, error} of event.detail.errors) {
-      if (pathEquals(errorPath, path)) {
-        setError(error);
-      }
+  const changeListener = useCallback<(changes: Change[]) => void>(changes => {
+    const subChanges = Change.subChanges(changes, path);
+    if (subChanges.length > 0) {
+      setValue(value.apply(subChanges));
     }
+  }, [path, value]);
 
-    if (changedValue) {
-      setValue(newValue);
-    }
-  }, [path, getValue]);
-
-  const focusEventHandler = useCallback((event: CustomFocusBlurEvent) => {
-    if (pathEquals(event.detail.path, path)) {
-      setFocused(true);
+  const errorListener = useCallback<(errors: FieldError[]) => void>(errors => {
+    const error = errors.find(([errorPath]) => errorPath.equals(path));
+    if (error) {
+      setErrors(error[1]);
     }
   }, [path]);
 
-  const blurEventHandler = useCallback((event: CustomFocusBlurEvent) => {
-    if (pathEquals(event.detail.path, path)) {
-      setFocused(false);
-    }
-  }, [path]);
-
-  useEventListener(target, CHANGE_EVENT, changeEventHandler as EventListener);
-  useEventListener(target, FOCUS_EVENT, focusEventHandler as EventListener);
-  useEventListener(target, BLUR_EVENT, blurEventHandler as EventListener);
-
-  const handleChange = useCallback<InputHook["handleChange"]>(event => {
-    if (event && event.target) {
-      change(path, event.target.value);
-    } else {
-      change(path, event);
-    }
-  }, [change, path]);
-
-  const handleFocus = useCallback<InputHook["handleFocus"]>(() => {
-    focus(path);
-  }, [focus, path]);
-
-  const handleBlur = useCallback<InputHook["handleBlur"]>(() => {
-    blur(path);
-  }, [blur, path]);
+  useEventEmitter(controller, FOCUS_EVENT, focusListener);
+  useEventEmitter(controller, CHANGE_EVENT, changeListener);
+  useEventEmitter(controller, ERROR_EVENT, errorListener);
 
   return {
-    value,
-    error,
-    handleChange,
+    value: value.get(Path.ROOT) === null ? defaultValue : value.get(Path.ROOT),
+    error: errors.length > 0 ? errors[0] : null,
+    errors,
+    focused,
+    touched,
+    submitting,
     handleFocus,
     handleBlur,
-    submitting,
-    focused
+    handleChange,
+    handleError
   };
 }

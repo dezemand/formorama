@@ -1,19 +1,22 @@
-import React, {FC, ReactNode, useContext} from "react";
+import React, {FC, ReactNode, useContext, useRef} from "react";
 import {FormContext} from "../contexts/FormContext";
-import {useArrayFormItem} from "../hooks/useArrayFormItem";
-import {FormHook} from "../types";
+import {FormCtx} from "../hooks/useForm";
+import {PathNodeType} from "../store/Path";
 
 interface ArrayFormItemProps {
   children?: ReactNode;
   index: number;
 }
 
-export function ArrayFormItem<Values = any, ParentValues = any, RootValues = any>({children, index}: ArrayFormItemProps): ReturnType<FC<ArrayFormItemProps>> {
-  const parent = useContext<FormHook<ParentValues, RootValues>>(FormContext);
-  const arrayFormItem = useArrayFormItem<Values, ParentValues, RootValues>(parent, index);
+export function ArrayFormItem<RootValues = any>({children, index}: ArrayFormItemProps): ReturnType<FC<ArrayFormItemProps>> {
+  const parentCtx = useContext<FormCtx<RootValues>>(FormContext);
+  const ctx = useRef<FormCtx<RootValues>>({
+    controller: parentCtx.controller,
+    path: parentCtx.path.add([PathNodeType.ARRAY_INDEX, index])
+  });
 
   return (
-    <FormContext.Provider value={arrayFormItem}>
+    <FormContext.Provider value={ctx.current}>
       {children}
     </FormContext.Provider>
   );
