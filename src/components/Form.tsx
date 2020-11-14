@@ -7,6 +7,8 @@ import {FormHook} from "../hooks/useForm";
 import {FormErrors} from "../store/FormErrors";
 import {Path} from "../store/Path";
 
+const DONT_ALLOW_HTML_TAGS = typeof document === "undefined";
+
 interface ErrorExtraResult<Values> {
   values: Values;
   event?: FormEvent<HTMLFormElement>;
@@ -25,7 +27,7 @@ export interface FormProps<Values> {
   formRef?: Ref<HTMLFormElement>;
 }
 
-export function Form<Values = any>({children, form, onSubmit, onError, noFormTag, formRef}: FormProps<Values>): ReturnType<FC<FormProps<Values>>> {
+export function Form<Values = any>({children, form, onSubmit, onError, noFormTag = DONT_ALLOW_HTML_TAGS, formRef}: FormProps<Values>): ReturnType<FC<FormProps<Values>>> {
   const {ctx} = form;
   const {controller} = ctx;
 
