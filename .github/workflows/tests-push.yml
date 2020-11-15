@@ -1,0 +1,21 @@
+name: Run tests (push)
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Run npm install
+        run: npm ci
+      - name: Run tests
+        run: npm test -- --coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./coverage
