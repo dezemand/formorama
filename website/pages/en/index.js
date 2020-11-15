@@ -145,16 +145,22 @@ class Index extends React.Component {
       <Block layout="fourColumn">
         {[
           {
-            content: "This is the content of my feature",
-            image: `${baseUrl}img/undraw_react.svg`,
-            imageAlign: "top",
-            title: "Feature One"
+            content: "Create arrays and sub objects in your form data.",
+            // image: `${baseUrl}img/undraw_react.svg`,
+            // imageAlign: "top",
+            title: "Advanced Sub Forms"
           },
           {
-            content: "The content of my second feature",
-            image: `${baseUrl}img/undraw_operating_system.svg`,
-            imageAlign: "top",
-            title: "Feature Two"
+            content: "Turn anything into form elements using hooks.",
+            // image: `${baseUrl}img/undraw_operating_system.svg`,
+            // imageAlign: "top",
+            title: "Complete Input Control"
+          },
+          {
+            content: "Control when you want certain fields validated. On change, blur or submission.",
+            // image: `${baseUrl}img/undraw_operating_system.svg`,
+            // imageAlign: "top",
+            title: "Validation Control"
           }
         ]}
       </Block>
@@ -179,7 +185,7 @@ class Index extends React.Component {
       return (
         <div className="productShowcaseSection paddingBottom">
           <h2>Who is Using This?</h2>
-          <p>This project is used by all these people</p>
+          <p>The project is currently not as big and not used much.</p>
           <div className="logos">{showcase}</div>
           <div className="more-users">
             <a className="button" href={pageUrl("users.html")}>
@@ -195,7 +201,6 @@ class Index extends React.Component {
         <HomeSplash siteConfig={siteConfig} language={language}/>
         <div className="mainContainer">
           <Features/>
-          <FeatureCallout/>
           <TryOut/>
           <Showcase/>
         </div>

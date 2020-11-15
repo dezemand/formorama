@@ -28,7 +28,7 @@ const Form: FC = () => {
 
 ## Reference
 
-### `new SubmissionError(errors: FieldErrorObject)`
+#### `new SubmissionError(errors: FieldErrorObject)`
 
 This creates an instance. The `FieldErrorObject` should be an object containing the errors for each field (same as the validation result).
 
