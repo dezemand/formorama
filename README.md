@@ -21,6 +21,7 @@
 
 <hr />
 
+[![Bundle Size][bundlephobia-badge]][bundlephobia]
 [![Build Status][build-badge]][build]
 [![Code Coverage][coverage-badge]][coverage]
 [![version][version-badge]][package]
@@ -108,8 +109,8 @@ export const MyForm: FC = () => {
 [license]: https://github.com/dezemand/formorama/blob/master/LICENSE
 [prs-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
 [prs]: http://makeapullrequest.com
-[coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
-[coc]: https://github.com/testing-library/react-testing-library/blob/master/CODE_OF_CONDUCT.md
+[bundlephobia-badge]: https://badgen.net/bundlephobia/minzip/formorama
+[bundlephobia]: https://bundlephobia.com/result?p=formorama
 [github-watch-badge]: https://img.shields.io/github/watchers/dezemand/formorama.svg?style=social
 [github-watch]: https://github.com/dezemand/formorama/watchers
 [github-star-badge]: https://img.shields.io/github/stars/dezemand/formorama.svg?style=social
