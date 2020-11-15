@@ -1,0 +1,30 @@
+{
+  "docs": {
+    "Getting started": [
+      "introduction",
+      "installation"
+    ],
+    "Guide": [
+      "guide-form",
+      "guide-reactnative"
+    ],
+    "API Reference": [
+      "api-form",
+      "api-subform",
+      "api-arrayformitem",
+      "api-arrayformitems",
+      "api-useform",
+      "api-useinput",
+      "api-useformcontext",
+      "api-useinputvalue",
+      "api-usesubmitting",
+      "api-submissionerror"
+    ]
+  },
+  "docs-other": {
+    "Examples": [
+      "example-simple",
+      "example-reactnative"
+    ]
+  }
+}
