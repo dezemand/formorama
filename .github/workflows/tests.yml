@@ -18,6 +18,8 @@ jobs:
         uses: mattallty/jest-github-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: ls
+        run: ls .
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
