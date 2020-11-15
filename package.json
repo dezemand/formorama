@@ -35,6 +35,7 @@
   "bugs": {
     "url": "https://github.com/dezemand/formorama/issues"
   },
+  "homepage": "https://formorama.org",
   "peerDependencies": {
     "react": ">=16.8.0"
   },
