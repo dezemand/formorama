@@ -1,7 +1,7 @@
 <div align="center">
 <h1>Formorama</h1>
 
-<a href="https://www.emojione.com/emoji/1f410">
+<a href="https://formorama.org">
   <img
     height="80"
     width="80"
@@ -10,11 +10,11 @@
   />
 </a>
 
-<h4>Library for creating forms in React.</h4>
+<h3>Library for creating forms in React.</h3>
 
 <br />
 
-[**Read The Docs**](https://formorama.org/docs)
+[**Read The Docs**](https://formorama.org/docs/introduction)
 
 <br />
 </div>
@@ -96,8 +96,8 @@ export const MyForm: FC = () => {
 [npm]: https://www.npmjs.com/
 [yarn]: https://classic.yarnpkg.com
 [node]: https://nodejs.org
-[build-badge]: https://img.shields.io/github/workflow/status/dezemand/formorama/Run%20tests?logo=github&style=flat-square
-[build]: https://github.com/dezemand/formorama/actions?query=workflow%3A"Run+tests"
+[build-badge]: https://img.shields.io/github/workflow/status/dezemand/formorama/Tests%20Push?logo=github&style=flat-square
+[build]: https://github.com/dezemand/formorama/actions?query=workflow%3A"Tests+Push"
 [coverage-badge]: https://img.shields.io/codecov/c/github/dezemand/formorama.svg?style=flat-square
 [coverage]: https://codecov.io/github/dezemand/formorama
 [version-badge]: https://img.shields.io/npm/v/formorama.svg?style=flat-square
