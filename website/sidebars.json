@@ -1,19 +1,28 @@
 {
   "docs": {
-    "Docusaurus": [
-      "doc1"
+    "Getting started": [
+      "introduction",
+      "installation"
     ],
-    "First Category": [
-      "doc2"
+    "Guide": [
+      "guide-form"
     ],
-    "Second Category": [
-      "doc3"
+    "API Reference": [
+      "api-form",
+      "api-subform",
+      "api-arrayformitem",
+      "api-arrayformitems",
+      "api-useform",
+      "api-useinput",
+      "api-useformcontext",
+      "api-useinputvalue",
+      "api-usesubmitting",
+      "api-submissionerror"
     ]
   },
   "docs-other": {
-    "First Category": [
-      "doc4",
-      "doc5"
+    "Examples": [
+      "example-simple"
     ]
   }
 }

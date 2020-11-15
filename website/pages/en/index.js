@@ -65,8 +65,7 @@ class HomeSplash extends React.Component {
           <ProjectTitle tagline={siteConfig.tagline} title={siteConfig.title}/>
           <PromoSection>
             <Button href="#try">Try It Out</Button>
-            <Button href={docUrl("doc1.html")}>Example Link</Button>
-            <Button href={docUrl("doc2.html")}>Example Link 2</Button>
+            <Button href={docUrl("introduction.html")}>Visit the docs</Button>
           </PromoSection>
         </div>
       </SplashContainer>
@@ -105,13 +104,10 @@ class Index extends React.Component {
       <Block id="try">
         {[
           {
-            content:
-              "To make your landing page more attractive, use illustrations! Check out " +
-              "[**unDraw**](https://undraw.co/) which provides you with customizable illustrations which are free to use. " +
-              "The illustrations you see on this page are from unDraw.",
+            content: "Try out our library at [**CodeSandbox**](https://codesandbox.io/s/formorama-simple-example-xsipc) where we have a simple working example. You can fork the Sandbox and write something yourself without the hassle of setting up a project!",
             image: `${baseUrl}img/undraw_code_review.svg`,
             imageAlign: "left",
-            title: "Wonderful SVG Illustrations"
+            title: "Try it out!"
           }
         ]}
       </Block>
@@ -200,9 +196,7 @@ class Index extends React.Component {
         <div className="mainContainer">
           <Features/>
           <FeatureCallout/>
-          <LearnHow/>
           <TryOut/>
-          <Description/>
           <Showcase/>
         </div>
       </div>
