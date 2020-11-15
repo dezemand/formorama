@@ -7,7 +7,7 @@ The `<Form />` component is the main component used in creating forms.
 
 ## Example
 
-```typescript jsx
+```tsx
 interface MyFormValues {
   myfield: string;
 }

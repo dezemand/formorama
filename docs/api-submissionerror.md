@@ -7,7 +7,7 @@ The `SubmissionError` extends the `Error` class and is used to add errors to cer
 
 ## Example
 
-```typescript jsx
+```tsx
 const Form: FC = () => {
   const form = useForm<FormValues>();
   

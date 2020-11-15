@@ -11,10 +11,6 @@
       "api-arrayformitems": {
         "title": "<ArrayFormItems />"
       },
-      "api-components": {
-        "title": "Form Components",
-        "sidebar_label": "Form Components"
-      },
       "api-form": {
         "title": "<Form />"
       },
@@ -45,6 +41,10 @@
       "guide-form": {
         "title": "Creating a form",
         "sidebar_label": "Creating a form"
+      },
+      "guide-reactnative": {
+        "title": "Notes on React Native",
+        "sidebar_label": "React Native"
       },
       "installation": {
         "title": "Installation",

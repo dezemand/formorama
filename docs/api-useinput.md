@@ -7,7 +7,7 @@ The `useInput()` manages an input field on the form.
 
 ## Example
 
-```typescript jsx
+```tsx
 // TODO
 ```
 

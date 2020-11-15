@@ -7,7 +7,7 @@ The `<ArrayFormItems />` component renders every array item and updates when the
 
 ## Example
 
-```typescript jsx
+```tsx
 // TODO
 ```
 

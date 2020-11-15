@@ -7,7 +7,7 @@ This hook is used to access the `FormContext` inside a child component.
 
 ## Example
 
-```typescript jsx
+```tsx
 // TODO
 ```
 

@@ -5,7 +5,8 @@
       "installation"
     ],
     "Guide": [
-      "guide-form"
+      "guide-form",
+      "guide-reactnative"
     ],
     "API Reference": [
       "api-form",

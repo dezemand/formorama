@@ -7,7 +7,7 @@ The `useInputValue()` hook is used for getting form values. The values are store
 
 ## Example
 
-```typescript jsx
+```tsx
 // TODO
 ```
 

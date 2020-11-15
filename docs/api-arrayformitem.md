@@ -7,7 +7,7 @@ The `<ArrayFormItem />` component is used to
 
 ## Example
 
-```typescript jsx
+```tsx
 // TODO
 ```
 

@@ -7,7 +7,7 @@ The `useSubmitting()` hook returns `true` when the form is in the process of sub
 
 ## Example
 
-```typescript jsx
+```tsx
 // TODO
 ```
 

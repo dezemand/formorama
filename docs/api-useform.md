@@ -7,7 +7,7 @@ The `useForm` hook creates a form instance.
 
 ## Example
 
-```typescript jsx
+```tsx
 // TODO
 ```
 

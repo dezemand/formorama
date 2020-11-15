@@ -7,7 +7,7 @@ The `<SubForm />` component sets all containing members to use a subpart of the 
 
 ## Example
 
-```typescript jsx
+```tsx
 // TODO
 ```
 
