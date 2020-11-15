@@ -10,7 +10,7 @@ import {FormCtx} from "./useForm";
 import {useSubmitting} from "./useSubmitting";
 
 export function fixValue<ValueType>(obj: any): ValueType {
-  return obj.target ? obj.target.value : obj;
+  return (obj && obj.target) ? obj.target.value : obj;
 }
 
 interface InputHook<ValueType> {
