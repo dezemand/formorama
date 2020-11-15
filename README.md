@@ -28,7 +28,6 @@
 [![downloads][downloads-badge]][npmtrends]
 [![MIT License][license-badge]][license]
 [![PRs Welcome][prs-badge]][prs]
-[![Code of Conduct][coc-badge]][coc]
 
 [![Watch on GitHub][github-watch-badge]][github-watch]
 [![Star on GitHub][github-star-badge]][github-star]
