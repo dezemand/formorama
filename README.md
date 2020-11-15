@@ -10,7 +10,7 @@
   />
 </a>
 
-<p>Library for creating forms in React.</p>
+<h4>Library for creating forms in React.</h4>
 
 <br />
 
@@ -21,7 +21,6 @@
 
 <hr />
 
-<!-- prettier-ignore-start -->
 [![Build Status][build-badge]][build]
 [![Code Coverage][coverage-badge]][coverage]
 [![version][version-badge]][package]
@@ -32,8 +31,67 @@
 
 [![Watch on GitHub][github-watch-badge]][github-watch]
 [![Star on GitHub][github-star-badge]][github-star]
-<!-- prettier-ignore-end -->
 
+## What is Formorama?
+Formorama is a library for managing your forms in React. This library was made when a project was moving away from Redux Forms. The reason I've decided to create this instead of using an existing library is because the project required subforms and many different types of input fields. For further information, visit the [website](https://formorama.org). 
+
+### Example
+View this example on [CodeSandbox](https://codesandbox.io/s/formorama-simple-example-xsipc).
+
+```typescript jsx
+interface TextFieldProps {
+  name: string;
+}
+
+export const TextField: FC<TextFieldProps> = ({ name }) => {
+  const { value, handleChange, handleFocus, handleBlur } = useInput(name, "");
+
+  return (
+    <div className="text-field">
+      <input
+        type="text"
+        value={value}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+      />
+    </div>
+  );
+};
+
+interface FormValues {
+  field1: string;
+  sub: {
+    field2: string;
+  }
+}
+
+export const MyForm: FC = () => {
+  const form = useForm<FormValues>();
+  const [result, setResult] = useState<FormValues | null>(null);
+
+  const handleSubmit = (values: FormValues) => setResult(values);
+
+  return (
+    <>
+      <Form form={form} onSubmit={handleSubmit}>
+        <TextField name="field1" />
+        <SubForm name="sub">
+          <TextField name="field2" />
+        </SubForm>
+        <button type="submit">Submit</button>
+      </Form>
+
+      {result && (
+        <div>
+          <h2>Last submission</h2>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+        </div>
+      )}
+    </>
+  );
+};
+```
 
 [npm]: https://www.npmjs.com/
 [yarn]: https://classic.yarnpkg.com
