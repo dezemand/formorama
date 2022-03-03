@@ -1,5 +1,5 @@
-import {ImmutableValuesTree} from "./ImmutableValuesTree";
-import {Path} from "./Path";
+import { ImmutableValuesTree } from "./ImmutableValuesTree";
+import { Path } from "./Path";
 
 interface TestValues {
   a: string;
@@ -15,7 +15,7 @@ beforeEach(() => {
   testValues = {
     a: "value 1",
     b: "value 2",
-    c: [{d: 1}, {d: 2}],
+    c: [{ d: 1 }, { d: 2 }],
     e: {
       f: "value 3"
     }
@@ -52,13 +52,13 @@ test("Getting a normal value", () => {
 test("Getting an array value", () => {
   const path = Path.parse("c");
 
-  expect(testTree.get(path)).toEqual([{d: 1}, {d: 2}]);
+  expect(testTree.get(path)).toEqual([{ d: 1 }, { d: 2 }]);
 });
 
 test("Getting an object value", () => {
   const path = Path.parse("e");
 
-  expect(testTree.get(path)).toEqual({f: "value 3"});
+  expect(testTree.get(path)).toEqual({ f: "value 3" });
 });
 
 test("Getting a deep value", () => {
@@ -85,7 +85,7 @@ test("Getting array values from objects does not work", () => {
 
 test("Setting a new value", () => {
   interface TestValues2 extends TestValues {
-    g: string
+    g: string;
   }
 
   const path = Path.parse("g");
@@ -126,7 +126,7 @@ test("Adding an item to the array", () => {
 
 test("Creating a deep tree value", () => {
   interface TestValues3 extends TestValues {
-    g: { h: { i: { j: string }[] } }
+    g: { h: { i: { j: string }[] } };
   }
 
   const path = Path.parse("g.h.i[3].j");
@@ -139,16 +139,16 @@ test("Creating a deep tree value", () => {
 
 test("Set works with a tree", () => {
   interface TestValues4 extends TestValues {
-    g: { something: string }
+    g: { something: string };
   }
 
-  const otherTree = new ImmutableValuesTree<TestValues4["g"]>({something: "value"});
+  const otherTree = new ImmutableValuesTree<TestValues4["g"]>({ something: "value" });
   const path = Path.parse("g");
 
   const newTree = testTree.set<TestValues4>(path, otherTree);
 
-  expect(newTree.get(path)).toEqual({something: "value"});
-  expect(newTree.raw.g).toEqual({something: "value"});
+  expect(newTree.get(path)).toEqual({ something: "value" });
+  expect(newTree.raw.g).toEqual({ something: "value" });
   expect(newTree.raw.g).not.toBeInstanceOf(ImmutableValuesTree);
 });
 
@@ -165,7 +165,7 @@ test("Follow works", () => {
 
   const followed = testTree.follow<TestValues["c"]>(path);
 
-  expect(followed.raw).toEqual([{d: 1}, {d: 2}]);
+  expect(followed.raw).toEqual([{ d: 1 }, { d: 2 }]);
 });
 
 test("Entries works", () => {
@@ -190,7 +190,7 @@ test("Can create from entries", () => {
   expect(newTree.raw).toEqual({
     a: "value 1",
     b: "value 2",
-    c: [{d: 1}, {d: 2}],
+    c: [{ d: 1 }, { d: 2 }],
     e: {
       f: "value 3"
     }
@@ -206,12 +206,12 @@ test("Putting a tree's entries in fromEntries results in the same tree", () => {
 
 test("Comparing trees works", () => {
   interface TestValues2 extends TestValues {
-    g: string
+    g: string;
   }
 
   const otherTree = new ImmutableValuesTree<TestValues2>({
     a: "value 1",
-    c: [{d: 1}],
+    c: [{ d: 1 }],
     e: {
       f: "changed value"
     },
@@ -229,12 +229,12 @@ test("Comparing trees works", () => {
 
 test("Comparing works the other way around too", () => {
   interface TestValues2 extends TestValues {
-    g: string
+    g: string;
   }
 
   const otherTree = new ImmutableValuesTree<TestValues2>({
     a: "value 1",
-    c: [{d: 1}],
+    c: [{ d: 1 }],
     e: {
       f: "changed value"
     },
@@ -266,13 +266,13 @@ test("Works with changing primary type to an object", () => {
   const tree = new ImmutableValuesTree<string>("value 1");
   const newTree = tree.set(Path.parse("a.b"), "value 2");
 
-  expect(newTree.raw).toEqual({a: {b: "value 2"}});
+  expect(newTree.raw).toEqual({ a: { b: "value 2" } });
   expect(newTree.get(Path.parse("a.b"))).toBe("value 2");
 });
 
 test("BUG: When comparing, root should not appear as null if it's not unset", () => {
   const tree = new ImmutableValuesTree(null);
-  const otherTree = new ImmutableValuesTree([{d: 1}, {d: 2}]);
+  const otherTree = new ImmutableValuesTree([{ d: 1 }, { d: 2 }]);
 
   const changes1 = tree.compare(otherTree);
   const changes2 = otherTree.compare(tree);

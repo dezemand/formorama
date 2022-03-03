@@ -1,6 +1,6 @@
-import {Change} from "./Change";
-import {FormValues} from "./FormValues";
-import {Path, PathNodeType} from "./Path";
+import { Change } from "./Change";
+import { FormValues } from "./FormValues";
+import { Path, PathNodeType } from "./Path";
 
 interface TestValues {
   a: string;
@@ -16,7 +16,7 @@ beforeEach(() => {
   testObject = {
     a: "value 1",
     b: "value 2",
-    c: [{d: 1}, {d: 2}],
+    c: [{ d: 1 }, { d: 2 }],
     e: {
       f: "value 3"
     }
@@ -55,7 +55,7 @@ test("Adding a value to an array", () => {
 test("Comparing to different values", () => {
   const otherValues = new FormValues<TestValues>({
     a: "different",
-    c: [{d: 0}, {d: 2}, {d: 3}],
+    c: [{ d: 0 }, { d: 2 }, { d: 3 }],
     e: {
       f: "value 3"
     }
@@ -100,7 +100,7 @@ test("Applying multiple changes", () => {
   expect(newValues.get(Path.ROOT)).toEqual({
     a: "value 1",
     b: "new value",
-    c: [{d: 42}, {d: 43}],
+    c: [{ d: 42 }, { d: 43 }],
     e: {
       f: "value 3"
     }
@@ -139,7 +139,7 @@ test("Creating sub changes", () => {
   const newValues = new FormValues<TestValues2>({
     ...testObject,
     a: "changed but not relevant",
-    e: {f: "changed value", g: "new value"}
+    e: { f: "changed value", g: "new value" }
   });
 
   const changes = testValues.compare(newValues);
@@ -161,7 +161,7 @@ test("Applying sub changes", () => {
   const newValues = new FormValues<TestValues2>({
     ...testObject,
     a: "changed but not relevant",
-    e: {f: "changed value", g: "new value"}
+    e: { f: "changed value", g: "new value" }
   });
   const subValues = new FormValues<TestValues["e"]>(testObject.e);
   const changes = testValues.compare(newValues);
@@ -169,29 +169,28 @@ test("Applying sub changes", () => {
 
   const newSubValues = subValues.apply<TestValues2["e"]>(subChanges);
 
-  expect(newSubValues.get(Path.ROOT)).toEqual({f: "changed value", g: "new value"});
+  expect(newSubValues.get(Path.ROOT)).toEqual({ f: "changed value", g: "new value" });
 });
 
 test("Remove last item", () => {
-  const newValues = new FormValues({...testObject, c: [{d: 2}]});
+  const newValues = new FormValues({ ...testObject, c: [{ d: 2 }] });
   const changes = testValues.compare(newValues);
 
   const changedValues = testValues.apply(changes);
 
-  expect(changedValues.get(Path.parse("c"))).toEqual([{d: 2}]);
+  expect(changedValues.get(Path.parse("c"))).toEqual([{ d: 2 }]);
 });
 
 test("Change", () => {
-  const changes = testValues.change(Path.parse("c"), [{d: 2}]);
+  const changes = testValues.change(Path.parse("c"), [{ d: 2 }]);
   const changedValues = testValues.apply(changes);
 
-  expect(changedValues.get(Path.parse("c"))).toEqual([{d: 2}]);
+  expect(changedValues.get(Path.parse("c"))).toEqual([{ d: 2 }]);
 });
 
 test("Instances in an array", () => {
   class Test {
-    constructor(public readonly value: string) {
-    }
+    constructor(public readonly value: string) {}
   }
 
   const value1 = new Test("First");

@@ -1,11 +1,11 @@
-import {EventEmitter} from "events";
-import {BLUR_EVENT, CHANGE_EVENT, DO_SUBMIT_EVENT, ERROR_EVENT, FOCUS_EVENT, SUBMITTING_EVENT} from "../events";
-import {validateToValidator} from "../utils/validateToValidator";
-import {IValidator, ValidationError} from "../validation/Validator";
-import {Change} from "./Change";
-import {FormErrors} from "./FormErrors";
-import {FormValues} from "./FormValues";
-import {Path} from "./Path";
+import { EventEmitter } from "events";
+import { BLUR_EVENT, CHANGE_EVENT, DO_SUBMIT_EVENT, ERROR_EVENT, FOCUS_EVENT, SUBMITTING_EVENT } from "../events";
+import { validateToValidator } from "../utils/validateToValidator";
+import { IValidator, ValidationError } from "../validation/Validator";
+import { Change } from "./Change";
+import { FormErrors } from "./FormErrors";
+import { FormValues } from "./FormValues";
+import { Path } from "./Path";
 
 const DEFAULT_MAX_LISTENERS = 2 ** 16;
 
@@ -21,15 +21,20 @@ interface FormControllerParamsWithValidator<Values> extends NormalFormController
   validator: IValidator<Values>;
 }
 
-export type FormControllerParams<Values> = NormalFormControllerParams
+export type FormControllerParams<Values> =
+  | NormalFormControllerParams
   | FormControllerParamsWithLegacyValidate<Values>
   | FormControllerParamsWithValidator<Values>;
 
-function hasValidator<Values>(params: FormControllerParams<Values>): params is FormControllerParamsWithValidator<Values> {
+function hasValidator<Values>(
+  params: FormControllerParams<Values>
+): params is FormControllerParamsWithValidator<Values> {
   return (params as FormControllerParamsWithValidator<Values>).validator !== undefined;
 }
 
-function hasValidation<Values>(params: FormControllerParams<Values>): params is FormControllerParamsWithLegacyValidate<Values> {
+function hasValidation<Values>(
+  params: FormControllerParams<Values>
+): params is FormControllerParamsWithLegacyValidate<Values> {
   return (params as FormControllerParamsWithLegacyValidate<Values>).validate !== undefined;
 }
 
@@ -55,7 +60,11 @@ export class FormController<Values = any> extends EventEmitter {
 
   public set params(params: FormControllerParams<Values>) {
     this.setMaxListeners(params.maxListeners || DEFAULT_MAX_LISTENERS);
-    this.validator = hasValidator(params) ? params.validator : (hasValidation(params) ? validateToValidator(params.validate) : null);
+    this.validator = hasValidator(params)
+      ? params.validator
+      : hasValidation(params)
+      ? validateToValidator(params.validate)
+      : null;
   }
 
   private _submitting = false;
@@ -110,7 +119,7 @@ export class FormController<Values = any> extends EventEmitter {
   public modify<T>(modifier: (values: T) => T, path: Path = Path.ROOT): void {
     const oldValues = new FormValues(this.values.get(path));
     const newValues = new FormValues(modifier(oldValues.values.raw));
-    const changes = oldValues.compare(newValues).map(change => new Change(path.concat(change.path), change.value));
+    const changes = oldValues.compare(newValues).map((change) => new Change(path.concat(change.path), change.value));
     this.values = this.values.apply(changes);
     this.emit(CHANGE_EVENT, changes);
     this.validateChanges(changes);
@@ -139,7 +148,7 @@ export class FormController<Values = any> extends EventEmitter {
   }
 
   public hasTouched(path: Path): boolean {
-    return this.touched.some(fieldPath => fieldPath.equals(path));
+    return this.touched.some((fieldPath) => fieldPath.equals(path));
   }
 
   public isFocusing(path: Path | null): boolean {
@@ -160,7 +169,9 @@ export class FormController<Values = any> extends EventEmitter {
       return;
     }
     const values = this.values.get(Path.ROOT);
-    const results = await Promise.all(changes.map(change => this.validator!.validateChange(change.path, change.value, values)));
+    const results = await Promise.all(
+      changes.map((change) => this.validator!.validateChange(change.path, change.value, values))
+    );
     this.errors = this._errors.applyValidationResults(results);
   }
 

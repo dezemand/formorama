@@ -1,13 +1,13 @@
-import {act, fireEvent, render} from "@testing-library/react";
-import React, {FC, useEffect} from "react";
-import {ArrayForm, ArrayFormItem, Form} from "..";
-import {useForm} from "./useForm";
-import {useInput} from "./useInput";
-import {useInputValue} from "./useInputValue";
+import { act, fireEvent, render } from "@testing-library/react";
+import { FC, useEffect } from "react";
+import { ArrayForm, ArrayFormItem, Form } from "..";
+import { useForm } from "./useForm";
+import { useInput } from "./useInput";
+import { useInputValue } from "./useInputValue";
 
-const ManagedTextInput: FC<{ name: string }> = ({name}) => {
-  const {value, handleChange, handleBlur, handleFocus} = useInput(name, "");
-  return (<input type="text" value={value} onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur}/>);
+const ManagedTextInput: FC<{ name: string }> = ({ name }) => {
+  const { value, handleChange, handleBlur, handleFocus } = useInput(name, "");
+  return <input type="text" value={value} onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} />;
 };
 
 describe("useInputValue hook", () => {
@@ -19,15 +19,15 @@ describe("useInputValue hook", () => {
       return (
         <Form form={form}>
           <p>Value: '{fieldValue}'</p>
-          <ManagedTextInput name="field"/>
+          <ManagedTextInput name="field" />
         </Form>
       );
     };
 
-    const {container} = render(<Component/>);
+    const { container } = render(<Component />);
 
     expect(container.querySelector("p")!.textContent).toEqual("Value: ''");
-    fireEvent.change(container.querySelector("input")!, {target: {value: "Something"}});
+    fireEvent.change(container.querySelector("input")!, { target: { value: "Something" } });
     expect(container.querySelector("p")!.textContent).toEqual("Value: 'Something'");
   });
 
@@ -50,7 +50,7 @@ describe("useInputValue hook", () => {
       );
     };
 
-    const {container} = render(<Component/>);
+    const { container } = render(<Component />);
 
     expect(container.querySelector("p")!.textContent).toEqual("Array: []");
     fireEvent.click(container.querySelector("button")!);
@@ -61,15 +61,19 @@ describe("useInputValue hook", () => {
   });
 
   it("Works with changing array values in a useEffect (Buggy?)", async () => {
-    let changeValue = () => {
-    };
+    let changeValue = () => {};
 
     const Component: FC = () => {
-      const form = useForm<{ array: { name: string, field: string }[] }>();
-      const [array] = useInputValue(["array"], form) as [{ name: string, field: string }[]];
+      const form = useForm<{ array: { name: string; field: string }[] }>();
+      const [array] = useInputValue(["array"], form) as [{ name: string; field: string }[]];
 
       useEffect(() => {
-        form.change("array", Array(5).fill(null).map((_, i) => ({name: `item ${i}`, field: `input ${i}`})));
+        form.change(
+          "array",
+          Array(5)
+            .fill(null)
+            .map((_, i) => ({ name: `item ${i}`, field: `input ${i}` }))
+        );
       }, [form.change]);
 
       changeValue = () => form.change("array[1].field", "something");
@@ -78,12 +82,16 @@ describe("useInputValue hook", () => {
         <Form form={form}>
           <p>{JSON.stringify(array)}</p>
           <ul>
-            {(array || []).map(({name, field}) => <li key={name}>{name}: {field}</li>)}
+            {(array || []).map(({ name, field }) => (
+              <li key={name}>
+                {name}: {field}
+              </li>
+            ))}
           </ul>
           <ArrayForm name="array">
             {(array || []).map((_, index) => (
               <ArrayFormItem index={index} key={index}>
-                <ManagedTextInput name="field"/>
+                <ManagedTextInput name="field" />
               </ArrayFormItem>
             ))}
           </ArrayForm>
@@ -91,16 +99,16 @@ describe("useInputValue hook", () => {
       );
     };
 
-    const {container} = render(<Component/>);
+    const { container } = render(<Component />);
 
     expect(container.querySelector("ul")!.childNodes.length).toBe(5);
 
-    await act(async () => await (new Promise(resolve => setTimeout(resolve))));
+    await act(async () => await new Promise((resolve) => setTimeout(resolve)));
 
     expect(container.querySelector("ul")!.childNodes.length).toBe(5);
 
-    fireEvent.input(container.querySelectorAll("input")[0], {target: {value: "test"}});
-    await act(async () => await (new Promise(resolve => setTimeout(resolve))));
+    fireEvent.input(container.querySelectorAll("input")[0], { target: { value: "test" } });
+    await act(async () => await new Promise((resolve) => setTimeout(resolve)));
 
     expect(container.querySelector("ul")!.childNodes[0].textContent).toBe("item 0: test");
     act(() => changeValue());

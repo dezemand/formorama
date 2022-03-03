@@ -1,7 +1,7 @@
-import {act, fireEvent, render} from "@testing-library/react";
-import React, {FC} from "react";
-import {Form, useSubmitting} from "..";
-import {useForm} from "./useForm";
+import { act, fireEvent, render } from "@testing-library/react";
+import { FC } from "react";
+import { Form, useSubmitting } from "..";
+import { useForm } from "./useForm";
 
 describe("useSubmitting hook", () => {
   it("Updates the component with the correct submitting state", async () => {
@@ -11,29 +11,31 @@ describe("useSubmitting hook", () => {
       const submitting = useSubmitting(form);
 
       const handleSubmit = async () => {
-        await (new Promise(r => {
+        await new Promise<void>((r) => {
           resolve = r;
-        }));
+        });
       };
 
       return (
         <Form form={form} onSubmit={handleSubmit}>
-          <button type="submit" disabled={submitting}>Submit</button>
+          <button type="submit" disabled={submitting}>
+            Submit
+          </button>
         </Form>
       );
     };
 
-    const {container} = render(<Component/>);
+    const { container } = render(<Component />);
 
     expect(container.querySelector("button")!.disabled).toBeFalsy();
 
     fireEvent.click(container.querySelector("button")!);
-    await act(async () => await (new Promise(resolve => setTimeout(resolve))));
+    await act(async () => await new Promise((resolve) => setTimeout(resolve)));
 
     expect(container.querySelector("button")!.disabled).toBeTruthy();
 
     resolve();
-    await act(async () => await (new Promise(resolve => setTimeout(resolve))));
+    await act(async () => await new Promise((resolve) => setTimeout(resolve)));
 
     expect(container.querySelector("button")!.disabled).toBeFalsy();
   });

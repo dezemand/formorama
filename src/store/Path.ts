@@ -1,4 +1,4 @@
-import {parsePath} from "../utils/parsePath";
+import { parsePath } from "../utils/parsePath";
 
 /**
  *
@@ -48,7 +48,9 @@ export class Path {
   public get pathString(): string {
     if (this.isRoot) return "<ROOT>";
 
-    const pathStr = this.nodes.map(node => node[0] === PathNodeType.OBJECT_KEY ? `${node[1]}.` : `[${node[1]}].`).join("");
+    const pathStr = this.nodes
+      .map((node) => (node[0] === PathNodeType.OBJECT_KEY ? `${node[1]}.` : `[${node[1]}].`))
+      .join("");
     return pathStr.substr(0, pathStr.length - 1).replace(/\.\[/g, "[");
   }
 
@@ -58,7 +60,11 @@ export class Path {
    */
   public parentOf(other: Path): boolean {
     for (let i = 0; i < this.nodes.length; i++) {
-      if ((this.nodes[i] && !other.nodes[i]) || this.nodes[i][0] !== other.nodes[i][0] || this.nodes[i][1] !== other.nodes[i][1]) {
+      if (
+        (this.nodes[i] && !other.nodes[i]) ||
+        this.nodes[i][0] !== other.nodes[i][0] ||
+        this.nodes[i][1] !== other.nodes[i][1]
+      ) {
         return false;
       }
     }

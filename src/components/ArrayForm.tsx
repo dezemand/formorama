@@ -1,1 +1,1 @@
-export {SubForm as ArrayForm} from "./SubForm";
+export { SubForm as ArrayForm } from "./SubForm";

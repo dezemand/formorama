@@ -1,4 +1,4 @@
-import {Path, PathNode, PathNodeType} from "./Path";
+import { Path, PathNode, PathNodeType } from "./Path";
 
 export class ImmutableValuesTree<T = any> {
   public static readonly EMPTY_OBJECT: ImmutableValuesTree<{}> = new ImmutableValuesTree({});
@@ -74,19 +74,20 @@ export class ImmutableValuesTree<T = any> {
     const thisEntries = this.entries();
     const otherEntries = other.entries();
 
-    const notInThis = otherEntries
-      .filter(([otherPath, otherValue]) => !thisEntries.some(([thisPath, thisValue]) => otherPath.equals(thisPath) && otherValue === thisValue));
-    const notInOther = thisEntries
-      .filter(([thisPath, thisValue]) => !otherEntries.some(([otherPath, otherValue]) => thisPath.equals(otherPath) && thisValue === otherValue));
+    const notInThis = otherEntries.filter(
+      ([otherPath, otherValue]) =>
+        !thisEntries.some(([thisPath, thisValue]) => otherPath.equals(thisPath) && otherValue === thisValue)
+    );
+    const notInOther = thisEntries.filter(
+      ([thisPath, thisValue]) =>
+        !otherEntries.some(([otherPath, otherValue]) => thisPath.equals(otherPath) && thisValue === otherValue)
+    );
 
     const removedChanges = notInOther
       .filter(([path]) => !path.isRoot && !notInThis.some(([changePath]) => changePath.equals(path)))
       .map(([path]) => [path, null] as [Path, any]);
 
-    return [
-      ...notInThis,
-      ...removedChanges
-    ];
+    return [...notInThis, ...removedChanges];
   }
 
   /**
@@ -101,7 +102,10 @@ export class ImmutableValuesTree<T = any> {
    * @param entries
    * @param tree
    */
-  public static fromEntries(entries: [Path, any][], tree: ImmutableValuesTree = ImmutableValuesTree.EMPTY_OBJECT): ImmutableValuesTree {
+  public static fromEntries(
+    entries: [Path, any][],
+    tree: ImmutableValuesTree = ImmutableValuesTree.EMPTY_OBJECT
+  ): ImmutableValuesTree {
     for (const [path, value] of entries) {
       tree = tree.set(path, value);
     }
@@ -140,7 +144,7 @@ export class ImmutableValuesTree<T = any> {
         arrValues[frontNode[1]] = this.setValue(arrValues[frontNode[1]], value, nextNodes);
         return arrValues;
       case PathNodeType.OBJECT_KEY:
-        const objValues = this.isObject(tree) ? {...tree} : {};
+        const objValues = this.isObject(tree) ? { ...tree } : {};
         objValues[frontNode[1]] = this.setValue(objValues[frontNode[1]], value, nextNodes);
         return objValues;
     }
@@ -151,17 +155,21 @@ export class ImmutableValuesTree<T = any> {
   }
 
   private static isObject(value: any): boolean {
-    return typeof value === "object"
-      && value !== null
-      && !this.isArray(value)
-      && Object.getPrototypeOf(value) === Object.getPrototypeOf({});
+    return (
+      typeof value === "object" &&
+      value !== null &&
+      !this.isArray(value) &&
+      Object.getPrototypeOf(value) === Object.getPrototypeOf({})
+    );
   }
 
   private static getEntries(entries: [Path, any][], values: any, path: Path): void {
     if (this.isArray(values)) {
       values.forEach((value, index) => this.getEntries(entries, value, path.add([PathNodeType.ARRAY_INDEX, index])));
     } else if (this.isObject(values)) {
-      Object.entries(values).forEach(([key, value]) => this.getEntries(entries, value, path.add([PathNodeType.OBJECT_KEY, key])));
+      Object.entries(values).forEach(([key, value]) =>
+        this.getEntries(entries, value, path.add([PathNodeType.OBJECT_KEY, key]))
+      );
     } else {
       entries.push([path, values]);
     }
@@ -169,23 +177,23 @@ export class ImmutableValuesTree<T = any> {
 
   private static clean(tree: any): any {
     if (this.isArray(tree)) {
-      return tree
-        .map((value) => this.clean(value))
-        .filter(value => this.cleanFilter(value));
+      return tree.map((value) => this.clean(value)).filter((value) => this.cleanFilter(value));
     } else if (this.isObject(tree)) {
       return Object.entries(tree)
         .map(([key, value]) => [key, this.clean(value)] as [string, any])
         .filter(([, value]) => this.cleanFilter(value))
-        .reduce((prev, [key, value]) => ({...prev, [key]: value}), {});
+        .reduce((prev, [key, value]) => ({ ...prev, [key]: value }), {});
     } else {
       return tree;
     }
   }
 
   private static cleanFilter(value: any): any {
-    return !((this.isArray(value) && value.length === 0)
-      || (this.isObject(value) && Object.entries(value).length === 0)
-      || (value === null)
-      || (value === undefined));
+    return !(
+      (this.isArray(value) && value.length === 0) ||
+      (this.isObject(value) && Object.entries(value).length === 0) ||
+      value === null ||
+      value === undefined
+    );
   }
 }

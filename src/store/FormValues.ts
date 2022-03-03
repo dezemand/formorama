@@ -1,6 +1,6 @@
-import {Change} from "./Change";
-import {ImmutableValuesTree} from "./ImmutableValuesTree";
-import {Path} from "./Path";
+import { Change } from "./Change";
+import { ImmutableValuesTree } from "./ImmutableValuesTree";
+import { Path } from "./Path";
 
 export class FormValues<Values = any> {
   public readonly values: ImmutableValuesTree<Values>;
@@ -14,9 +14,7 @@ export class FormValues<Values = any> {
   }
 
   public compare(otherValues: FormValues): Change[] {
-    return this.values
-      .compare(otherValues.values)
-      .map(([path, value]) => new Change(path, value));
+    return this.values.compare(otherValues.values).map(([path, value]) => new Change(path, value));
   }
 
   public apply<T = any>(changes: Change[]): FormValues<T> {

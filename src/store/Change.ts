@@ -1,4 +1,4 @@
-import {Path} from "./Path";
+import { Path } from "./Path";
 
 export class Change {
   public readonly path: Path;
@@ -11,7 +11,7 @@ export class Change {
 
   public static subChanges(changes: Change[], path: Path): Change[] {
     return changes
-      .filter(change => path.parentOf(change.path))
-      .map(change => new Change(change.path.slice(path.nodes.length), change.value));
+      .filter((change) => path.parentOf(change.path))
+      .map((change) => new Change(change.path.slice(path.nodes.length), change.value));
   }
 }

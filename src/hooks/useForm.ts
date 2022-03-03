@@ -1,7 +1,7 @@
-import {useEffect, useRef} from "react";
-import {FormController, FormControllerParams} from "../store/FormController";
-import {Path} from "../store/Path";
-import {FormMethods, useFormMethods} from "./useFormMethods";
+import { useEffect, useRef } from "react";
+import { FormController, FormControllerParams } from "../store/FormController";
+import { Path } from "../store/Path";
+import { FormMethods, useFormMethods } from "./useFormMethods";
 
 export interface FormCtx<RootValues = any> {
   controller: FormController<RootValues>;

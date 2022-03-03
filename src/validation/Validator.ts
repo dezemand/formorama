@@ -1,4 +1,4 @@
-import {Path} from "../store/Path";
+import { Path } from "../store/Path";
 
 export type ValidationError = string | Error;
 

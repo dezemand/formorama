@@ -1,16 +1,16 @@
-import {act, fireEvent, render} from "@testing-library/react";
-import React, {FC} from "react";
-import {SubmissionError, useForm, useInput} from "..";
-import {Form} from "./Form";
+import { act, fireEvent, render } from "@testing-library/react";
+import { FC } from "react";
+import { SubmissionError, useForm, useInput } from "..";
+import { Form } from "./Form";
 
 describe("Form component", () => {
   it("Renders a <form> element", () => {
     const Component: FC = () => {
       const form = useForm();
-      return (<Form form={form}/>);
+      return <Form form={form} />;
     };
 
-    const {container} = render(<Component/>);
+    const { container } = render(<Component />);
 
     expect(container.querySelector("form")).not.toBeNull();
   });
@@ -18,10 +18,10 @@ describe("Form component", () => {
   it("Does not render a <form> element when noFormTag is provided", () => {
     const Component: FC = () => {
       const form = useForm();
-      return (<Form form={form} noFormTag/>);
+      return <Form form={form} noFormTag />;
     };
 
-    const {container} = render(<Component/>);
+    const { container } = render(<Component />);
 
     expect(container.querySelector("form")).toBeNull();
   });
@@ -38,12 +38,12 @@ describe("Form component", () => {
       );
     };
 
-    const {container} = render(<Component/>);
+    const { container } = render(<Component />);
 
     expect(submitHandler).not.toBeCalled();
 
     fireEvent.click(container.querySelector("button")!);
-    await (new Promise(resolve => setTimeout(resolve)));
+    await new Promise((resolve) => setTimeout(resolve));
 
     expect(submitHandler).toBeCalledTimes(1);
   });
@@ -55,48 +55,50 @@ describe("Form component", () => {
 
       return (
         <Form form={form} onSubmit={submitHandler}>
-          <button type="button" onClick={form.submit}>Submit</button>
+          <button type="button" onClick={form.submit}>
+            Submit
+          </button>
         </Form>
       );
     };
 
-    const {container} = render(<Component/>);
+    const { container } = render(<Component />);
 
     fireEvent.click(container.querySelector("button")!);
-    await (new Promise(resolve => setTimeout(resolve)));
+    await new Promise((resolve) => setTimeout(resolve));
 
     expect(submitHandler).toBeCalledTimes(1);
   });
 
   it("Sets errors on a SubmissionError", async () => {
-    const FormError: FC<{ name: string }> = ({name}) => {
-      const {errors} = useInput(name, "");
-      return (<p>{errors.length === 0 ? "No errors" : `Errors: [${errors}]`}</p>);
+    const FormError: FC<{ name: string }> = ({ name }) => {
+      const { errors } = useInput(name, "");
+      return <p>{errors.length === 0 ? "No errors" : `Errors: [${errors}]`}</p>;
     };
 
     const Component: FC = () => {
       const form = useForm();
 
       const handleSubmit = async () => {
-        throw new SubmissionError({a: "error"});
+        throw new SubmissionError({ a: "error" });
       };
 
       return (
         <Form form={form} onSubmit={handleSubmit}>
-          <FormError name="a"/>
+          <FormError name="a" />
           <button type="submit">Submit</button>
         </Form>
       );
     };
 
-    const {container} = render(<Component/>);
+    const { container } = render(<Component />);
 
     expect(container.querySelector("p")!.textContent).toBe("No errors");
 
     fireEvent.click(container.querySelector("button")!);
 
     await act(async () => {
-      await (new Promise(resolve => setTimeout(resolve)));
+      await new Promise((resolve) => setTimeout(resolve));
     });
 
     expect(container.querySelector("p")!.textContent).toBe("Errors: [error]");
@@ -117,11 +119,11 @@ describe("Form component", () => {
       );
     };
 
-    const {container} = render(<Component/>);
+    const { container } = render(<Component />);
 
     fireEvent.click(container.querySelector("button")!);
 
-    await act(async () => await (new Promise(resolve => setTimeout(resolve))));
+    await act(async () => await new Promise((resolve) => setTimeout(resolve)));
 
     // Cannot expect
   });
@@ -134,26 +136,26 @@ describe("Form component", () => {
       a: string;
     }
 
-    const validate = ({a}: FormValues): any => ({
+    const validate = ({ a }: FormValues): any => ({
       a: a === "bad" ? "error" : undefined
     });
 
-    const ManagedTextInput: FC<{ name: string }> = ({name}) => {
-      const {value, handleChange, handleBlur, handleFocus, error} = useInput(name, "");
+    const ManagedTextInput: FC<{ name: string }> = ({ name }) => {
+      const { value, handleChange, handleBlur, handleFocus, error } = useInput(name, "");
       return (
         <div>
-          {error && (<div className="form-error">Error: '{error}'</div>)}
-          <input type="text" value={value} onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur}/>
+          {error && <div className="form-error">Error: '{error}'</div>}
+          <input type="text" value={value} onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} />
         </div>
       );
     };
 
     const TestForm: FC = () => {
-      const form = useForm<FormValues>({validate});
+      const form = useForm<FormValues>({ validate });
 
       return (
         <Form form={form} onSubmit={submitHandler} onError={errorHandler}>
-          <ManagedTextInput name="a"/>
+          <ManagedTextInput name="a" />
           <button type="submit">Submit</button>
         </Form>
       );
@@ -165,11 +167,11 @@ describe("Form component", () => {
     });
 
     it("Does not error on submission without input", async () => {
-      const {container} = render(<TestForm/>);
+      const { container } = render(<TestForm />);
 
       fireEvent.click(container.querySelector("button")!);
       await act(async () => {
-        await (new Promise(resolve => setTimeout(resolve)));
+        await new Promise((resolve) => setTimeout(resolve));
       });
 
       expect(container.querySelector("div.form-error")).toBeNull();
@@ -178,12 +180,12 @@ describe("Form component", () => {
     });
 
     it("Errors on a bad input", async () => {
-      const {container} = render(<TestForm/>);
+      const { container } = render(<TestForm />);
 
-      fireEvent.input(container.querySelector("input")!, {target: {value: "bad"}});
+      fireEvent.input(container.querySelector("input")!, { target: { value: "bad" } });
       fireEvent.click(container.querySelector("button")!);
       await act(async () => {
-        await (new Promise(resolve => setTimeout(resolve)));
+        await new Promise((resolve) => setTimeout(resolve));
       });
 
       expect(container.querySelector("div.form-error")).not.toBeNull();
@@ -193,12 +195,12 @@ describe("Form component", () => {
     });
 
     it("Does not error on a good input", async () => {
-      const {container} = render(<TestForm/>);
+      const { container } = render(<TestForm />);
 
-      fireEvent.input(container.querySelector("input")!, {target: {value: "good"}});
+      fireEvent.input(container.querySelector("input")!, { target: { value: "good" } });
       fireEvent.click(container.querySelector("button")!);
       await act(async () => {
-        await (new Promise(resolve => setTimeout(resolve)));
+        await new Promise((resolve) => setTimeout(resolve));
       });
 
       expect(container.querySelector("div.form-error")).toBeNull();

@@ -1,7 +1,7 @@
-import {BLUR_EVENT, CHANGE_EVENT, DO_SUBMIT_EVENT, ERROR_EVENT, FOCUS_EVENT, SUBMITTING_EVENT} from "../events";
-import {Change} from "./Change";
-import {FormController} from "./FormController";
-import {Path} from "./Path";
+import { BLUR_EVENT, CHANGE_EVENT, DO_SUBMIT_EVENT, ERROR_EVENT, FOCUS_EVENT, SUBMITTING_EVENT } from "../events";
+import { Change } from "./Change";
+import { FormController } from "./FormController";
+import { Path } from "./Path";
 
 interface TestValues {
   a: string;
@@ -16,7 +16,7 @@ beforeEach(() => {
   testValues = {
     a: "value 1",
     b: "value 2",
-    c: [{d: 1}, {d: 2}],
+    c: [{ d: 1 }, { d: 2 }],
     e: {
       f: "value 3"
     }
@@ -42,11 +42,9 @@ test("Changing a value works", () => {
   controller.removeListener(CHANGE_EVENT, changeListener);
 
   expect(changeListener).toBeCalledTimes(1);
-  expect(changeListener.mock.calls[0][0]).toEqual([
-    new Change(path, "new value")
-  ]);
+  expect(changeListener.mock.calls[0][0]).toEqual([new Change(path, "new value")]);
   expect(controller.getValue(path)).toBe("new value");
-  expect(controller.getValue(Path.ROOT)).toEqual({a: "new value"});
+  expect(controller.getValue(Path.ROOT)).toEqual({ a: "new value" });
 });
 
 test("Focusing a field works", () => {
@@ -147,7 +145,7 @@ test("Focusing and blurring do not have race conditions", () => {
 
 test("Modify works", () => {
   const changeListener = jest.fn();
-  const modifier = jest.fn(values => ({...values, b: "new value", c: [...values.c, {d: 3}]}));
+  const modifier = jest.fn((values) => ({ ...values, b: "new value", c: [...values.c, { d: 3 }] }));
   const controller = new FormController<TestValues>();
   controller.change(Path.ROOT, testValues);
 
@@ -167,15 +165,15 @@ test("Modify works", () => {
   expect(modifier.mock.results[0].value).toEqual({
     a: "value 1",
     b: "new value",
-    c: [{d: 1}, {d: 2}, {d: 3}],
+    c: [{ d: 1 }, { d: 2 }, { d: 3 }],
     e: {
       f: "value 3"
     }
   });
   expect(controller.getValue(Path.parse("a"))).toBe("value 1"); // Unchanged
   expect(controller.getValue(Path.parse("b"))).toBe("new value"); // Updated
-  expect(controller.getValue(Path.parse("c"))).toEqual([{d: 1}, {d: 2}, {d: 3}]); // Updated
-  expect(controller.getValue(Path.parse("e"))).toEqual({f: "value 3"}); // Unchanged
+  expect(controller.getValue(Path.parse("c"))).toEqual([{ d: 1 }, { d: 2 }, { d: 3 }]); // Updated
+  expect(controller.getValue(Path.parse("e"))).toEqual({ f: "value 3" }); // Unchanged
 });
 
 test("Setting submitting works", () => {
@@ -202,9 +200,9 @@ test("Setting submitting works", () => {
 });
 
 test("Validation can succeed", async () => {
-  const validate = jest.fn((_) => ({a: null}));
+  const validate = jest.fn((_) => ({ a: null }));
   const errorListener = jest.fn();
-  const controller = new FormController({validate});
+  const controller = new FormController({ validate });
   await controller.change(Path.ROOT, testValues);
 
   controller.on(ERROR_EVENT, errorListener);
@@ -216,17 +214,17 @@ test("Validation can succeed", async () => {
   expect(valid).toBe(true);
   expect(validate).toBeCalledTimes(1);
   expect(validate.mock.calls[0][0]).toEqual(testValues);
-  expect(validate.mock.results[0].value).toEqual({a: null});
+  expect(validate.mock.results[0].value).toEqual({ a: null });
   expect(errorListener).toBeCalledTimes(0);
 });
 
 test("Validation can fail", async () => {
   const validate = jest.fn((_) => ({
     a: "error 1",
-    c: [null, {d: "error 2"}]
+    c: [null, { d: "error 2" }]
   }));
   const errorListener = jest.fn();
-  const controller = new FormController({validate});
+  const controller = new FormController({ validate });
   await controller.change(Path.ROOT, testValues);
 
   controller.on(ERROR_EVENT, errorListener);
@@ -240,7 +238,7 @@ test("Validation can fail", async () => {
   expect(validate.mock.calls[0][0]).toEqual(testValues);
   expect(validate.mock.results[0].value).toEqual({
     a: "error 1",
-    c: [null, {d: "error 2"}]
+    c: [null, { d: "error 2" }]
   });
   expect(errorListener).toBeCalledTimes(1);
   expect(errorListener.mock.calls[0][0]).toEqual([
@@ -252,10 +250,10 @@ test("Validation can fail", async () => {
 });
 
 test("Validation function can be updated", async () => {
-  const validate1 = jest.fn((_) => ({a: "error 1"}));
-  const validate2 = jest.fn((_) => ({a: "error 2"}));
+  const validate1 = jest.fn((_) => ({ a: "error 1" }));
+  const validate2 = jest.fn((_) => ({ a: "error 2" }));
   const errorListener = jest.fn();
-  const controller = new FormController({validate: validate1});
+  const controller = new FormController({ validate: validate1 });
   await controller.change(Path.ROOT, testValues);
 
   controller.on(ERROR_EVENT, errorListener);
@@ -269,7 +267,7 @@ test("Validation function can be updated", async () => {
   expect(errorListener).toBeCalledTimes(1);
   expect(errorListener.mock.calls[0][0]).toEqual([[Path.parse("a"), ["error 1"]]]);
 
-  controller.params = {validate: validate2};
+  controller.params = { validate: validate2 };
 
   const valid2 = await controller.validateSubmission();
 
@@ -285,11 +283,11 @@ test("Validation function can be updated", async () => {
 test("Validate can succeed after failure by changing the validateSubmission function", async () => {
   const validate1 = jest.fn((_) => ({
     a: "error 1",
-    c: [null, {d: "error 2"}]
+    c: [null, { d: "error 2" }]
   }));
-  const validate2 = jest.fn((_) => ({a: null}));
+  const validate2 = jest.fn((_) => ({ a: null }));
   const errorListener = jest.fn();
-  const controller = new FormController({validate: validate1});
+  const controller = new FormController({ validate: validate1 });
   await controller.change(Path.ROOT, testValues);
 
   controller.on(ERROR_EVENT, errorListener);
@@ -307,7 +305,7 @@ test("Validate can succeed after failure by changing the validateSubmission func
     [Path.parse("c[1].d"), ["error 2"]]
   ]);
 
-  controller.params = {validate: validate2};
+  controller.params = { validate: validate2 };
 
   const valid2 = await controller.validateSubmission();
 
@@ -333,7 +331,7 @@ test("Validate can succeed after failure by changing the values", async () => {
     return errors;
   });
   const errorListener = jest.fn();
-  const controller = new FormController({validate});
+  const controller = new FormController({ validate });
   await controller.change(Path.ROOT, testValues);
 
   controller.on(ERROR_EVENT, errorListener);
@@ -402,7 +400,7 @@ test("Submit without validation", async () => {
 
 test("Validation on blur resulting in an error", async () => {
   const controller = new FormController<TestValues>({
-    validate: ({a}: TestValues) => ({a: a === "bad" ? "error" : undefined})
+    validate: ({ a }: TestValues) => ({ a: a === "bad" ? "error" : undefined })
   });
   const errorListener = jest.fn();
   controller.on(ERROR_EVENT, errorListener);
@@ -415,24 +413,22 @@ test("Validation on blur resulting in an error", async () => {
   controller.blur(Path.parse("a"));
 
   // Wait 1 tick
-  await (new Promise(resolve => setTimeout(resolve)));
+  await new Promise((resolve) => setTimeout(resolve));
 
   expect(errorListener).toBeCalledTimes(1);
-  expect(errorListener.mock.calls[0][0]).toEqual([
-    [Path.parse("a"), ["error"]]
-  ]);
+  expect(errorListener.mock.calls[0][0]).toEqual([[Path.parse("a"), ["error"]]]);
 });
 
 test("Validation on blur resolving an error", async () => {
   const controller = new FormController<TestValues>({
-    validate: ({a}: TestValues) => ({a: a === "bad" ? "error" : undefined})
+    validate: ({ a }: TestValues) => ({ a: a === "bad" ? "error" : undefined })
   });
   const errorListener = jest.fn();
 
   controller.focus(Path.parse("a"));
   await controller.change(Path.parse("a"), "bad");
   controller.blur(Path.parse("a"));
-  await (new Promise(resolve => setTimeout(resolve)));
+  await new Promise((resolve) => setTimeout(resolve));
 
   controller.on(ERROR_EVENT, errorListener);
 
@@ -440,7 +436,7 @@ test("Validation on blur resolving an error", async () => {
   await controller.change(Path.parse("a"), "good");
   controller.blur(Path.parse("a"));
 
-  await (new Promise(resolve => setTimeout(resolve)));
+  await new Promise((resolve) => setTimeout(resolve));
   controller.removeListener(ERROR_EVENT, errorListener);
 
   expect(errorListener).toBeCalledTimes(1);

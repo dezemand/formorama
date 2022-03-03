@@ -1,5 +1,5 @@
-import {Path} from "../store/Path";
-import {FieldError, ValidationError, ValidationResult} from "../validation/Validator";
+import { Path } from "./Path";
+import { FieldError, ValidationError, ValidationResult } from "../validation/Validator";
 
 export class FormErrors {
   public static readonly EMPTY = new FormErrors([]);
@@ -33,18 +33,12 @@ export class FormErrors {
       });
     });
 
-    return [
-      ...(oldErrors.map(([path]) => [path, []]) as FieldError[]),
-      ...newErrors
-    ];
+    return [...(oldErrors.map(([path]) => [path, []]) as FieldError[]), ...newErrors];
   }
 
   public applyValidationResults(results: ValidationResult<any>[]): FormErrors {
     return new FormErrors(
-      results.reduce(
-        (errors, result) => FormErrors.applyResult([...errors], result),
-        [...this.errors]
-      )
+      results.reduce((errors, result) => FormErrors.applyResult([...errors], result), [...this.errors])
     );
   }
 
@@ -53,7 +47,7 @@ export class FormErrors {
   }
 
   private static errorsEqual(errors1: ValidationError[], errors2: ValidationError[]): boolean {
-    return errors1.length === errors2.length && errors1.every(error => errors2.indexOf(error) !== -1);
+    return errors1.length === errors2.length && errors1.every((error) => errors2.indexOf(error) !== -1);
   }
 
   private static changeError(errorList: FieldError[], path: Path, errors: ValidationError[]): FieldError[] {

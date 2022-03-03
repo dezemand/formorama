@@ -1,6 +1,6 @@
-import {ValidationResult} from "../validation/Validator";
-import {FormErrors} from "./FormErrors";
-import {Path} from "./Path";
+import { ValidationResult } from "../validation/Validator";
+import { FormErrors } from "./FormErrors";
+import { Path } from "./Path";
 
 // .map(([path, errors]) => [path.pathString, errors])
 
@@ -85,9 +85,7 @@ describe("Comparing", () => {
       [Path.parse("e[2].f"), ["error 6"]]
     ]);
 
-    expect(errors1.compare(errors2)).toEqual([
-      [Path.parse("e[2].f"), ["error 6"]]
-    ]);
+    expect(errors1.compare(errors2)).toEqual([[Path.parse("e[2].f"), ["error 6"]]]);
   });
 
   test("Modifying errors", () => {
@@ -98,9 +96,7 @@ describe("Comparing", () => {
       [Path.parse("e[1].f"), ["changed error"]]
     ]);
 
-    expect(errors1.compare(errors2)).toEqual([
-      [Path.parse("e[1].f"), ["changed error"]]
-    ]);
+    expect(errors1.compare(errors2)).toEqual([[Path.parse("e[1].f"), ["changed error"]]]);
   });
 
   test("Removing a single error", () => {
@@ -111,9 +107,7 @@ describe("Comparing", () => {
       [Path.parse("e[1].f"), ["error 5"]]
     ]);
 
-    expect(errors1.compare(errors2)).toEqual([
-      [Path.parse("a"), ["error 1"]]
-    ]);
+    expect(errors1.compare(errors2)).toEqual([[Path.parse("a"), ["error 1"]]]);
   });
 });
 
@@ -136,8 +130,8 @@ describe("Applying validation results", () => {
     values = {
       a: "value 1",
       b: "value 2",
-      c: [{d: 1}, {d: 2}],
-      e: {f: "value 3"}
+      c: [{ d: 1 }, { d: 2 }],
+      e: { f: "value 3" }
     };
 
     fullValidationValid = {
@@ -169,9 +163,7 @@ describe("Applying validation results", () => {
       valid: false,
       path: Path.parse("c[1].d"),
       value: values.c[1].d,
-      errors: [
-        [Path.ROOT, ["error"]]
-      ]
+      errors: [[Path.ROOT, ["error"]]]
     };
 
     emptyErrors = FormErrors.EMPTY;
@@ -260,9 +252,7 @@ describe("Applying validation results", () => {
     ]);
     const newErrors = errors.applyValidationResults([fieldValidationValid]);
 
-    expect(errors.compare(newErrors)).toEqual([
-      [Path.parse("c[1].d"), []]
-    ]);
+    expect(errors.compare(newErrors)).toEqual([[Path.parse("c[1].d"), []]]);
     expect(newErrors.get(Path.parse("c[1].d"))).toEqual([]);
   });
 
@@ -282,9 +272,7 @@ describe("Applying validation results", () => {
   test("Applying invalid field errors to empty errors", () => {
     const newErrors = emptyErrors.applyValidationResults([fieldValidationInvalid]);
 
-    expect(emptyErrors.compare(newErrors)).toEqual([
-      [Path.parse("c[1].d"), ["error"]]
-    ]);
+    expect(emptyErrors.compare(newErrors)).toEqual([[Path.parse("c[1].d"), ["error"]]]);
     expect(newErrors.get(Path.parse("c[1].d"))).toEqual(["error"]);
   });
 
@@ -296,9 +284,7 @@ describe("Applying validation results", () => {
     ]);
     const newErrors = errors.applyValidationResults([fieldValidationInvalid]);
 
-    expect(errors.compare(newErrors)).toEqual([
-      [Path.parse("c[1].d"), ["error"]]
-    ]);
+    expect(errors.compare(newErrors)).toEqual([[Path.parse("c[1].d"), ["error"]]]);
     expect(newErrors.get(Path.parse("c[1].d"))).toEqual(["error"]);
   });
 
@@ -310,9 +296,7 @@ describe("Applying validation results", () => {
     ]);
     const newErrors = errors.applyValidationResults([fieldValidationInvalid]);
 
-    expect(errors.compare(newErrors)).toEqual([
-      [Path.parse("c[1].d"), ["error"]]
-    ]);
+    expect(errors.compare(newErrors)).toEqual([[Path.parse("c[1].d"), ["error"]]]);
     expect(newErrors.get(Path.parse("c[1].d"))).toEqual(["error"]);
   });
 });

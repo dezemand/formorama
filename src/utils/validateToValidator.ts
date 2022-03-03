@@ -1,6 +1,6 @@
-import {ImmutableValuesTree} from "../store/ImmutableValuesTree";
-import {Path} from "../store/Path";
-import {FieldError, IValidator, ValidationResult} from "../validation/Validator";
+import { ImmutableValuesTree } from "../store/ImmutableValuesTree";
+import { Path } from "../store/Path";
+import { FieldError, IValidator, ValidationResult } from "../validation/Validator";
 
 /**
  * This will turn a validateSubmission function into a validator.
@@ -31,7 +31,11 @@ export function validateToValidator<Values>(validate: (values: Values) => any | 
         path
       };
     },
-    async validateOnBlur<FieldType>(path: Path, value: FieldType, values: Values): Promise<ValidationResult<FieldType>> {
+    async validateOnBlur<FieldType>(
+      path: Path,
+      value: FieldType,
+      values: Values
+    ): Promise<ValidationResult<FieldType>> {
       const errors = await validate(values);
       const errorTree = new ImmutableValuesTree(errors);
       const fieldErrors = new ImmutableValuesTree(errorTree.get(path))

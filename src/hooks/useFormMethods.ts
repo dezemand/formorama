@@ -1,6 +1,6 @@
-import {useRef} from "react";
-import {FormController} from "../store/FormController";
-import {Path, UnparsedPath} from "../store/Path";
+import { useRef } from "react";
+import { FormController } from "../store/FormController";
+import { Path, UnparsedPath } from "../store/Path";
 
 export interface FormMethods {
   change<T>(uPath: UnparsedPath, value: T): void;
