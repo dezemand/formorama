@@ -1,5 +1,6 @@
 module.exports = {
   roots: ["<rootDir>/src"],
   transformIgnorePatterns: ["[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$"],
-  moduleFileExtensions: ["ts", "tsx", "js"]
+  moduleFileExtensions: ["ts", "tsx", "js"],
+  testEnvironment: "jsdom"
 };

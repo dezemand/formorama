@@ -144,7 +144,7 @@ describe("Form component", () => {
       const { value, handleChange, handleBlur, handleFocus, error } = useInput(name, "");
       return (
         <div>
-          {error && <div className="form-error">Error: '{error}'</div>}
+          {error && <div className="form-error">Error: &apos;{error}&apos;</div>}
           <input type="text" value={value} onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} />
         </div>
       );

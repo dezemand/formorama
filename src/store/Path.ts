@@ -46,7 +46,9 @@ export class Path {
    * Returns a string
    */
   public get pathString(): string {
-    if (this.isRoot) return "<ROOT>";
+    if (this.isRoot) {
+      return "<ROOT>";
+    }
 
     const pathStr = this.nodes
       .map((node) => (node[0] === PathNodeType.OBJECT_KEY ? `${node[1]}.` : `[${node[1]}].`))

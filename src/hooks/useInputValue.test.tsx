@@ -18,7 +18,7 @@ describe("useInputValue hook", () => {
 
       return (
         <Form form={form}>
-          <p>Value: '{fieldValue}'</p>
+          <p>Value: &apos;{fieldValue}&apos;</p>
           <ManagedTextInput name="field" />
         </Form>
       );
@@ -74,7 +74,7 @@ describe("useInputValue hook", () => {
             .fill(null)
             .map((_, i) => ({ name: `item ${i}`, field: `input ${i}` }))
         );
-      }, [form.change]);
+      }, [form, form.change]);
 
       changeValue = () => form.change("array[1].field", "something");
 

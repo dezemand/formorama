@@ -1,20 +1,16 @@
 module.exports = {
+  root: true,
   parser: "@typescript-eslint/parser",
-  plugins: [
-    "@typescript-eslint",
-    "react-hooks"
-  ],
-  extends: [
-    "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended"
-  ],
+  plugins: ["@typescript-eslint", "react-hooks"],
+  extends: ["plugin:react/recommended", "plugin:@typescript-eslint/recommended"],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: "module",
     ecmaFeatures: {
-      jsx: true,
+      jsx: true
     }
   },
+  ignorePatterns: ["**/dist/**"],
   rules: {
     curly: "error",
     "@typescript-eslint/indent": "off",
@@ -30,19 +26,20 @@ module.exports = {
     "react/prop-types": "off",
     "react/display-name": "warn",
     "no-console": "error",
+    "react/react-in-jsx-scope": "off"
   },
   overrides: [
     {
       files: ["*.test.ts", "*.test.tsx"],
       rules: {
-        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/ban-ts-comment": "off"
       }
     }
   ],
   settings: {
     react: {
       pragma: "React",
-      version: "detect",
+      version: "detect"
     }
   }
 };

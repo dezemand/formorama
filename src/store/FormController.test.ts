@@ -1,4 +1,5 @@
 import { BLUR_EVENT, CHANGE_EVENT, DO_SUBMIT_EVENT, ERROR_EVENT, FOCUS_EVENT, SUBMITTING_EVENT } from "../events";
+import { ErrorObject } from "../types";
 import { Change } from "./Change";
 import { FormController } from "./FormController";
 import { Path } from "./Path";
@@ -200,7 +201,7 @@ test("Setting submitting works", () => {
 });
 
 test("Validation can succeed", async () => {
-  const validate = jest.fn((_) => ({ a: null }));
+  const validate = jest.fn<ErrorObject<TestValues>, [TestValues]>(() => ({ a: null }));
   const errorListener = jest.fn();
   const controller = new FormController({ validate });
   await controller.change(Path.ROOT, testValues);
@@ -219,7 +220,7 @@ test("Validation can succeed", async () => {
 });
 
 test("Validation can fail", async () => {
-  const validate = jest.fn((_) => ({
+  const validate = jest.fn<any /* ErrorObject<TestValues> */, [TestValues]>(() => ({
     a: "error 1",
     c: [null, { d: "error 2" }]
   }));
@@ -250,8 +251,8 @@ test("Validation can fail", async () => {
 });
 
 test("Validation function can be updated", async () => {
-  const validate1 = jest.fn((_) => ({ a: "error 1" }));
-  const validate2 = jest.fn((_) => ({ a: "error 2" }));
+  const validate1 = jest.fn(() => ({ a: "error 1" }));
+  const validate2 = jest.fn(() => ({ a: "error 2" }));
   const errorListener = jest.fn();
   const controller = new FormController({ validate: validate1 });
   await controller.change(Path.ROOT, testValues);
@@ -281,11 +282,11 @@ test("Validation function can be updated", async () => {
 });
 
 test("Validate can succeed after failure by changing the validateSubmission function", async () => {
-  const validate1 = jest.fn((_) => ({
+  const validate1 = jest.fn(() => ({
     a: "error 1",
     c: [null, { d: "error 2" }]
   }));
-  const validate2 = jest.fn((_) => ({ a: null }));
+  const validate2 = jest.fn(() => ({ a: null }));
   const errorListener = jest.fn();
   const controller = new FormController({ validate: validate1 });
   await controller.change(Path.ROOT, testValues);
