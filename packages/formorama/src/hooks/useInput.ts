@@ -9,15 +9,8 @@ import { useEventEmitter } from "./useEventEmitter";
 import { FormCtx } from "./useForm";
 import { useSubmitting } from "./useSubmitting";
 
-const hasEvents = typeof Event !== "undefined" && typeof HTMLElement !== "undefined";
-
 export function fixValue<ValueType>(eventOrValue: any): ValueType {
-  return hasEvents &&
-    eventOrValue instanceof Event &&
-    eventOrValue.target instanceof HTMLElement &&
-    "value" in eventOrValue.target
-    ? (eventOrValue.target as HTMLInputElement).value
-    : eventOrValue;
+  return eventOrValue?.target?.value ?? eventOrValue;
 }
 
 interface ChangeListeners {
