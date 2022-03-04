@@ -36,7 +36,7 @@
     "prepublishOnly": "run-s prettier lint test",
     "predeploy": "cd example && npm install && npm run build",
     "deploy": "gh-pages -d example/build",
-    "prettier": "prettier --write packages/formorama/src",
+    "prettier": "prettier --write ./src",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "lint": "eslint .",
