@@ -1,6 +1,6 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import { FC, useEffect } from "react";
-import { ArrayForm, ArrayFormItem, Form } from "..";
+import { ArrayForm, ArrayFormItem, Form } from "../index";
 import { useForm } from "./useForm";
 import { useInput } from "./useInput";
 import { useInputValue } from "./useInputValue";
@@ -37,8 +37,8 @@ describe("useInputValue hook", () => {
       const [array] = useInputValue(["array"], form) as [string[]];
 
       const handleClick = () => {
-        form.modify((values: { array: string[] }) => ({
-          array: [...(values.array || []), "foo"]
+        form.modify<{ array: string[] }>((values) => ({
+          array: [...(values?.array ?? []), "foo"]
         }));
       };
 

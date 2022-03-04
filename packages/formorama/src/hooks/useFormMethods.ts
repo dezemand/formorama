@@ -13,32 +13,32 @@ export interface FormMethods {
 
   isFocusing(uPath: UnparsedPath): boolean;
 
-  modify<T>(modifier: (values: T) => T, uPath?: UnparsedPath): void;
+  modify<T>(modifier: (values: T | null) => T, uPath?: UnparsedPath): void;
 
   submit(): void;
 }
 
 export function useFormMethods(controller: FormController, path: Path): FormMethods {
-  const methods = useRef({
-    change<T>(uPath: UnparsedPath, value: T): void {
+  const methods = useRef<FormMethods>({
+    change(uPath, value) {
       controller.change(path.concat(Path.parse(uPath)), value);
     },
-    getValue<T>(uPath: UnparsedPath): T {
+    getValue(uPath) {
       return controller.getValue(path.concat(Path.parse(uPath)));
     },
-    getError(uPath: UnparsedPath) {
+    getError(uPath) {
       return controller.getErrors(path.concat(Path.parse(uPath)));
     },
-    hasTouched(uPath: UnparsedPath): boolean {
+    hasTouched(uPath) {
       return controller.hasTouched(path.concat(Path.parse(uPath)));
     },
-    isFocusing(uPath: UnparsedPath): boolean {
+    isFocusing(uPath) {
       return controller.isFocusing(path.concat(Path.parse(uPath)));
     },
-    modify<T>(modifier: (values: T) => T, uPath: UnparsedPath = Path.ROOT): void {
+    modify(modifier, uPath = Path.ROOT) {
       controller.modify(modifier, path.concat(Path.parse(uPath)));
     },
-    submit(): void {
+    submit() {
       controller.submit();
     }
   });

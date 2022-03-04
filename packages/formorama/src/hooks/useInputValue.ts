@@ -4,10 +4,15 @@ import { CHANGE_EVENT } from "../events";
 import { Change } from "../store/Change";
 import { FormValues } from "../store/FormValues";
 import { Path, UnparsedPath } from "../store/Path";
+import { ArrayItem } from "../types";
 import { useEventEmitter } from "./useEventEmitter";
 import { FormCtx, FormHook } from "./useForm";
 
-export function useInputValue(fields: UnparsedPath[], form?: FormHook, uPath?: UnparsedPath): any[] {
+export function useInputValue<Values extends unknown[] = any[]>(
+  fields: UnparsedPath[],
+  form?: FormHook,
+  uPath?: UnparsedPath
+): (ArrayItem<Values> | null)[] {
   const context = useContext<FormCtx>(FormContext);
   const ctx = (form && form.ctx) || context;
   const path = uPath ? Path.parse(uPath) : ctx.path;
@@ -37,5 +42,5 @@ export function useInputValue(fields: UnparsedPath[], form?: FormHook, uPath?: U
 
   useEventEmitter(ctx.controller, CHANGE_EVENT, changeListener);
 
-  return result.map((res) => res[1].values.raw);
+  return result.map((res) => res[1].values.raw) as (ArrayItem<Values> | null)[];
 }

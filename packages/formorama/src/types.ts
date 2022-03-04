@@ -1,3 +1,5 @@
+export type ArrayItem<T> = T extends Array<infer S> ? S : never;
+
 export type NullableValues<T extends Record<any, any>> = {
   [K in keyof T]?: T[K] extends Record<string, any> ? NullableValues<T[K]> | null : T[K] | null;
 };

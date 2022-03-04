@@ -1,0 +1,21 @@
+{
+  "name": "formorama-web-examples",
+  "private": true,
+  "scripts": {
+    "start": "snowpack dev",
+    "build": "snowpack build",
+    "test": "echo \"This template does not include a test runner by default.\" && exit 1"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-react": "^7.16.7",
+    "@babel/preset-typescript": "^7.16.7",
+    "@snowpack/plugin-babel": "^2.1.7",
+    "snowpack": "^3.3.7",
+    "typescript": "^4.6.2"
+  },
+  "dependencies": {
+    "formorama": "^0.7.2",
+    "react": "^17.0.2"
+  }
+}

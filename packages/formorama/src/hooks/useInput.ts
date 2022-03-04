@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FormContext } from "../contexts/FormContext";
 import { CHANGE_EVENT, ERROR_EVENT, FOCUS_EVENT } from "../events";
 import { Change } from "../store/Change";
@@ -10,7 +10,16 @@ import { FormCtx } from "./useForm";
 import { useSubmitting } from "./useSubmitting";
 
 export function fixValue<ValueType>(obj: any): ValueType {
-  return obj && obj.target ? obj.target.value : obj;
+  return obj && "target" in obj ? obj.target.value : obj;
+}
+
+interface ChangeListeners {
+  onChange(eventOrValue: any): void;
+}
+
+interface FocusListeners {
+  onFocus(event: any): void;
+  onBlur(event: any): void;
 }
 
 interface InputHook<ValueType> {
@@ -20,6 +29,9 @@ interface InputHook<ValueType> {
   focused: boolean;
   touched: boolean;
   submitting: boolean;
+  listeners: ChangeListeners & FocusListeners;
+  changeListeners: ChangeListeners;
+  focusListeners: FocusListeners;
 
   handleChange(eventOrValue: any): void;
 
@@ -34,6 +46,7 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
   const { path: formPath, controller } = useContext<FormCtx>(FormContext);
   const path = useMemo<Path>(() => formPath.add([PathNodeType.OBJECT_KEY, name]), [formPath, name]);
 
+  const init = useRef(true);
   const [value, setValue] = useState<FormValues<ValueType>>(() => new FormValues(controller.getValue(path)));
   const [errors, setErrors] = useState(() => controller.getErrors(path));
   const [focused, setFocused] = useState(() => controller.isFocusing(path));
@@ -99,6 +112,17 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
     [path]
   );
 
+  useEffect(() => {
+    if (!init.current) {
+      setValue(new FormValues(controller.getValue(path)));
+      setErrors(controller.getErrors(path));
+      setFocused(controller.isFocusing(path));
+      setTouched(controller.hasTouched(path));
+    } else {
+      init.current = false;
+    }
+  }, [controller, path]);
+
   useEventEmitter(controller, FOCUS_EVENT, focusListener);
   useEventEmitter(controller, CHANGE_EVENT, changeListener);
   useEventEmitter(controller, ERROR_EVENT, errorListener);
@@ -113,6 +137,9 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
     handleFocus,
     handleBlur,
     handleChange,
-    handleError
+    handleError,
+    listeners: { onChange: handleChange, onFocus: handleFocus, onBlur: handleBlur },
+    changeListeners: { onChange: handleChange },
+    focusListeners: { onFocus: handleFocus, onBlur: handleBlur }
   };
 }

@@ -1,6 +1,6 @@
 import { Path } from "../store/Path";
 
-export type ValidationError = string | Error;
+export type ValidationError = string;
 
 export type FieldError = [Path, ValidationError[]];
 

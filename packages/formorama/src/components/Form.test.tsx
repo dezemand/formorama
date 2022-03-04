@@ -1,6 +1,6 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import { FC } from "react";
-import { SubmissionError, useForm, useInput } from "..";
+import { SubmissionError, useForm, useInput } from "../index";
 import { Form } from "./Form";
 
 describe("Form component", () => {

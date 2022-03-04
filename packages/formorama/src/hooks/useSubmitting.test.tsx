@@ -1,6 +1,6 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import { FC } from "react";
-import { Form, useSubmitting } from "..";
+import { Form, useSubmitting } from "../index";
 import { useForm } from "./useForm";
 
 describe("useSubmitting hook", () => {

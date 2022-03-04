@@ -1,7 +1,8 @@
 {
-  "name": "formorama",
+  "name": "formorama-root",
   "version": "0.7.2",
   "description": "Advanced form handling for React",
+  "private": true,
   "author": {
     "name": "Maarten van Ittersum",
     "email": "maarten@v-ittersum.nl"
@@ -18,68 +19,23 @@
   ],
   "license": "MIT",
   "repository": "dezemand/formorama",
-  "main": "dist/formorama.js",
-  "module": "dist/formorama.es.js",
-  "jsnext:main": "dist/formorama.es.js",
-  "types": "dist/index.d.ts",
   "engines": {
     "node": ">=8",
     "npm": ">=5"
   },
   "scripts": {
-    "build:js": "rollup -c",
-    "build:clean-types": "rimraf dist/types",
-    "build": "run-s build:js build:clean-types",
-    "start": "rollup -c -w",
-    "clean": "rimraf dist",
-    "prepare": "run-s clean lint test build",
-    "predeploy": "cd example && npm install && npm run build",
-    "deploy": "gh-pages -d example/build",
-    "prettier:fix": "prettier --write ./src",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix ."
-  },
-  "peerDependencies": {
-    "react": "^16.8.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.5",
-    "@babel/plugin-transform-runtime": "^7.17.0",
-    "@babel/preset-env": "^7.16.11",
-    "@babel/preset-react": "^7.16.7",
-    "@babel/preset-typescript": "^7.16.7",
-    "@rollup/plugin-commonjs": "^21.0.2",
-    "@rollup/plugin-node-resolve": "^13.1.3",
-    "@rollup/plugin-typescript": "^8.3.1",
-    "@testing-library/jest-dom": "^5.16.2",
-    "@testing-library/react": "^12.1.3",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^23.1.5",
-    "@types/react": "^17.0.39",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.13.0",
-    "babel-core": "^6.26.3",
-    "babel-jest": "^27.5.1",
-    "babel-runtime": "^6.26.0",
-    "cross-env": "^5.1.4",
     "eslint": "^8.10.0",
     "eslint-plugin-react": "^7.29.2",
     "eslint-plugin-react-hooks": "^4.3.0",
     "gh-pages": "^1.2.0",
-    "jest": "^27.5.1",
+    "lerna": "^3.22.1",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.5.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "rimraf": "^3.0.2",
-    "rollup": "^2.69.0",
-    "rollup-plugin-dts": "^4.2.0",
-    "rollup-plugin-peer-deps-external": "^2.2.0",
     "typescript": "^4.6.2"
-  },
-  "files": [
-    "dist"
-  ]
+  }
 }

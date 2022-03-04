@@ -1,4 +1,4 @@
-import { FC, ReactNode, useContext, useRef } from "react";
+import { FC, ReactNode, useContext, useMemo } from "react";
 import { FormContext } from "../contexts/FormContext";
 import { FormCtx } from "../hooks/useForm";
 import { PathNodeType } from "../store/Path";
@@ -13,10 +13,13 @@ export function ArrayFormItem<RootValues = any>({
   index
 }: ArrayFormItemProps): ReturnType<FC<ArrayFormItemProps>> {
   const parentCtx = useContext<FormCtx<RootValues>>(FormContext);
-  const ctx = useRef<FormCtx<RootValues>>({
-    controller: parentCtx.controller,
-    path: parentCtx.path.add([PathNodeType.ARRAY_INDEX, index])
-  });
+  const ctx = useMemo<FormCtx<RootValues>>(
+    () => ({
+      controller: parentCtx.controller,
+      path: parentCtx.path.add([PathNodeType.ARRAY_INDEX, index])
+    }),
+    [index, parentCtx.controller, parentCtx.path]
+  );
 
-  return <FormContext.Provider value={ctx.current}>{children}</FormContext.Provider>;
+  return <FormContext.Provider value={ctx}>{children}</FormContext.Provider>;
 }

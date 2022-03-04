@@ -1,6 +1,6 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import { FC } from "react";
-import { Form } from "..";
+import { Form } from "../index";
 import { useForm } from "./useForm";
 import { useInput } from "./useInput";
 
