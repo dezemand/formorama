@@ -9,8 +9,15 @@ import { useEventEmitter } from "./useEventEmitter";
 import { FormCtx } from "./useForm";
 import { useSubmitting } from "./useSubmitting";
 
-export function fixValue<ValueType>(obj: any): ValueType {
-  return obj && "target" in obj ? obj.target.value : obj;
+const hasEvents = typeof Event !== "undefined" && typeof HTMLElement !== "undefined";
+
+export function fixValue<ValueType>(eventOrValue: any): ValueType {
+  return hasEvents &&
+    eventOrValue instanceof Event &&
+    eventOrValue.target instanceof HTMLElement &&
+    "value" in eventOrValue.target
+    ? (eventOrValue.target as HTMLInputElement).value
+    : eventOrValue;
 }
 
 interface ChangeListeners {
