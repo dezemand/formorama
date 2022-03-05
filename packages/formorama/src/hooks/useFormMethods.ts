@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { FormController } from "../store/FormController";
 import { Path, UnparsedPath } from "../store/Path";
+import { NullableField } from "../types";
 
 export interface FormMethods {
   change<T>(uPath: UnparsedPath, value: T): void;
@@ -13,7 +14,7 @@ export interface FormMethods {
 
   isFocusing(uPath: UnparsedPath): boolean;
 
-  modify<T>(modifier: (values: T | null) => T, uPath?: UnparsedPath): void;
+  modify<T>(modifier: (values: NullableField<T>) => NullableField<T>, uPath?: UnparsedPath): void;
 
   submit(): void;
 }

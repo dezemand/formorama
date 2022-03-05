@@ -1,6 +1,6 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import { FC, useEffect } from "react";
-import { ArrayForm, ArrayFormItem, Form } from "../index";
+import { ArrayForm, ArrayFormItem, Form, NullableValues } from "../index";
 import { useForm } from "./useForm";
 import { useInput } from "./useInput";
 import { useInputValue } from "./useInputValue";
@@ -114,5 +114,77 @@ describe("useInputValue hook", () => {
     act(() => changeValue());
 
     expect(container.querySelector("ul")!.childNodes[1].textContent).toBe("item 1: something");
+  });
+
+  it("Receives new state properly when the form state is rapidly changing (BUG)", () => {
+    type FormState = { items: { value: string }[] };
+    let modifyForm: (
+      modifier: (values: NullableValues<FormState> | null) => NullableValues<FormState> | null
+    ) => void = () => void 0;
+
+    const Component: FC = () => {
+      const form = useForm<FormState>();
+      const [items] = useInputValue<[FormState["items"]]>(["items"], form);
+      modifyForm = (modifier) => form.modify<FormState>(modifier);
+
+      return (
+        <div>
+          {items ? (
+            <ul>
+              {items.map((item) => (
+                <li key={item.value}>{item.value}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No items have been initialized yet.</p>
+          )}
+        </div>
+      );
+    };
+
+    const { container } = render(<Component />);
+
+    expect(container.querySelector("ul")).toBeNull();
+
+    // Add one item
+    act(() => modifyForm((values) => ({ ...(values ?? {}), items: [...(values?.items ?? []), { value: "item1" }] })));
+
+    expect(container.querySelector("ul")).toBeTruthy();
+    expect(container.querySelector("ul")!.childNodes).toHaveLength(1);
+
+    // Inefficiently add 9 more items in a loop
+    act(() => {
+      for (let i = 2; i <= 10; i++) {
+        modifyForm((values) => ({ ...(values ?? {}), items: [...(values?.items ?? []), { value: `item${i}` }] }));
+      }
+    });
+
+    expect(container.querySelector("ul")!.childNodes).toHaveLength(10);
+
+    // Inefficiently remove some items in a loop
+    act(() => {
+      const toRemove = ["item1", "item4", "item6", "item7", "item10"];
+
+      for (const removeItem of toRemove) {
+        modifyForm((values) => ({
+          ...(values ?? {}),
+          items: [...(values?.items ?? [])].filter((item) => item?.value !== removeItem)
+        }));
+      }
+    });
+
+    expect(container.querySelector("ul")!.childNodes).toHaveLength(5);
+
+    // Remove the rest one by one
+    act(() => {
+      for (let i = 0; i < 5; i++) {
+        modifyForm((values) => ({
+          ...(values ?? {}),
+          items: [...(values?.items ?? [])].filter((_, index) => index !== 0)
+        }));
+      }
+    });
+
+    expect(container.querySelector("ul")!.childNodes).toHaveLength(0);
   });
 });

@@ -1,8 +1,14 @@
 export type ArrayItem<T> = T extends Array<infer S> ? S : never;
 
 export type NullableValues<T extends Record<any, any>> = {
-  [K in keyof T]?: T[K] extends Record<string, any> ? NullableValues<T[K]> | null : T[K] | null;
+  [K in keyof T]?: NullableField<T[K]>;
 };
+
+export type NullableField<T> = T extends Record<string, any>
+  ? NullableValues<T> | null
+  : T extends Array<infer S>
+  ? (NullableField<S> | null)[]
+  : T | null;
 
 export type ErrorObject<T extends Record<any, any>> = {
   [K in keyof T]?: ErrorField<T[K]>;
@@ -13,7 +19,7 @@ export type ErrorObject<T extends Record<any, any>> = {
 export type ErrorField<T> = T extends Record<string, any>
   ? ErrorObject<T> | string | null
   : T extends Array<infer S>
-  ? ErrorField<S>[] | string[] | string | null
+  ? ErrorField<S>[] | (string | null)[] | string | null
   : string | null;
 
 export type ValidateFunction<Values> = (

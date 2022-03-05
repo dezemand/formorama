@@ -4,15 +4,16 @@ import { CHANGE_EVENT } from "../events";
 import { Change } from "../store/Change";
 import { FormValues } from "../store/FormValues";
 import { Path, UnparsedPath } from "../store/Path";
-import { ArrayItem } from "../types";
 import { useEventEmitter } from "./useEventEmitter";
 import { FormCtx, FormHook } from "./useForm";
 
-export function useInputValue<Values extends unknown[] = any[]>(
-  fields: UnparsedPath[],
+type NullableArray<T> = T extends unknown[] ? { [K in keyof T]: T[K] | null } : never;
+
+export function useInputValue<Values extends any[] = any[]>(
+  fields: { [K in keyof Values]: UnparsedPath },
   form?: FormHook,
   uPath?: UnparsedPath
-): (ArrayItem<Values> | null)[] {
+): NullableArray<Values> {
   const context = useContext<FormCtx>(FormContext);
   const ctx = (form && form.ctx) || context;
   const path = uPath ? Path.parse(uPath) : ctx.path;
@@ -22,25 +23,24 @@ export function useInputValue<Values extends unknown[] = any[]>(
     fieldPaths.map((fieldPath) => [fieldPath, new FormValues(ctx.controller.getValue(fieldPath))])
   );
 
-  const changeListener = useCallback(
-    (changes: Change[]) => {
-      const newResult = [...result];
-      const updated: boolean[] = Array(newResult.length).fill(false);
+  const changeListener = useCallback<(changes: Change[]) => void>(
+    (changes) =>
+      setResult((result) => {
+        const newResult = [...result];
+        const updated: boolean[] = Array(newResult.length).fill(false);
 
-      for (const [index, [path, value]] of newResult.entries()) {
-        const subChanges = Change.subChanges(changes, path);
-        updated[index] = subChanges.length > 0;
-        newResult[index] = [path, value.apply(subChanges)];
-      }
+        for (const [index, [path, value]] of newResult.entries()) {
+          const subChanges = Change.subChanges(changes, path);
+          updated[index] = subChanges.length > 0;
+          newResult[index] = [path, value.apply(subChanges)];
+        }
 
-      if (updated.some(Boolean)) {
-        setResult(newResult);
-      }
-    },
-    [result]
+        return updated.some(Boolean) ? newResult : result;
+      }),
+    []
   );
 
   useEventEmitter(ctx.controller, CHANGE_EVENT, changeListener);
 
-  return result.map((res) => res[1].values.raw) as (ArrayItem<Values> | null)[];
+  return result.map((res) => res[1].values.raw) as NullableArray<Values>;
 }

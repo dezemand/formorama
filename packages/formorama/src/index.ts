@@ -1,6 +1,9 @@
 // Events object
 export * as events from "./events";
 
+// Useful types
+export { NullableField, NullableValues, ErrorField, ErrorObject } from "./types";
+
 // Components
 export { ArrayForm } from "./components/ArrayForm";
 export { ArrayFormItem } from "./components/ArrayFormItem";
