@@ -1,11 +1,7 @@
-import { FC } from "react";
 import ReactDOM from "react-dom";
+import { MainApp } from "./components/main/MainApp";
 import "./index.css";
 
 const container = document.getElementById("root");
 
-const App: FC = () => {
-  return <h1>Todo</h1>;
-};
-
-ReactDOM.render(<App />, container);
+ReactDOM.render(<MainApp />, container);
