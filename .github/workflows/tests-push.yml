@@ -11,7 +11,7 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v2
       - name: Install the packages (through Lerna)
-        run: npx lerna bootstrap --nohoist
+        run: npx lerna bootstrap
       - name: Run tests
         run: npm test -- -- -- --coverage
       - name: Upload coverage to Codecov
