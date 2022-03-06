@@ -4,7 +4,7 @@
   "scripts": {
     "start": "snowpack dev",
     "build": "snowpack build",
-    "test": "echo \"This template does not include a test runner by default.\" && exit 1"
+    "test": "echo \"No tests are available for this package.\""
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.11",
