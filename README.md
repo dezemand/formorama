@@ -1,20 +1,11 @@
-<div align="center">
+<div style="text-align: center">
 <h1>Formorama</h1>
-
-<a href="https://formorama.org">
-  <img
-    height="80"
-    width="80"
-    alt="logo"
-    src="https://raw.githubusercontent.com/dezemand/formorama/master/website/static/img/logo.svg"
-  />
-</a>
 
 <h3>Library for creating forms in React.</h3>
 
 <br />
 
-[**Read The Docs**](https://formorama.org/docs/introduction)
+[**Read The Docs**](https://formorama.org/docs/introduction) (Temporally unavailable)
 
 <br />
 </div>
@@ -28,12 +19,13 @@
 [![downloads][downloads-badge]][npmtrends]
 [![MIT License][license-badge]][license]
 [![PRs Welcome][prs-badge]][prs]
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 [![Watch on GitHub][github-watch-badge]][github-watch]
-[![Star on GitHub][github-star-badge]][github-star]
+[![Star on GitHub][github-star-badge]][github-star]s
 
 ## What is Formorama?
-Formorama is a library for managing your forms in React. This library was made when a project was moving away from Redux Forms. The reason I've decided to create this instead of using an existing library is because the project required subforms and many different types of input fields. For further information, visit the [website](https://formorama.org). 
+Formorama is a library for managing your forms in React. This library was made when a project was moving away from Redux Forms. The reason I've decided to create this instead of using an existing library is because the project required subforms and many different types of input fields. For further information, visit the [website](https://formorama.org).
 
 ### Example
 View this example on [CodeSandbox](https://codesandbox.io/s/formorama-simple-example-xsipc).
