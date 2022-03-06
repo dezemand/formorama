@@ -220,13 +220,10 @@ test("Validation can succeed", async () => {
 });
 
 test("Validation can fail", async () => {
-  const validate = jest.fn<ErrorObject<TestValues>, [TestValues]>(
-    () =>
-      ({
-        a: "error 1",
-        c: [null, { d: "error 2" }]
-      } as ErrorObject<TestValues>)
-  );
+  const validate = jest.fn<ErrorObject<TestValues>, [TestValues]>(() => ({
+    a: "error 1",
+    c: [null, { d: "error 2" }]
+  }));
   const errorListener = jest.fn();
   const controller = new FormController({ validate });
   await controller.change(Path.ROOT, testValues);

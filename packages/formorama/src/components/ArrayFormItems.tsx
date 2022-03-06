@@ -2,7 +2,7 @@ import { ComponentClass, FC, ReactElement, ReactNode, VFC } from "react";
 import { useFormContext } from "../hooks/useFormContext";
 import { useInputValue } from "../hooks/useInputValue";
 import { Path } from "../store/Path";
-import { ArrayItem } from "../types";
+import { ArrayItem, NullableField } from "../types";
 import { ArrayFormItem } from "./ArrayFormItem";
 
 export interface ArrayFormItemsChildrenParams<Values> {
@@ -69,7 +69,10 @@ export function ArrayFormItems<ParentValues extends any[] = any[], RootValues = 
   const removeItem = (key: any) => {
     return () => {
       form.modify<ParentValues>(
-        (arr) => (arr || []).filter((values, index) => keyExtractor(values, index) !== key) as ParentValues
+        (arr) =>
+          ((arr || []) as ParentValues).filter(
+            (values, index) => keyExtractor(values, index) !== key
+          ) as NullableField<ParentValues>
       );
     };
   };
