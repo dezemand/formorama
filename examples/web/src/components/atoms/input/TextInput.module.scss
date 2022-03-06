@@ -1,0 +1,19 @@
+.input {
+  width: 100%;
+  display: block;
+  border: none;
+  background: rgba(0, 116, 217, 0.05);
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+
+  &:focus {
+    outline: transparent 4px;
+    box-shadow: #0074D9 0 0 0 4px;
+  }
+
+  &:not(:last-child) {
+    margin-bottom: 32px;
+  }
+}
