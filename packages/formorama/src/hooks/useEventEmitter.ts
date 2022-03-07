@@ -1,11 +1,14 @@
-import { EventEmitter } from "events";
 import { useEffect } from "react";
+import { EventEmitter } from "../utils/eventemitter";
 
-export function useEventEmitter(emitter: EventEmitter, event: string, callback: (...args: any[]) => void): void {
+type EmitterEventMap<T> = T extends EventEmitter<infer S> ? S : never;
+
+export function useEventEmitter<Emitter extends EventEmitter<any>, Event extends keyof EmitterEventMap<Emitter>>(
+  emitter: Emitter,
+  event: Event,
+  callback: (...args: EmitterEventMap<Emitter>[Event]) => void
+): void {
   useEffect(() => {
-    emitter.on(event, callback);
-    return () => {
-      emitter.removeListener(event, callback);
-    };
+    return emitter.on(event, callback);
   }, [emitter, event, callback]);
 }

@@ -19,6 +19,7 @@ interface ChangeListeners {
 
 interface FocusListeners {
   onFocus(event: any): void;
+
   onBlur(event: any): void;
 }
 
@@ -77,7 +78,7 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
   }, [controller, path]);
 
   // Event listeners for the controller
-  const focusListener = useCallback<(focusedPath: Path) => void>(
+  const focusListener = useCallback<(focusedPath: Path | null) => void>(
     (focusedPath) => {
       const nextFocused = Boolean(focusedPath && focusedPath.equals(path));
       const nextTouched = controller.hasTouched(path);

@@ -1,17 +1,13 @@
-import { EventEmitter } from "events";
 import { BLUR_EVENT, CHANGE_EVENT, DO_SUBMIT_EVENT, ERROR_EVENT, FOCUS_EVENT, SUBMITTING_EVENT } from "../events";
+import { BaseEventMap, EventEmitter } from "../utils/eventemitter";
 import { validateToValidator } from "../utils/validateToValidator";
-import { IValidator, ValidationError } from "../validation/Validator";
+import { FieldError, IValidator, ValidationError } from "../validation/Validator";
 import { Change } from "./Change";
 import { FormErrors } from "./FormErrors";
 import { FormValues } from "./FormValues";
 import { Path } from "./Path";
 
-const DEFAULT_MAX_LISTENERS = 2 ** 16;
-
-interface NormalFormControllerParams {
-  maxListeners?: number;
-}
+interface NormalFormControllerParams {}
 
 interface FormControllerParamsWithLegacyValidate<Values> extends NormalFormControllerParams {
   validate(values: Values): any | Promise<any>;
@@ -38,7 +34,16 @@ function hasValidation<Values>(
   return (params as FormControllerParamsWithLegacyValidate<Values>).validate !== undefined;
 }
 
-export class FormController<Values = any> extends EventEmitter {
+export interface FormControllerEvents extends BaseEventMap {
+  [CHANGE_EVENT]: [Change[]];
+  [DO_SUBMIT_EVENT]: [];
+  [SUBMITTING_EVENT]: [boolean];
+  [FOCUS_EVENT]: [Path | null];
+  [BLUR_EVENT]: [Path];
+  [ERROR_EVENT]: [FieldError[]];
+}
+
+export class FormController<Values = any> extends EventEmitter<FormControllerEvents> {
   private values: FormValues<Values> = new FormValues<Values>({} as Values);
   private touched: Path[] = [];
   private validator: IValidator<Values> | null = null;
@@ -59,7 +64,6 @@ export class FormController<Values = any> extends EventEmitter {
   }
 
   public set params(params: FormControllerParams<Values>) {
-    this.setMaxListeners(params.maxListeners || DEFAULT_MAX_LISTENERS);
     this.validator = hasValidator(params)
       ? params.validator
       : hasValidation(params)
