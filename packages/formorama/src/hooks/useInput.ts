@@ -1,10 +1,10 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FormContext } from "../contexts/FormContext";
-import { CHANGE_EVENT, ERROR_EVENT, FOCUS_EVENT } from "../events";
+import { CHANGE_EVENT, ERROR_EVENT, FormEventListener, FOCUS_EVENT } from "../events";
 import { Change } from "../store/Change";
 import { FormValues } from "../store/FormValues";
 import { Path, PathNodeType } from "../store/Path";
-import { FieldError, ValidationError } from "../validation/Validator";
+import { ValidationError } from "../validation/Validator";
 import { useEventEmitter } from "./useEventEmitter";
 import { FormCtx } from "./useForm";
 import { useSubmitting } from "./useSubmitting";
@@ -77,7 +77,7 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
   }, [controller, path]);
 
   // Event listeners for the controller
-  const focusListener = useCallback<(focusedPath: Path) => void>(
+  const focusListener = useCallback<FormEventListener<typeof FOCUS_EVENT>>(
     (focusedPath) => {
       const nextFocused = Boolean(focusedPath && focusedPath.equals(path));
       const nextTouched = controller.hasTouched(path);
@@ -92,7 +92,7 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
     [controller, path, touched, focused]
   );
 
-  const changeListener = useCallback<(changes: Change[]) => void>(
+  const changeListener = useCallback<FormEventListener<typeof CHANGE_EVENT>>(
     (changes) => {
       const subChanges = Change.subChanges(changes, path);
       if (subChanges.length > 0) {
@@ -102,7 +102,7 @@ export function useInput<ValueType>(name: string, defaultValue: ValueType): Inpu
     [path, value]
   );
 
-  const errorListener = useCallback<(errors: FieldError[]) => void>(
+  const errorListener = useCallback<FormEventListener<typeof ERROR_EVENT>>(
     (errors) => {
       const error = errors.find(([errorPath]) => errorPath.equals(path));
       if (error) {

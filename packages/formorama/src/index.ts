@@ -1,5 +1,14 @@
 // Events object
-export * as events from "./events";
+import { CHANGE_EVENT, ERROR_EVENT, FOCUS_EVENT, BLUR_EVENT, DO_SUBMIT_EVENT, SUBMITTING_EVENT } from "./events";
+export const events = {
+  CHANGE_EVENT,
+  ERROR_EVENT,
+  FOCUS_EVENT,
+  BLUR_EVENT,
+  DO_SUBMIT_EVENT,
+  SUBMITTING_EVENT
+};
+export { FormoramaEvents, FormEventListener } from "./events";
 
 // Useful types
 export { NullableField, NullableValues, ErrorField, ErrorObject } from "./types";

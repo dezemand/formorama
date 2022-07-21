@@ -1,6 +1,6 @@
 import { useCallback, useContext, useMemo, useState } from "react";
 import { FormContext } from "../contexts/FormContext";
-import { CHANGE_EVENT } from "../events";
+import { CHANGE_EVENT, FormEventListener } from "../events";
 import { Change } from "../store/Change";
 import { FormValues } from "../store/FormValues";
 import { Path, UnparsedPath } from "../store/Path";
@@ -15,7 +15,7 @@ export function useInputValue<Values extends any[] = any[]>(
   uPath?: UnparsedPath
 ): NullableArray<Values> {
   const context = useContext<FormCtx>(FormContext);
-  const ctx = (form && form.ctx) || context;
+  const ctx = form?.ctx ?? context;
   const path = uPath ? Path.parse(uPath) : ctx.path;
   const fieldPaths = useMemo(() => fields.map((field) => path.concat(Path.parse(field))), [fields, path]);
 
@@ -23,7 +23,7 @@ export function useInputValue<Values extends any[] = any[]>(
     fieldPaths.map((fieldPath) => [fieldPath, new FormValues(ctx.controller.getValue(fieldPath))])
   );
 
-  const changeListener = useCallback<(changes: Change[]) => void>(
+  const changeListener = useCallback<FormEventListener<typeof CHANGE_EVENT>>(
     (changes) =>
       setResult((result) => {
         const newResult = [...result];

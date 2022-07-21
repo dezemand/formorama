@@ -1,4 +1,4 @@
-import { ComponentClass, FC, ReactElement, ReactNode, VFC } from "react";
+import { ComponentClass, FC, ReactElement, ReactNode } from "react";
 import { useFormContext } from "../hooks/useFormContext";
 import { useInputValue } from "../hooks/useInputValue";
 import { Path } from "../store/Path";
@@ -12,7 +12,7 @@ export interface ArrayFormItemsChildrenParams<Values> {
   remove(): void;
 }
 
-type Component<Props> = VFC<Props> | FC<Props> | ComponentClass<Props> | string;
+type Component<Props> = FC<Props> | ComponentClass<Props> | string;
 type ArrayFormItemsRenderOptions<Values> =
   | {
       component?: Component<ArrayFormItemsChildrenParams<Values>>;
