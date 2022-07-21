@@ -1,6 +1,5 @@
-import { FC, ReactNode, useContext, useMemo } from "react";
-import { FormContext } from "../contexts/FormContext";
-import { FormCtx } from "../hooks/useForm";
+import { ReactElement, ReactNode, useContext, useMemo } from "react";
+import { FormContext, FormContextValue } from "../contexts/FormContext";
 import { PathNodeType } from "../store/Path";
 
 interface ArrayFormItemProps {
@@ -8,12 +7,9 @@ interface ArrayFormItemProps {
   index: number;
 }
 
-export function ArrayFormItem<RootValues = any>({
-  children,
-  index
-}: ArrayFormItemProps): ReturnType<FC<ArrayFormItemProps>> {
-  const parentCtx = useContext<FormCtx<RootValues>>(FormContext);
-  const ctx = useMemo<FormCtx<RootValues>>(
+export function ArrayFormItem<RootValues = any>({ children, index }: ArrayFormItemProps): ReactElement {
+  const parentCtx = useContext<FormContextValue<RootValues>>(FormContext);
+  const ctx = useMemo<FormContextValue<RootValues>>(
     () => ({
       controller: parentCtx.controller,
       path: parentCtx.path.add([PathNodeType.ARRAY_INDEX, index])

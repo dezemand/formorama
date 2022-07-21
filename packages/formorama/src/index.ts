@@ -1,5 +1,14 @@
 // Events object
-export * as events from "./events";
+import { CHANGE_EVENT, ERROR_EVENT, FOCUS_EVENT, BLUR_EVENT, DO_SUBMIT_EVENT, SUBMITTING_EVENT } from "./events";
+export const events = {
+  CHANGE_EVENT,
+  ERROR_EVENT,
+  FOCUS_EVENT,
+  BLUR_EVENT,
+  DO_SUBMIT_EVENT,
+  SUBMITTING_EVENT
+};
+export { FormoramaEvents, FormEventListener } from "./events";
 
 // Useful types
 export { NullableField, NullableValues, ErrorField, ErrorObject } from "./types";
@@ -12,19 +21,24 @@ export { Form } from "./components/Form";
 export { SubForm } from "./components/SubForm";
 
 // Contexts
-export { FormConsumer } from "./contexts/FormContext";
+export { FormConsumer, FormContext } from "./contexts/FormContext";
 
 // Exceptions
 export { SubmissionError } from "./exceptions/SubmissionError";
 
 // Hooks
-export { useForm } from "./hooks/useForm";
+export { useForm, UseForm } from "./hooks/useForm";
 export { useFormContext } from "./hooks/useFormContext";
-export { useInput } from "./hooks/useInput";
+export { useInput, UseInput } from "./hooks/useInput";
 export { useInputValue } from "./hooks/useInputValue";
 export { useSubmitting } from "./hooks/useSubmitting";
 
 // Utils
+export { Change } from "./store/Change";
+export { FormController, FormControllerParams } from "./store/FormController";
+export { FormErrors } from "./store/FormErrors";
+export { FormValues } from "./store/FormValues";
+export { ImmutableValuesTree } from "./store/ImmutableValuesTree";
 export { Path } from "./store/Path";
 
 // Validation
