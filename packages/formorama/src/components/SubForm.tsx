@@ -1,6 +1,5 @@
-import { FC, ReactNode, useContext, useMemo } from "react";
-import { FormContext } from "../contexts/FormContext";
-import { FormCtx } from "../hooks/useForm";
+import { ReactElement, ReactNode, useContext, useMemo } from "react";
+import { FormContext, FormContextValue } from "../contexts/FormContext";
 import { PathNodeType } from "../store/Path";
 
 interface SubFormProps {
@@ -8,9 +7,9 @@ interface SubFormProps {
   name: string;
 }
 
-export function SubForm<RootValues = any>({ children, name }: SubFormProps): ReturnType<FC<SubFormProps>> {
-  const parentCtx = useContext<FormCtx<RootValues>>(FormContext);
-  const ctx = useMemo<FormCtx<RootValues>>(
+export function SubForm<RootValues = any>({ children, name }: SubFormProps): ReactElement {
+  const parentCtx = useContext<FormContextValue<RootValues>>(FormContext);
+  const ctx = useMemo<FormContextValue<RootValues>>(
     () => ({
       controller: parentCtx.controller,
       path: parentCtx.path.add([PathNodeType.OBJECT_KEY, name])

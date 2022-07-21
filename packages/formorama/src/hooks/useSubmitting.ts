@@ -1,11 +1,11 @@
 import { useCallback, useContext, useState } from "react";
-import { FormContext } from "../contexts/FormContext";
+import { FormContext, FormContextValue } from "../contexts/FormContext";
 import { FormEventListener, SUBMITTING_EVENT } from "../events";
 import { useEventEmitter } from "./useEventEmitter";
-import { FormCtx, FormHook } from "./useForm";
+import { UseForm } from "./useForm";
 
-export function useSubmitting(form?: FormHook): boolean {
-  const context = useContext<FormCtx>(FormContext);
+export function useSubmitting(form?: UseForm): boolean {
+  const context = useContext<FormContextValue>(FormContext);
   const formCtx = form ? form.ctx : context;
   const [submitting, setSubmitting] = useState(formCtx.controller.submitting);
   const submittingListener = useCallback<FormEventListener<typeof SUBMITTING_EVENT>>(

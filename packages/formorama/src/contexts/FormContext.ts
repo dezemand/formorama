@@ -1,6 +1,12 @@
 import { createContext } from "react";
-import { FormCtx } from "../hooks/useForm";
+import { FormController } from "../store/FormController";
+import { Path } from "../store/Path";
 
-export const FormContext = createContext({} as FormCtx);
+export interface FormContextValue<RootValues = any> {
+  controller: FormController<RootValues>;
+  path: Path;
+}
+
+export const FormContext = createContext({} as FormContextValue);
 
 export const FormConsumer = FormContext.Consumer;

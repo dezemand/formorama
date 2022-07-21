@@ -3,7 +3,7 @@ import { FormContext } from "../contexts/FormContext";
 import { DO_SUBMIT_EVENT, FormEventListener } from "../events";
 import { SubmissionError } from "../exceptions/SubmissionError";
 import { useEventEmitter } from "../hooks/useEventEmitter";
-import { FormHook } from "../hooks/useForm";
+import { UseForm } from "../hooks/useForm";
 import { FormErrors } from "../store/FormErrors";
 import { Path } from "../store/Path";
 
@@ -29,7 +29,7 @@ export interface NoFormTagProps {
 }
 
 export type FormProps<Values> = {
-  form: FormHook<Values>;
+  form: UseForm<Values>;
   onSubmit?: (values: Values, extra: SubmitExtraResult) => Promise<void> | void;
   onError?: (errors: any, extra: ErrorExtraResult<Values>) => Promise<void> | void;
   children?: ReactNode;
