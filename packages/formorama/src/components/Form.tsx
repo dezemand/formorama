@@ -19,7 +19,7 @@ interface SubmitExtraResult {
   event?: FormEvent<HTMLFormElement>;
 }
 
-export interface FormTagProps extends Exclude<FormHTMLAttributes<HTMLFormElement>, "onSubmit" | "onError" | "form"> {
+export interface FormTagProps extends Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit" | "onError" | "form"> {
   noFormTag?: false;
   formRef?: Ref<HTMLFormElement>;
 }
@@ -39,7 +39,7 @@ function getFormTag(
   formSubmit: FormEventHandler<HTMLFormElement>,
   children: ReactNode | undefined,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  { noFormTag, formRef, ...props }: FormProps<any> & FormTagProps
+  { noFormTag, formRef, ...props }: Omit<FormProps<any> & FormTagProps, "children" | "form" | "onSubmit" | "onError">
 ): ReactElement {
   return (
     <form {...props} ref={formRef} onSubmit={formSubmit}>
@@ -100,7 +100,7 @@ export function Form<Values = any>({ children, form, onSubmit, onError, ...props
 
   return (
     <FormContext.Provider value={ctx}>
-      {props.noFormTag ? children : getFormTag(formSubmit, children, props as FormProps<any> & FormTagProps)}
+      {props.noFormTag ? children : getFormTag(formSubmit, children, props)}
     </FormContext.Provider>
   );
 }
