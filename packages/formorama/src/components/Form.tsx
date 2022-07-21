@@ -19,7 +19,7 @@ interface SubmitExtraResult {
   event?: FormEvent<HTMLFormElement>;
 }
 
-export interface FormTagProps extends FormHTMLAttributes<HTMLFormElement> {
+export interface FormTagProps extends Exclude<FormHTMLAttributes<HTMLFormElement>, "onSubmit" | "onError" | "form"> {
   noFormTag?: false;
   formRef?: Ref<HTMLFormElement>;
 }
